@@ -628,7 +628,7 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         foreach(int index in triangles)
         {
-            vertexPositions[index].index = index;
+            vertexPositions[index].index = index; //ToFix: Size missmatch error
         }
     }
 

@@ -400,11 +400,10 @@ MonoBehaviour:
     type: 3}
   LinkedVertexAdder: {fileID: 5173938618246297332}
   LinkedLineRenderer: {fileID: 2312447528498381198}
-  LinkedMeshRenderer: {fileID: 9009451292119751881}
   DesktopVertexSpeed: 0.2
-  LinkedMeshFilter: {fileID: 4415637757349912636}
   SymmetryMeshFilter: {fileID: 4802339038477815330}
   triangles: 
+  setupComplete: 0
   verticesDebug: []
   mirrorActive: 1
   mirrorSnap: 0.01
@@ -578,7 +577,7 @@ MonoBehaviour:
   ThrowVelocityBoostScale: 1
   currentlyHeldBy: {fileID: 0}
   pickupable: 1
-  proximity: 2
+  proximity: 0.2
 --- !u!114 &5173938618246297332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,6 +600,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 5419119237581705361}
+  attachedPickup: {fileID: 0}
 --- !u!114 &5419119237581705361
 MonoBehaviour:
   m_ObjectHideFlags: 0
