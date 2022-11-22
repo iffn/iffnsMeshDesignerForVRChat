@@ -24,6 +24,14 @@ public class VertexAdder : UdonSharpBehaviour
         }
     }
 
+    public VRCPickup.PickupHand CurrentHand
+    {
+        get
+        {
+            return attachedPickup.currentHand;
+        }
+    }
+
     public void Setup(MeshBuilder linkedMeshBuilder)
     {
         attachedPickup = transform.GetComponent<VRCPickup>();

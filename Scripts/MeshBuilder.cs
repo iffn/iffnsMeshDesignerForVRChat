@@ -15,25 +15,23 @@ using VRC.Udon.Common;
 
 public class MeshBuilder : UdonSharpBehaviour
 {
-    [SerializeField] VertexInteractor VertexInteractorPrefab;
     [SerializeField] VertexAdder LinkedVertexAdder;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] float DesktopVertexSpeed = 0.2f;
+    [SerializeField] Transform VertexPositionIndicatorPrefab;
+    [SerializeField] VertexInteractor leftVertexPickup;
+    [SerializeField] VertexInteractor rightVertexPickup;
     
     [SerializeField] MeshFilter SymmetryMeshFilter;
 
-    const float maxVertexMergeDistance = 0.001f;
 
-    VRCPickup.PickupHand currentHand;
-    Vector3 handOffset;
+    int closestVertexIndex = 0;
+    int secondClosestVertexIndex = 0;
 
-    VertexInteractor closestVertex = null;
-    VertexInteractor secondClosestVertex = null;
+    int currentLeftIndex = 0;
+    int currentRightIndex = 0;
 
-    int activeVertex = -1;
-
-    VertexInteractor[] vertexPositions = new VertexInteractor[0];
-    public int[] triangles;
+    Transform[] vertexIndicators = new Transform[0];
 
     bool isInVR;
 
@@ -45,17 +43,20 @@ public class MeshBuilder : UdonSharpBehaviour
 
     public bool setupComplete = false;
 
-    public float vertexInteractorScale
+    float vertexInteractorScale = 0.01f;
+    public float VertexInteractorScale
     {
         get
         {
-            return vertexPositions[0].transform.localScale.x;
+            return vertexInteractorScale;
         }
         set
         {
+            vertexInteractorScale = value;
+
             Vector3 scale = value * Vector3.one;
 
-            foreach(VertexInteractor vertex in vertexPositions)
+            foreach(Transform vertex in vertexIndicators)
             {
                 vertex.transform.localScale = scale;
             }
@@ -73,13 +74,17 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             inEditMode = value;
 
-            foreach(VertexInteractor interactor in vertexPositions)
-            {
-                interactor.gameObject.SetActive(value);
-            }
-
             LinkedVertexAdder.gameObject.SetActive(value);
             LinkedVertexAdder.ForceDropIfHeld();
+
+            if (value)
+            {
+                SetIndicatorsFromMesh();
+            }
+            else
+            {
+                ClearIndicators();
+            }
         }
     }
 
@@ -141,7 +146,7 @@ public class MeshBuilder : UdonSharpBehaviour
             }
 
             Vector3[] vertices = new Vector3[vertexCount];
-            triangles = new int[triangleCount * 3];
+            int [] triangles = new int[triangleCount * 3];
 
             int vertexIndex = 0;
             int triangleIndex = 0;
@@ -209,16 +214,16 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void ClearData()
+    void ClearIndicators()
     {
-        for(int i = 0; i<vertexPositions.Length; i++)
+        for(int i = 0; i<vertexIndicators.Length; i++)
         {
-            VertexInteractor interactor = vertexPositions[i];
+            GameObject.Destroy(vertexIndicators[i].gameObject);
 
-            GameObject.Destroy(vertexPositions[i].gameObject);
-
-            vertexPositions[i] = null;
+            vertexIndicators[i] = null;
         }
+
+        vertexIndicators = new Transform[0];
     }
 
     public Vector3[] verticesDebug;
@@ -237,92 +242,83 @@ public class MeshBuilder : UdonSharpBehaviour
         mesh.RecalculateBounds();
     }
 
-    void BuildMeshFromElements()
-    {
-        Vector3[] vertices = new Vector3[vertexPositions.Length];
-
-        for (int i = 0; i < vertexPositions.Length; i++)
-        {
-            vertices[i] = vertexPositions[i].transform.localPosition;
-        }
-
-        BuildMeshFromData(vertices, triangles);
-    }
-
     void SetupElementsAndMeshFromData(Vector3[] positions, int[] triangles)
     {
-        this.triangles = triangles;
+        BuildMeshFromData(positions, triangles);
 
-        linkedMeshFilter.sharedMesh.triangles = triangles;
-
-        ClearData();
-
-        vertexPositions = new VertexInteractor[positions.Length];
-
-        for(int i = 0; i<positions.Length; i++)
+        if (inEditMode)
         {
-            VertexInteractor currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexInteractor>();
-
-            currentInteractor.Setup(i, transform, positions[i], this);
-
-            vertexPositions[i] = currentInteractor;
+            SetIndicatorsFromMesh();
         }
-
-        BuildMeshFromElements();
     }
 
-    void SetupElementsFromMesh()
+    void SetSingleVertexPosition(int index, Vector3 localPosition)
     {
-        ClearData();
+        Vector3[] positions = linkedMeshFilter.sharedMesh.vertices;
+
+        positions[index] = localPosition;
+
+        linkedMeshFilter.sharedMesh.vertices = positions;
+
+        if (inEditMode)
+        {
+            vertexIndicators[index].transform.localPosition = localPosition;
+        }
+    }
+
+    void SetIndicatorsFromMesh()
+    {
+        ClearIndicators();
 
         Vector3[] positions = linkedMeshFilter.sharedMesh.vertices;
 
-        vertexPositions = new VertexInteractor[positions.Length];
+        vertexIndicators = new Transform[positions.Length];
 
         for (int i = 0; i < positions.Length; i++)
         {
-            VertexInteractor currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexInteractor>();
+            Transform currentIndicator = GameObject.Instantiate(VertexPositionIndicatorPrefab.gameObject).GetComponent<Transform>();
 
-            currentInteractor.Setup(i, transform, positions[i], this);
+            vertexIndicators[i] = currentIndicator;
 
-            vertexPositions[i] = currentInteractor;
+            currentIndicator.parent = transform;
+
+            currentIndicator.transform.localPosition = positions[i];
         }
-
-        triangles = linkedMeshFilter.sharedMesh.triangles;
     }
 
-    public void InteractWithVertex(VertexInteractor interactedVertex)
+    public void TryToMergeVertex(VertexInteractor interactor)
     {
-        activeVertex = interactedVertex.index;
+        Vector3[] vertexPositions = linkedMeshFilter.sharedMesh.vertices;
 
-        if (isInVR)
+        int currentVertexIndex = (interactor.CurrentHand == VRC_Pickup.PickupHand.Left) ? currentLeftIndex : currentRightIndex;
+
+        Vector3 heldVertexPosition = vertexPositions[currentVertexIndex];
+
+        int closestVertex = -1;
+        float closestDistanceSquare = Mathf.Infinity;
+
+        for (int i = 0; i < vertexPositions.Length; i++)
         {
-            VRCPlayerApi.TrackingData leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-            VRCPlayerApi.TrackingData rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+            if (i == currentVertexIndex) continue;
 
-            Vector3 vertexPosition = interactedVertex.transform.position;
+            float distance = (vertexPositions[i] - heldVertexPosition).sqrMagnitude;
 
-            if ((leftHand.position - vertexPosition).magnitude < (rightHand.position - vertexPosition).magnitude)
+            if (distance < closestDistanceSquare)
             {
-                currentHand = VRCPickup.PickupHand.Left;
-
-                interactedVertex.transform.SetPositionAndRotation(leftHand.position, leftHand.rotation);
+                closestDistanceSquare = distance;
+                closestVertex = i;
             }
-            else
-            {
-                currentHand = VRCPickup.PickupHand.Right;
-
-                interactedVertex.transform.SetPositionAndRotation(rightHand.position, rightHand.rotation);
-            }
-
-            //handOffset = interactedVertex.transform.InverseTransformDirection(vertexPosition);
-            handOffset = Vector3.zero;
-
-            interactedVertex.transform.position = vertexPosition;
         }
-        else
+
+        if (closestVertex == -1) return;
+
+        if (closestDistanceSquare < vertexInteractorScale * vertexInteractorScale)
         {
-            Networking.LocalPlayer.Immobilize(true);
+            MergeVertices(keep: currentVertexIndex, discard: closestVertex);
+
+            SetIndicatorsFromMesh();
+
+            interactor.ForceDropAndDeactivate();
         }
     }
 
@@ -350,10 +346,15 @@ public class MeshBuilder : UdonSharpBehaviour
         //Check setup:
         bool correctSetup = true;
 
-        if (VertexInteractorPrefab == null)
+        if (leftVertexPickup == null)
         {
             correctSetup = false;
-            Debug.LogWarning($"Error: {nameof(VertexInteractorPrefab)} not assinged");
+            Debug.LogWarning($"Error: {nameof(leftVertexPickup)} not assinged");
+        }
+        if (rightVertexPickup == null)
+        {
+            correctSetup = false;
+            Debug.LogWarning($"Error: {nameof(rightVertexPickup)} not assinged");
         }
         if (LinkedVertexAdder == null)
         {
@@ -379,8 +380,14 @@ public class MeshBuilder : UdonSharpBehaviour
 
         linkedMeshFilter = transform.GetComponent<MeshFilter>();
         linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
-        
-        SetupElementsFromMesh();
+
+        leftVertexPickup.Setup(this);
+        rightVertexPickup.Setup(this);
+
+        if (InEditMode)
+        {
+            SetIndicatorsFromMesh();
+        }
 
         if(SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
     }
@@ -393,15 +400,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     public void PickupVertexAdder()
     {
-        if(activeVertex >= 0)
-        {
-            LinkedVertexAdder.ForceDropIfHeld();
-            return;
-        }
-
         LinkedLineRenderer.gameObject.SetActive(true);
-
-        
     }
 
     public void DropVertexAdder()
@@ -412,50 +411,53 @@ public class MeshBuilder : UdonSharpBehaviour
     public void UseVertexAdder()
     {
         //Vertex
-        VertexInteractor[] oldVertexPositions = vertexPositions;
-        vertexPositions = new VertexInteractor[oldVertexPositions.Length + 1];
+        Transform[] oldVertexIndicators = vertexIndicators;
+        Vector3[] oldVertexPositions = linkedMeshFilter.sharedMesh.vertices;
+
+        vertexIndicators = new Transform[oldVertexPositions.Length + 1];
+        Vector3[] vertexPositions = new Vector3[oldVertexPositions.Length + 1];
 
         for (int i = 0; i < oldVertexPositions.Length; i++)
         {
+            vertexIndicators[i] = vertexIndicators[i];
             vertexPositions[i] = oldVertexPositions[i];
         }
 
-        int newVertexIndex = vertexPositions.Length - 1;
+        int newVertexIndex = vertexIndicators.Length - 1;
 
-        VertexInteractor currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexInteractor>();
+        Transform currentInteractor = GameObject.Instantiate(VertexPositionIndicatorPrefab.gameObject).GetComponent<Transform>();
 
-        currentInteractor.Setup(newVertexIndex, transform, transform.InverseTransformPoint(LinkedVertexAdder.transform.position), this);
-
-        vertexPositions[vertexPositions.Length - 1] = currentInteractor;
+        vertexIndicators[vertexIndicators.Length - 1] = currentInteractor;
+        vertexPositions[vertexIndicators.Length - 1] = currentInteractor.transform.localPosition;
 
         //Triangles
-        int[] oldTriangles = this.triangles;
+        int[] oldTriangles = linkedMeshFilter.sharedMesh.triangles;
 
-        triangles = new int[oldTriangles.Length + 3];
+        int[] triangles = new int[oldTriangles.Length + 3];
 
         for (int i = 0; i < oldTriangles.Length; i++)
         {
             triangles[i] = oldTriangles[i];
         }
 
-        Vector3 normal = Vector3.Cross(LinkedVertexAdder.transform.position - closestVertex.transform.position, LinkedVertexAdder.transform.position - secondClosestVertex.transform.position);
+        Vector3 normal = Vector3.Cross(LinkedVertexAdder.transform.position - vertexIndicators[closestVertexIndex].transform.position, LinkedVertexAdder.transform.position - vertexIndicators[secondClosestVertexIndex].transform.position);
 
         float direction = Vector3.Dot(normal, LinkedVertexAdder.transform.position - Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
 
         if(direction > 0)
         {
-            triangles[triangles.Length - 3] = closestVertex.index;
+            triangles[triangles.Length - 3] = closestVertexIndex;
             triangles[triangles.Length - 2] = newVertexIndex;
-            triangles[triangles.Length - 1] = secondClosestVertex.index;
+            triangles[triangles.Length - 1] = secondClosestVertexIndex;
         }
         else
         {
-            triangles[triangles.Length - 3] = closestVertex.index;
-            triangles[triangles.Length - 2] = secondClosestVertex.index;
+            triangles[triangles.Length - 3] = closestVertexIndex;
+            triangles[triangles.Length - 2] = secondClosestVertexIndex;
             triangles[triangles.Length - 1] = newVertexIndex;
         }
 
-        BuildMeshFromElements();
+        BuildMeshFromData(vertexPositions, triangles);
     }
 
     [SerializeField] bool mirrorActive = true;
@@ -464,180 +466,232 @@ public class MeshBuilder : UdonSharpBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!inEditMode) return;
+
         if (isInVR)
         {
-            LinkedVertexAdder.UpdateIdlePosition();
+            VRUpdate();
+        }
+        else
+        {
+            DesktopUpdate();
+        }
+    }
+
+    Vector3 desktopInteractPosition
+    {
+        get
+        {
+            VRCPlayerApi.TrackingData head = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+            return head.position + head.rotation * (0.5f * Vector3.forward);
+        }
+    }
+
+    void DesktopUpdate()
+    {
+        if (LinkedVertexAdder.IsHeld)
+        {
+            //No update needed
+        }
+        else if (!leftVertexPickup.IsHeld)
+        {
+            int closestLeftVertex = -1;
+            float closestLeftDistanceSquared = 0.2f * 0.2f; //minDistance
+            Vector3[] vertexPositions = linkedMeshFilter.sharedMesh.vertices;
+
+            float pickupDistanceSquared = vertexInteractorScale * vertexInteractorScale;
+
+            VRCPlayerApi.TrackingData head = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+            //Use closest from point
+            Vector3 localInteractPoint = transform.InverseTransformPoint(desktopInteractPosition);
+
+            for (int i = 0; i < vertexPositions.Length; i++)
+            {
+                float currentDistance = (vertexPositions[i] - localInteractPoint).sqrMagnitude;
+
+                if (currentDistance < closestLeftDistanceSquared)
+                {
+                    closestLeftVertex = i;
+                    closestLeftDistanceSquared = currentDistance;
+                }
+            }
+
+            /*
+            //Use intercept:
+            Debug.Log(head.rotation * (head.position - vertexPositions[0]));
+
+            for (int i = 0; i < vertexPositions.Length; i++)
+            {
+                Vector3 localHeadPosition = head.rotation * (head.position - vertexPositions[i]);
+
+                if(localHeadPosition.x * localHeadPosition.x + localHeadPosition.y * localHeadPosition.y < pickupDistanceSquared)
+                {
+                    float currentDistance = localHeadPosition.z;
+
+                    if (closestLeftDistance < currentDistance)
+                    {
+                        closestLeftVertex = i;
+                        closestLeftDistance = currentDistance;
+                    }
+                }
+            }
+            */
+
+            if(closestLeftVertex != -1)
+            {
+                leftVertexPickup.transform.localPosition = vertexPositions[closestLeftVertex];
+                leftVertexPickup.gameObject.SetActive(true);
+
+                currentLeftIndex = closestLeftVertex;
+            }
+            else
+            {
+                leftVertexPickup.gameObject.SetActive(false);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                LinkedVertexAdder.transform.position = desktopInteractPosition;
+            }
+
+        }
+        else
+        {
+            leftVertexPickup.transform.position = desktopInteractPosition;
+
+            SetSingleVertexPosition(currentLeftIndex, leftVertexPickup.transform.localPosition);
+        }
+    }
+
+    void VRUpdate()
+    {
+        LinkedVertexAdder.UpdateIdlePosition();
+
+        Vector3[] vertexPositions = linkedMeshFilter.sharedMesh.vertices;
+
+        int closestLeftVertex = -1;
+        float closestLeftSquareDistance = Mathf.Infinity;
+
+        int closestRightVertex = -1;
+        float closestRightSquareDistance = Mathf.Infinity;
+
+        Vector3 localLeftHandPosition = transform.InverseTransformPoint(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position);
+        Vector3 localRightHandPosition = transform.InverseTransformPoint(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position);
+
+        if (LinkedVertexAdder.CurrentHand == VRC_Pickup.PickupHand.Left)
+        {
+            //No update needed
+        }
+        else if (!leftVertexPickup.IsHeld)
+        {
+            for (int i = 0; i < vertexPositions.Length; i++)
+            {
+                float currentDistance = (localLeftHandPosition - vertexPositions[i]).sqrMagnitude;
+
+                if ( currentDistance > closestLeftSquareDistance)
+                {
+                    closestLeftVertex = i;
+                    closestLeftSquareDistance = currentDistance;
+                }
+            }
+        }
+        else
+        {
+            if (mirrorActive && Mathf.Abs(localLeftHandPosition.x) < mirrorSnap)
+            {
+                Vector3 newPosition = new Vector3(0, localLeftHandPosition.y, localLeftHandPosition.z);
+
+                SetSingleVertexPosition(currentLeftIndex, localLeftHandPosition);
+            }
+            else
+            {
+                SetSingleVertexPosition(currentLeftIndex, localLeftHandPosition);
+            }
         }
 
-        if (activeVertex >= 0)
+        if (LinkedVertexAdder.CurrentHand == VRC_Pickup.PickupHand.Right)
         {
-            if (isInVR)
+            //No update needed
+        }
+        else if (!rightVertexPickup.IsHeld)
+        {
+            for (int i = 0; i < vertexPositions.Length; i++)
             {
-                VRCPlayerApi.TrackingData currentHandData;
+                float currentDistance = (localRightHandPosition - vertexPositions[i]).sqrMagnitude;
 
-                switch (currentHand)
+                if (currentDistance < closestRightSquareDistance)
                 {
-                    case VRC_Pickup.PickupHand.None:
-                        activeVertex = -1;
-                        return;
-                        break;
-                    case VRC_Pickup.PickupHand.Left:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                        break;
-                    case VRC_Pickup.PickupHand.Right:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                        break;
-                    default:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                        break;
+                    closestRightVertex = i;
+                    closestRightSquareDistance = currentDistance;
                 }
+            }
+        }
+        else
+        {
+            if (mirrorActive && Mathf.Abs(localRightHandPosition.x) < mirrorSnap)
+            {
+                Vector3 newPosition = new Vector3(0, localRightHandPosition.y, localRightHandPosition.z);
 
-                Vector3 newPosition = currentHandData.position + currentHandData.rotation * handOffset;
+                SetSingleVertexPosition(currentRightIndex, localRightHandPosition);
+            }
+            else
+            {
+                SetSingleVertexPosition(currentRightIndex, localRightHandPosition);
+            }
+        }
 
-                Transform vertex = vertexPositions[activeVertex].transform;
-
-                vertex.position = newPosition;
-
-                if (mirrorActive && Mathf.Abs(vertex.localPosition.x) < mirrorSnap)
+        if(!leftVertexPickup.IsHeld && rightVertexPickup.IsHeld)
+        {
+            if (closestLeftVertex == closestRightVertex)
+            {
+                if (closestLeftSquareDistance < closestRightSquareDistance)
                 {
-                    vertex.localPosition = new Vector3(0, vertex.localPosition.y, vertex.localPosition.z);
+                    if (closestLeftSquareDistance < vertexInteractorScale * vertexInteractorScale)
+                    {
+                        leftVertexPickup.gameObject.SetActive(true);
+                        rightVertexPickup.gameObject.SetActive(false);
+                        leftVertexPickup.transform.localPosition = vertexPositions[closestLeftVertex];
+                        currentLeftIndex = closestLeftVertex;
+                    }
+                }
+                else
+                {
+                    if (closestRightSquareDistance < vertexInteractorScale * vertexInteractorScale)
+                    {
+                        rightVertexPickup.gameObject.SetActive(true);
+                        leftVertexPickup.gameObject.SetActive(false);
+                        rightVertexPickup.transform.localPosition = vertexPositions[closestRightVertex];
+                        currentRightIndex = closestRightVertex;
+                    }
                 }
             }
             else
             {
-                Transform currentVertex = vertexPositions[activeVertex].transform;
-
-                if (Input.GetKey(KeyCode.W))
+                if (closestLeftSquareDistance < vertexInteractorScale * vertexInteractorScale)
                 {
-                    currentVertex.transform.localPosition += Vector3.forward * Time.deltaTime * DesktopVertexSpeed;
-                }
-                if (Input.GetKey(KeyCode.A))
-                {
-                    Vector3 newPosition = Time.deltaTime * DesktopVertexSpeed * Vector3.left + currentVertex.transform.localPosition;
-
-                    if (mirrorActive && Mathf.Abs(newPosition.x) < mirrorSnap)
-                    {
-                        newPosition.x = 0;
-                    }
-
-                    currentVertex.transform.localPosition = newPosition;
-                }
-                if (Input.GetKey(KeyCode.S))
-                {
-                    currentVertex.transform.localPosition += Vector3.back * Time.deltaTime * DesktopVertexSpeed;
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                    Vector3 newPosition = Time.deltaTime * DesktopVertexSpeed * Vector3.right + currentVertex.transform.localPosition;
-
-                    if (mirrorActive && Mathf.Abs(newPosition.x) < mirrorSnap)
-                    {
-                        newPosition.x = 0;
-                    }
-
-                    currentVertex.transform.localPosition = newPosition;
-                }
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    currentVertex.transform.localPosition += Vector3.up * Time.deltaTime * DesktopVertexSpeed;
-                }
-                if (Input.GetKey(KeyCode.LeftControl))
-                {
-                    currentVertex.transform.localPosition += Vector3.down * Time.deltaTime * DesktopVertexSpeed;
+                    leftVertexPickup.gameObject.SetActive(true);
+                    leftVertexPickup.transform.localPosition = vertexPositions[closestLeftVertex];
+                    currentLeftIndex = closestLeftVertex;
                 }
 
-                if (Input.GetMouseButton(1))
+                if (closestRightSquareDistance < vertexInteractorScale * vertexInteractorScale)
                 {
-                    Networking.LocalPlayer.Immobilize(false);
-                }
-
-                if (Input.GetKeyDown(KeyCode.Delete))
-                {
-                    RemoveVertexFromArray(activeVertex, true);
-                    activeVertex = -1;
+                    rightVertexPickup.gameObject.SetActive(true);
+                    rightVertexPickup.transform.localPosition = vertexPositions[closestLeftVertex];
+                    currentRightIndex = closestRightVertex;
                 }
             }
-
-            BuildMeshFromElements();
-        }
-        else if(LinkedVertexAdder.IsHeld)
-        {
-            closestVertex = null;
-            secondClosestVertex = null;
-
-            float closestDistance = 0;
-            float secondclosestDistance = 0;
-
-            for(int i = 0; i<vertexPositions.Length; i++)
-            {
-                VertexInteractor currentVertex = vertexPositions[i];
-
-                //Fill first
-                if(closestVertex == null)
-                {
-                    closestVertex = currentVertex;
-                    closestDistance = GetDistanceToVertexAdder(currentVertex);
-                    continue;
-                }
-
-                //Fill or replace second
-                if(secondClosestVertex == null)
-                {
-                    secondclosestDistance = GetDistanceToVertexAdder(currentVertex);
-                    secondClosestVertex = currentVertex;
-                }
-                else
-                {
-                    float distance = GetDistanceToVertexAdder(currentVertex);
-
-                    if(distance < secondclosestDistance)
-                    {
-                        secondclosestDistance = distance;
-                        secondClosestVertex = currentVertex;
-                    }
-                }
-
-                //Reorder if not correct
-                if (secondclosestDistance < closestDistance)
-                {
-                    float temp = secondclosestDistance;
-                    VertexInteractor tempVertex = secondClosestVertex;
-
-                    secondclosestDistance = closestDistance;
-                    secondClosestVertex = closestVertex;
-
-                    closestDistance = temp;
-                    closestVertex = tempVertex;
-                }
-            }
-
-            if (secondClosestVertex == null) return;
-
-            LinkedLineRenderer.SetPosition(0, closestVertex.transform.position);
-            LinkedLineRenderer.SetPosition(1, LinkedVertexAdder.transform.position);
-            LinkedLineRenderer.SetPosition(2, secondClosestVertex.transform.position);
-        }
-    }
-
-    float GetDistanceToVertexAdder(VertexInteractor a)
-    {
-        return (a.transform.position - LinkedVertexAdder.transform.position).magnitude;
-    }
-
-    void UpdateVertexIndexFromTriangles()
-    {
-        foreach(int index in triangles)
-        {
-            vertexPositions[index].index = index; //ToFix: Size missmatch error
         }
     }
 
     void RemoveVertexFromArray(int index, bool updateTriangles)
     {
-        GameObject.Destroy(vertexPositions[index].gameObject);
+        GameObject.Destroy(vertexIndicators[index].gameObject);
 
-        VertexInteractor[] oldVertexPositions = vertexPositions;
-        vertexPositions = new VertexInteractor[oldVertexPositions.Length - 1];
+        Transform[] oldVertexPositions = vertexIndicators;
+        vertexIndicators = new Transform[oldVertexPositions.Length - 1];
 
         int newIndex = 0;
 
@@ -645,9 +699,10 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             if (i == index) continue;
 
-            vertexPositions[newIndex++] = oldVertexPositions[i];
+            vertexIndicators[newIndex++] = oldVertexPositions[i];
         }
 
+        int[] triangles = linkedMeshFilter.sharedMesh.triangles;
 
         if (updateTriangles)
         {
@@ -674,25 +729,25 @@ public class MeshBuilder : UdonSharpBehaviour
                     triangles[i + 2] = c;
                 }
             }
-
-            UpdateVertexIndexFromTriangles();
         }
+
+        linkedMeshFilter.sharedMesh.triangles = triangles;
     }
 
     public void MergeOverlappingVertices()
     {
         int verticesMerged = 0;
 
-        for(int i = 0; i<vertexPositions.Length - 1; i++)
+        for(int i = 0; i<vertexIndicators.Length - 1; i++)
         {
-            Vector3 firstPosition = vertexPositions[i].transform.position;
+            Vector3 firstPosition = vertexIndicators[i].transform.position;
 
-            for(int j = i + 1; j<vertexPositions.Length; j++)
+            for(int j = i + 1; j<vertexIndicators.Length; j++)
             {
-                Vector3 secondPosition = vertexPositions[i + 1].transform.position;
+                Vector3 secondPosition = vertexIndicators[i + 1].transform.position;
                 float distacne = (firstPosition - secondPosition).magnitude;
 
-                if (distacne < maxVertexMergeDistance)
+                if (distacne < vertexInteractorScale)
                 {
                     MergeVertices(i, j);
                     verticesMerged++;
@@ -702,7 +757,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
         Debug.Log($"{verticesMerged} vertices merged");
 
-        BuildMeshFromElements();
+        SetIndicatorsFromMesh();
     }
 
     void MergeVertices(int keep, int discard)
@@ -710,6 +765,8 @@ public class MeshBuilder : UdonSharpBehaviour
         RemoveVertexFromArray(discard, false);
 
         int trianglesToBeRemoved = 0;
+
+        int[] triangles = linkedMeshFilter.sharedMesh.triangles;
 
         //Replace keep with discard
         for (int i = 0; i < triangles.Length; i += 3)
@@ -771,59 +828,6 @@ public class MeshBuilder : UdonSharpBehaviour
             }
         }
 
-        if (activeVertex > discard) activeVertex--;
-
-        UpdateVertexIndexFromTriangles();
-    }
-
-    public override void InputUse(bool value, UdonInputEventArgs args)
-    {
-        if(!inEditMode) return;
-
-        if (activeVertex < 0) return;
-
-        int closestVertex = -1;
-        float closestDistance = Mathf.Infinity;
-
-        for(int i = 0; i<vertexPositions.Length; i++)
-        {
-            if (i == activeVertex) continue;
-
-            float distance = (vertexPositions[i].transform.position - vertexPositions[activeVertex].transform.position).magnitude;
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestVertex = i;
-            }
-        }
-
-        if (closestVertex == -1) return;
-
-        if (closestDistance < vertexPositions[activeVertex].transform.localScale.x)
-        {
-            MergeVertices(keep: activeVertex, discard: closestVertex);
-
-            BuildMeshFromElements();
-
-            activeVertex = -1;
-        }
-    }
-
-    public override void InputDrop(bool value, UdonInputEventArgs args)
-    {
-        if (!inEditMode) return;
-
-        if (activeVertex < 0) return;
-
-        activeVertex = -1;
-        if (isInVR)
-        {
-
-        }
-        else
-        {
-            Networking.LocalPlayer.Immobilize(false);
-        }
+        linkedMeshFilter.sharedMesh.triangles = triangles; ;
     }
 }

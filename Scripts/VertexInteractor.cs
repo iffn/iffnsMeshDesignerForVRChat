@@ -1,21 +1,47 @@
 ﻿
+using System;
+using System.Runtime.CompilerServices;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Components;
 using VRC.SDKBase;
+using VRC.SDKBase.Midi;
 using VRC.Udon;
 
+[RequireComponent(typeof(VRCPickup))]
 public class VertexInteractor : UdonSharpBehaviour
 {
-    public int index;
     MeshBuilder linkedMeshBuilder;
+    VRCPickup attachedPickup;
 
-    public void Setup(int index, Transform parent, Vector3 localPosition, MeshBuilder linkedMeshBuilder)
+    public void Setup(MeshBuilder linkedMeshBuilder)
     {
-        this.index = index;
-        transform.parent = parent;
-        transform.localPosition = localPosition;
         gameObject.SetActive(true);
         this.linkedMeshBuilder = linkedMeshBuilder;
+        attachedPickup = transform.GetComponent<VRCPickup>();
+        gameObject.SetActive(false);
+    }
+
+    public bool IsHeld
+    {
+        get
+        {
+            return attachedPickup.IsHeld;
+        }
+    }
+
+    public VRCPickup.PickupHand CurrentHand
+    {
+        get
+        {
+            return attachedPickup.currentHand;
+        }
+    }
+
+    public void ForceDropAndDeactivate()
+    {
+        attachedPickup.Drop();
+        gameObject.SetActive(false);
     }
 
     void Start()
@@ -28,8 +54,18 @@ public class VertexInteractor : UdonSharpBehaviour
 
     }
 
-    public override void Interact()
+    public override void OnPickup()
     {
-        linkedMeshBuilder.InteractWithVertex(this);
+        
+    }
+
+    public override void OnDrop()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public override void OnPickupUseDown()
+    {
+        linkedMeshBuilder.TryToMergeVertex(this);
     }
 }
