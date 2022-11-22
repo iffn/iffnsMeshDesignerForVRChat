@@ -946,13 +946,13 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -462981019419857548, guid: 15065392b3dea7a48a315d0f3d1a1923,
+      objectReference: {fileID: -5343610744793323734, guid: 146518d563953f749ac42bfedec2db86,
         type: 3}
     - target: {fileID: 4802339038477815330, guid: 4587af1411a250b46a19a3e18e45d5eb,
         type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -462981019419857548, guid: 15065392b3dea7a48a315d0f3d1a1923,
+      objectReference: {fileID: -5343610744793323734, guid: 146518d563953f749ac42bfedec2db86,
         type: 3}
     - target: {fileID: 5173938618246297332, guid: 4587af1411a250b46a19a3e18e45d5eb,
         type: 3}

@@ -463,9 +463,16 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] bool mirrorActive = true;
     [SerializeField] float mirrorSnap = 0.01f;
 
+
+    public double updateFPS;
+
     // Update is called once per frame
     void Update()
     {
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+
+        stopwatch.Start();
+
         if (!inEditMode) return;
 
         if (isInVR)
@@ -476,6 +483,8 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             DesktopUpdate();
         }
+
+        updateFPS = 1 / stopwatch.Elapsed.TotalSeconds;
     }
 
     Vector3 desktopInteractPosition
