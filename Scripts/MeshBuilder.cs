@@ -1,9 +1,4 @@
 ﻿
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Encodings;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using System.Reflection;
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -194,7 +189,6 @@ public class MeshBuilder : UdonSharpBehaviour
             SetupElementsAndMeshFromData(vertices, triangles);
         }
     }
-
 
     public Material AttachedMaterial
     {
@@ -467,6 +461,11 @@ public class MeshBuilder : UdonSharpBehaviour
         if (isInVR)
         {
             LinkedVertexAdder.UpdateIdlePosition();
+
+            if(Input.GetAxisRaw("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9 || Input.GetAxisRaw("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9)
+            {
+                DropFunction();
+            }
         }
 
         if (activeVertex >= 0)
@@ -810,7 +809,7 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    public override void InputDrop(bool value, UdonInputEventArgs args)
+    void DropFunction()
     {
         if (!inEditMode) return;
 
@@ -824,6 +823,16 @@ public class MeshBuilder : UdonSharpBehaviour
         else
         {
             Networking.LocalPlayer.Immobilize(false);
+        }
+    }
+
+    public override void InputDrop(bool value, UdonInputEventArgs args)
+    {
+        //For VR: Call drop function in update loop instead -> Index and Quest 2 don't call this function
+
+        if(!isInVR && value == true)
+        {
+            DropFunction();
         }
     }
 }
