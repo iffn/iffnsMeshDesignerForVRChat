@@ -22,6 +22,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Transform LeftHandInteractionIndicator;
     [SerializeField] Transform RightHandInteractionIndicator;
 
+    [SerializeField] ObjConterter LinkedObjConverter;
+
     Material defaultMaterial;
 
     bool isInVR;
@@ -45,6 +47,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         LeftHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
 
         ToggleEditMesh();
+
+        LinkedObjConverter.Setup(LinkedMeshBuilder);
     }
 
     //Toggle calls

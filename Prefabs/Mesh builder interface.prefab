@@ -1827,7 +1827,6 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 3984724735992213303}
   LinkedInputField: {fileID: 3984724735992213326}
-  LinkedMeshBuilder: {fileID: 0}
 --- !u!114 &3984724735992213303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5516,6 +5515,7 @@ MonoBehaviour:
   WireframeMaterial: {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
   LeftHandInteractionIndicator: {fileID: 4216958101947868063}
   RightHandInteractionIndicator: {fileID: 4216958102481671126}
+  LinkedObjConverter: {fileID: 3984724735992213302}
 --- !u!114 &9169800528813799778
 MonoBehaviour:
   m_ObjectHideFlags: 0

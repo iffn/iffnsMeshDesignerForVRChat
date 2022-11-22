@@ -31,8 +31,6 @@ public class MeshBuilder : UdonSharpBehaviour
 
     bool isInVR;
 
-    readonly char newLine = '\n';
-
     MeshFilter linkedMeshFilter;
     MeshRenderer linkedMeshRenderer;
     MeshRenderer symmetryMeshRenderer;
@@ -53,6 +51,14 @@ public class MeshBuilder : UdonSharpBehaviour
             {
                 vertex.transform.localScale = scale;
             }
+        }
+    }
+
+    public Mesh SharedMesh
+    {
+        get
+        {
+            return linkedMeshFilter.sharedMesh;
         }
     }
 
@@ -108,108 +114,6 @@ public class MeshBuilder : UdonSharpBehaviour
             if (!SymmetryMeshFilter) return;
 
             SymmetryMeshFilter.transform.gameObject.SetActive(value);
-        }
-    }
-
-    public string ObjString
-    {
-        get
-        {
-            string returnString = "";
-
-            returnString += $"o New mesh{newLine}";
-            
-            foreach(Vector3 vertex in MeshVertices)
-            {
-                string x = vertex.x.ToString("0.000");
-                string y = vertex.z.ToString("0.000");
-                string z = vertex.y.ToString("0.000");
-
-                returnString += $"v {x} {y} {z}{newLine}";
-            }
-
-            int[] triangles = MeshTriangles;
-
-            for (int i = 0; i<triangles.Length; i+= 3)
-            {
-                returnString += $"f {triangles[i] + 1} {triangles[i+1] + 1} {triangles[i+2] + 1}{newLine}";
-            }
-
-            return returnString;
-        }
-        set
-        {
-            string[] lines = value.Split(newLine);
-
-            int vertexCount = 0;
-            int triangleCount = 0;
-
-            foreach(string line in lines)
-            {
-                if (line.StartsWith("v "))
-                {
-                    vertexCount++;
-                    continue;
-                }
-                if (line.StartsWith("f "))
-                {
-                    triangleCount++;
-                    continue;
-                }
-            }
-
-            Vector3[] vertices = new Vector3[vertexCount];
-            int[] triangles = new int[triangleCount * 3];
-
-            int vertexIndex = 0;
-            int triangleIndex = 0;
-
-            foreach (string line in lines)
-            {
-                if (line.StartsWith("v "))
-                {
-                    string[] components = line.Substring(2).Split(' ');
-
-                    if (components.Length != 3)
-                    {
-                        Debug.LogWarning($"Error: {line} could not be converted to a vertex position");
-
-                        return;
-                    }
-
-                    vertices[vertexIndex].x = float.Parse(components[0]);
-                    vertices[vertexIndex].y = float.Parse(components[1]);
-                    vertices[vertexIndex].z = float.Parse(components[2]);
-
-                    vertexIndex++;
-
-                    continue;
-                }
-                if (line.StartsWith("f "))
-                {
-                    string[] components = line.Substring(2).Split(' ');
-
-                    if (components.Length != 3)
-                    {
-                        Debug.LogWarning($"Error: {line} could not be converted to a triangle");
-                        return;
-                    }
-
-                    string a = components[0].Substring(0, components[0].IndexOf("/"));
-                    string b = components[1].Substring(0, components[1].IndexOf("/"));
-                    string c = components[2].Substring(0, components[2].IndexOf("/"));
-
-                    triangles[triangleIndex] = int.Parse(a) - 1;
-                    triangles[triangleIndex + 1] = int.Parse(b) - 1;
-                    triangles[triangleIndex + 2] = int.Parse(c) - 1;
-
-                    triangleIndex += 3;
-
-                    continue;
-                }
-            }
-
-            SetElementsAndMeshFromData(vertices, triangles);
         }
     }
 
@@ -283,8 +187,10 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void SetInteractorsFromMesh()
+    public void SetInteractorsFromMesh()
     {
+        if (!InEditMode) return;
+
         ClearData();
 
         Vector3[] positions = MeshVertices;
@@ -498,10 +404,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void VRUpdate()
     {
-        if (activeVertex >= 0)
-        {
-
-        }
+        
     }
 
     // Update is called once per frame
