@@ -24,6 +24,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     [SerializeField] ObjConterter LinkedObjConverter;
 
+    [SerializeField] TMPro.TextMeshProUGUI debugText;
+
     Material defaultMaterial;
 
     bool isInVR;
@@ -49,6 +51,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         ToggleEditMesh();
 
         LinkedObjConverter.Setup(LinkedMeshBuilder);
+    }
+
+    private void Update()
+    {
+        debugText.text = LinkedMeshBuilder.LatestDebugText;
     }
 
     //Toggle calls
@@ -100,11 +107,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     public void InderactorSizeX1o25()
     {
-        LinkedMeshBuilder.vertexInteractorScale *= 1.25f;
+        LinkedMeshBuilder.VertexInteractorScale *= 1.25f;
     }
 
     public void InderactorSizeX0o8()
     {
-        LinkedMeshBuilder.vertexInteractorScale *= 0.8f;
+        LinkedMeshBuilder.VertexInteractorScale *= 0.8f;
     }
 }

@@ -8,6 +8,7 @@ public class VertexInteractor : UdonSharpBehaviour
 {
     public int index;
     MeshBuilder linkedMeshBuilder;
+    Collider attachedCollider;
 
     public void Setup(int index, Transform parent, Vector3 localPosition, MeshBuilder linkedMeshBuilder)
     {
@@ -16,6 +17,16 @@ public class VertexInteractor : UdonSharpBehaviour
         transform.localPosition = localPosition;
         gameObject.SetActive(true);
         this.linkedMeshBuilder = linkedMeshBuilder;
+        attachedCollider = transform.GetComponent<Collider>();
+        transform.localScale = linkedMeshBuilder.VertexInteractorScale * Vector3.one;
+    }
+
+    public bool ColliderState
+    {
+        set
+        {
+            attachedCollider.enabled = value;
+        }
     }
 
     void Start()
