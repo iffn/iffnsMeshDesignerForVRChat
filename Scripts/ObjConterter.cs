@@ -50,8 +50,8 @@ public class ObjConterter : UdonSharpBehaviour
         foreach (Vector3 vertex in mesh.vertices)
         {
             string x = vertex.x.ToString("0.00000");
-            string y = vertex.z.ToString("0.00000");
-            string z = vertex.y.ToString("0.00000");
+            string y = vertex.y.ToString("0.00000");
+            string z = vertex.z.ToString("0.00000");
 
             returnString += $"v {x} {y} {z}{newLine}";
         }
@@ -107,8 +107,8 @@ public class ObjConterter : UdonSharpBehaviour
                 }
 
                 vertices[vertexIndex].x = float.Parse(components[0]);
-                vertices[vertexIndex].z = float.Parse(components[1]);
-                vertices[vertexIndex].y = float.Parse(components[2]);
+                vertices[vertexIndex].y = float.Parse(components[1]);
+                vertices[vertexIndex].z = float.Parse(components[2]);
 
                 vertexIndex++;
 
