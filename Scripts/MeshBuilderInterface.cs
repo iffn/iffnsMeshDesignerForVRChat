@@ -45,6 +45,12 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             Debug.LogWarning($"Error: {nameof(RightHandInteractionIndicator)} not assinged");
         }
 
+        if (!correctSetup)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         RightHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
         LeftHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
 

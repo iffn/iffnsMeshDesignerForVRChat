@@ -14,9 +14,9 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] VertexAdder LinkedVertexAdder;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] float DesktopVertexSpeed = 0.2f;
-    float overlappingMergeTollerance = 0.001f;
+    readonly float overlappingMergeTollerance = 0.001f;
 
-    [SerializeField] MeshFilter SymmetryMeshFilter;
+    public MeshFilter SymmetryMeshFilter;
 
     VRCPickup.PickupHand currentHand;
     Vector3 handOffset;
@@ -119,7 +119,6 @@ public class MeshBuilder : UdonSharpBehaviour
         LatestDebugText += $"Mesh vertices: {vertices.Length}\n";
         LatestDebugText += $"Mesh triangles: {triangles.Length}\n";
     }
-    
 
     public Mesh SharedMesh
     {
@@ -511,7 +510,6 @@ public class MeshBuilder : UdonSharpBehaviour
                     case VRC_Pickup.PickupHand.None:
                         ActiveVertex = -1;
                         return;
-                        break;
                     case VRC_Pickup.PickupHand.Left:
                         currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
                         break;
