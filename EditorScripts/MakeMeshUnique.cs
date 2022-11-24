@@ -27,6 +27,7 @@ public class MakeMeshUnique : EditorWindow
             {
                 MakeCurrentMeshUnique();
             }
+
         }
     }
 
@@ -36,13 +37,29 @@ public class MakeMeshUnique : EditorWindow
 
         Mesh currentMesh = currentMeshFilter.sharedMesh;
 
-        Mesh newMesh = Instantiate(currentMesh);
+        Mesh newMesh = new Mesh
+        {
+            vertices = currentMesh.vertices,
+            triangles = currentMesh.triangles,
+            uv = currentMesh.uv,
+            uv2 = currentMesh.uv2,
+            uv3 = currentMesh.uv3,
+            uv4 = currentMesh.uv4,
+            uv5 = currentMesh.uv5,
+            uv6 = currentMesh.uv6,
+            uv7 = currentMesh.uv7,
+            uv8 = currentMesh.uv8,
+            normals = currentMesh.normals,
+            tangents = currentMesh.tangents,
+            bounds = currentMesh.bounds
+        };
 
-        currentMeshFilter.sharedMesh = currentMesh;
+        currentMeshFilter.mesh = null;
+        currentMeshFilter.mesh = newMesh;
 
         if(currentBuilder.SymmetryMeshFilter != null)
         {
-            currentBuilder.SymmetryMeshFilter.sharedMesh = newMesh;
+            currentBuilder.SymmetryMeshFilter.mesh = newMesh;
         }
     }
 }
