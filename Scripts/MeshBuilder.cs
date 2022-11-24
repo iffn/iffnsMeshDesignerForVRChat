@@ -14,10 +14,9 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] VertexAdder LinkedVertexAdder;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] float DesktopVertexSpeed = 0.2f;
-    
-    
-    [SerializeField] MeshFilter SymmetryMeshFilter;
+    float overlappingMergeTollerance = 0.001f;
 
+    [SerializeField] MeshFilter SymmetryMeshFilter;
 
     VRCPickup.PickupHand currentHand;
     Vector3 handOffset;
@@ -117,8 +116,8 @@ public class MeshBuilder : UdonSharpBehaviour
         LatestDebugText += $"Number of interactors: {interactorPositions.Length}\n";
         LatestDebugText += $"{nameof(currentHand)}: {currentHand}\n";
         LatestDebugText += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug}\n";
-        LatestDebugText += $"Mesh vertices: {MeshVertices.Length}\n";
-        LatestDebugText += $"Mesh triangles: {MeshTriangles.Length}\n";
+        LatestDebugText += $"Mesh vertices: {vertices.Length}\n";
+        LatestDebugText += $"Mesh triangles: {triangles.Length}\n";
     }
     
 
@@ -130,35 +129,10 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    public Vector3[] MeshVertices
-    {
-        get
-        {
-            return linkedMeshFilter.sharedMesh.vertices;
-        }
-        set
-        {
-            if(linkedMeshFilter.sharedMesh.vertices.Length > value.Length)
-            {
-                linkedMeshFilter.sharedMesh.triangles = new int[0]; //only update triangles after vertex decrease
-            }
+    Vector3[] vertices;
 
-            linkedMeshFilter.sharedMesh.vertices = value;
-        }
-    }
-
-    public int[] MeshTriangles
-    {
-        get
-        {
-            return linkedMeshFilter.sharedMesh.triangles;
-        }
-        set
-        {
-            linkedMeshFilter.sharedMesh.triangles = value;
-        }
-    }
-
+    int[] triangles;
+    
     public bool SymmetryMode
     {
         set
@@ -221,6 +195,15 @@ public class MeshBuilder : UdonSharpBehaviour
         mesh.RecalculateBounds();
     }
 
+
+    public void UpdateMeshInfoFromMesh()
+    {
+        Mesh mesh = linkedMeshFilter.sharedMesh;
+
+        vertices = mesh.vertices;
+        triangles = mesh.triangles;
+    }
+
     void SetElementsAndMeshFromData()
     {
         UpdateMeshData();
@@ -247,7 +230,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
         ClearVertexInteractorData();
 
-        Vector3[] positions = MeshVertices;
+        Vector3[] positions = vertices;
 
         interactorPositions = new VertexInteractor[positions.Length];
 
@@ -263,11 +246,13 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void SetSingleVertexPosition(int index, Vector3 localPosition)
     {
-        Vector3[] positions = MeshVertices;
+        Vector3[] positions = vertices;
 
         positions[index] = localPosition;
 
-        MeshVertices = positions;
+        vertices = positions;
+
+        BuildMeshFromData(vertices, triangles);
 
         if (inEditMode)
         {
@@ -320,15 +305,15 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             //Check distance:
 
-            if(isInVR && (interactedVertex.transform.localPosition - MeshVertices[ActiveVertex]).magnitude > vertexInteractorScale)
+            if(isInVR && (interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude > vertexInteractorScale)
             {
-                Debug.Log("Not merged with distance " + (interactedVertex.transform.localPosition - MeshVertices[ActiveVertex]).magnitude);
+                Debug.Log("Not merged with distance " + (interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude);
 
                 return;
             }
 
             //Merging:
-            MergeVertices(keep: interactedVertex.index, discard: ActiveVertex, updateInteractors: true);
+            MergeVertices(keep: interactedVertex.index, discard: ActiveVertex, true, updateInteractors: true);
 
             SetElementsAndMeshFromData();
 
@@ -396,10 +381,12 @@ public class MeshBuilder : UdonSharpBehaviour
 
         linkedMeshFilter = transform.GetComponent<MeshFilter>();
         linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
-        
+
         if(InEditMode) SetInteractorsFromMesh();
 
         if(SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
+
+        UpdateMeshInfoFromMesh();
     }
 
     // Start is called before the first frame update
@@ -430,7 +417,7 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         //Vertex
         VertexInteractor[] oldInteractors = interactorPositions;
-        Vector3[] oldVertexPositions = MeshVertices;
+        Vector3[] oldVertexPositions = vertices;
         interactorPositions = new VertexInteractor[oldInteractors.Length + 1];
         Vector3[] newVertexPositions = new Vector3[oldInteractors.Length + 1];
 
@@ -452,7 +439,7 @@ public class MeshBuilder : UdonSharpBehaviour
         newVertexPositions[interactorPositions.Length - 1] = localPosition;
 
         //Triangles
-        int[] oldTriangles = MeshTriangles;
+        int[] oldTriangles = triangles;
 
         int[] newTriangles = new int[oldTriangles.Length + 3];
 
@@ -681,7 +668,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void UpdateVertexIndexFromTriangles()
     {
-        foreach(int index in MeshTriangles)
+        foreach(int index in triangles)
         {
             interactorPositions[index].index = index; //ToFix: Size missmatch error
         }
@@ -689,7 +676,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void RemoveVertexFromArray(int index, bool updateInteractors, bool updateTriangles)
     {
-        Vector3[] oldVertexPositons = MeshVertices;
+        Vector3[] oldVertexPositons = vertices;
         Vector3[] newVertexPositions = new Vector3[oldVertexPositons.Length - 1];
 
         int newIndex = 0;
@@ -703,7 +690,7 @@ public class MeshBuilder : UdonSharpBehaviour
             newIndex++;
         }
 
-        MeshVertices = newVertexPositions;
+        vertices = newVertexPositions;
 
         if (updateInteractors)
         {
@@ -727,12 +714,12 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             int trianglesToBeRemoved = 0;
 
-            foreach(int triangle in MeshTriangles)
+            foreach(int triangle in triangles)
             {
                 if (triangle == index) trianglesToBeRemoved++;
             }
 
-            int[] oldTriangles = MeshTriangles;
+            int[] oldTriangles = triangles;
             int[] newTriangles = new int[oldTriangles.Length - trianglesToBeRemoved * 3];
 
             for (int i = 0; i<newTriangles.Length; i+=3)
@@ -749,7 +736,8 @@ public class MeshBuilder : UdonSharpBehaviour
                 }
             }
 
-            MeshTriangles = newTriangles;
+            triangles = newTriangles;
+            BuildMeshFromData(vertices, triangles);
 
             UpdateVertexIndexFromTriangles();
         }
@@ -759,18 +747,24 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         int verticesMerged = 0;
 
-        for(int firstVertex = 0; firstVertex < MeshVertices.Length - 1; firstVertex++)
-        {
-            Vector3 firstPosition = MeshVertices[firstVertex];
+        Debug.Log($"Checking {vertices.Length} for merging");
 
-            for(int secondVertex = firstVertex + 1; secondVertex< MeshVertices.Length; secondVertex++)
+        //return;
+
+        for(int firstVertex = 0; firstVertex < vertices.Length - 1; firstVertex++)
+        {
+            Vector3 firstPosition = vertices[firstVertex];
+
+            for(int secondVertex = firstVertex + 1; secondVertex< vertices.Length; secondVertex++)
             {
-                Vector3 secondPosition = MeshVertices[secondVertex];
+                Vector3 secondPosition = vertices[secondVertex];
                 float distance = (firstPosition - secondPosition).magnitude;
 
-                if (distance < vertexInteractorScale)
+                if (distance < overlappingMergeTollerance)
                 {
-                    MergeVertices(firstVertex, secondVertex, false);
+                    //Debug.Log($"Merging vertex {firstVertex} with {secondVertex} at distance {distance}" );
+
+                    MergeVertices(firstVertex, secondVertex, false, false);
                     secondVertex--;
                     verticesMerged++;
                 }
@@ -779,16 +773,12 @@ public class MeshBuilder : UdonSharpBehaviour
 
         Debug.Log($"{verticesMerged} vertices merged");
 
-        UpdateMeshData();
+        BuildMeshFromData(vertices, triangles);
     }
 
-    
-
-    void MergeVertices(int keep, int discard, bool updateInteractors)
+    void MergeVertices(int keep, int discard, bool updateMesh, bool updateInteractors)
     {
         //Debug.Log($"Keep: {keep}, discard: {discard}");
-
-        int[] triangles = MeshTriangles;
 
         RemoveVertexFromArray(discard, false, false);
 
@@ -858,9 +848,8 @@ public class MeshBuilder : UdonSharpBehaviour
 
         if (ActiveVertex > discard) ActiveVertex--;
 
-        MeshTriangles = triangles;
-
-        if(updateInteractors) SetInteractorsFromMesh();
+        if(updateMesh) BuildMeshFromData(vertices, this.triangles);
+        if (updateInteractors) SetInteractorsFromMesh();
     }
 
     public override void InputUse(bool value, UdonInputEventArgs args)

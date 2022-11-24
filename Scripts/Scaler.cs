@@ -8,10 +8,13 @@ using VRC.Udon.Common;
 public class Scaler : UdonSharpBehaviour
 {
     [SerializeField] Transform scaleObject;
+    [SerializeField] GameObject indicator;
 
     bool leftDrop = false;
     bool rightDrop = false;
     float referenceDistance;
+
+    bool isScaling = false;
 
     Vector3 originalLocalPosition;
     Vector3 originalLocalScale;
@@ -32,59 +35,64 @@ public class Scaler : UdonSharpBehaviour
     {
         if (Networking.LocalPlayer.IsUserInVR())
         {
-            if (leftDrop && rightDrop)
+            if (Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f && Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f)
             {
-                Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
-                Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+                if (!isScaling)
+                {
+                    SetupScaling();
+                    isScaling = true;
+                }
 
-                Vector3 rightToLeft = leftHand - rightHand;
-
-                float currentDistance = rightToLeft.magnitude;
-
-                transform.position = rightHand + currentDistance * 0.5f * rightToLeft;
-
-                transform.localScale = currentDistance / referenceDistance * Vector3.one;
+                Scale();
+            }
+            else
+            {
+                if (isScaling)
+                {
+                    StopScaling();
+                    isScaling = false;
+                }
             }
         }
     }
 
-    public override void InputDrop(bool value, UdonInputEventArgs args)
+    void SetupScaling()
     {
-        if (Networking.LocalPlayer.IsUserInVR())
-        {
-            switch (args.handType)
-            {
-                case HandType.RIGHT:
-                    rightDrop = value;
-                    break;
-                case HandType.LEFT:
-                    leftDrop = value;
-                    break;
-                default:
-                    break;
-            }
+        Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+        Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
 
-            if (leftDrop && rightDrop)
-            {
-                Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
-                Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+        Vector3 rightToLeft = leftHand - rightHand;
 
-                Vector3 rightToLeft = leftHand - rightHand;
+        referenceDistance = rightToLeft.magnitude;
 
-                referenceDistance = rightToLeft.magnitude;
+        transform.position = rightHand + referenceDistance * 0.5f * rightToLeft;
 
-                transform.position = rightHand + referenceDistance * 0.5f * rightToLeft;
+        transform.localScale = Vector3.one;
 
-                transform.localScale = Vector3.one;
+        transform.parent = scaleObject.parent;
+        scaleObject.parent = transform;
 
-                transform.parent = scaleObject.parent;
-                scaleObject.parent = transform;
-            }
-            else
-            {
-                scaleObject.parent = transform.parent;
-                transform.parent = scaleObject;
-            }
-        }
+        indicator.SetActive(true);
+    }
+
+    void Scale()
+    {
+        Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+        Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+
+        Vector3 rightToLeft = leftHand - rightHand;
+
+        float currentDistance = rightToLeft.magnitude;
+
+        transform.position = rightHand + currentDistance * 0.5f * rightToLeft;
+
+        transform.localScale = currentDistance / referenceDistance * Vector3.one;
+    }
+
+    void StopScaling()
+    {
+        scaleObject.parent = transform.parent;
+        transform.parent = scaleObject;
+        indicator.SetActive(false);
     }
 }

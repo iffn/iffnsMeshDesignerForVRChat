@@ -79,6 +79,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         }
     }
 
+    public void MergeOverlappingVertices()
+    {
+        LinkedMeshBuilder.MergeOverlappingVertices();
+    }
+
     public void ToggleEditMesh()
     {
         LinkedMeshBuilder.InEditMode = EditMeshToggle.isOn;
@@ -93,11 +98,6 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         RightHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
         LeftHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
-    }
-
-    public void JoinOverlappingVertices()
-    {
-        LinkedMeshBuilder.MergeOverlappingVertices();
     }
 
     public void ToggleShowScalingIndicator()

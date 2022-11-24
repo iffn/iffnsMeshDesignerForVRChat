@@ -30,6 +30,8 @@ public class ObjConterter : UdonSharpBehaviour
 
         SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, LinkedInputField.text);
 
+        LinkedMeshBuilder.UpdateMeshInfoFromMesh();
+
         LinkedMeshBuilder.SetInteractorsFromMesh();
     }
 
@@ -47,9 +49,9 @@ public class ObjConterter : UdonSharpBehaviour
 
         foreach (Vector3 vertex in mesh.vertices)
         {
-            string x = vertex.x.ToString("0.000");
-            string y = vertex.z.ToString("0.000");
-            string z = vertex.y.ToString("0.000");
+            string x = vertex.x.ToString("0.00000");
+            string y = vertex.z.ToString("0.00000");
+            string z = vertex.y.ToString("0.00000");
 
             returnString += $"v {x} {y} {z}{newLine}";
         }

@@ -1731,7 +1731,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3984724735796936172}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.9554e-11}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.001, y: 0.001, z: 0.01}
   m_Children: []
   m_Father: {fileID: 3984724735992213327}
@@ -1739,8 +1739,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00000011548, y: -0.00000013784}
-  m_SizeDelta: {x: 954.0825, y: 777.5771}
+  m_AnchoredPosition: {x: 0.0131, y: -0.0107}
+  m_SizeDelta: {x: 980.2805, y: 798.9333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3984724735796936161
 CanvasRenderer:
@@ -2012,16 +2012,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3984724736995830258}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.9554e-11}
+  m_LocalPosition: {x: 0, y: 0, z: 0.2}
   m_LocalScale: {x: 0.001, y: 0.001, z: 0.01}
   m_Children: []
   m_Father: {fileID: 3984724735992213327}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00000017881393, y: 0.0029926896}
-  m_SizeDelta: {x: 944.7119, y: 775.5646}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.0131, y: -0.0107}
+  m_SizeDelta: {x: 981.25543, y: 799.7283}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3984724736995830263
 CanvasRenderer:
@@ -3527,7 +3527,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: JoinOverlappingVertices
+          m_StringArgument: MergeOverlappingVertices
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &4796390468064268232
@@ -5646,7 +5646,7 @@ MonoBehaviour:
   SymmetryModeToggle: {fileID: 1235934719612860765}
   ShowInteractionLocationToggle: {fileID: 4653396265637625031}
   ShowScalingIndicatorToggle: {fileID: 3969248351118687293}
-  WireframeMaterial: {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
+  WireframeMaterial: {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
   LeftHandInteractionIndicator: {fileID: 4216958101947868063}
   RightHandInteractionIndicator: {fileID: 4216958102481671126}
   LinkedObjConverter: {fileID: 3984724735992213302}
@@ -5814,7 +5814,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8279357944275945075}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 268065200718016960}
@@ -5822,8 +5822,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.3157, y: 0.031411707}
-  m_SizeDelta: {x: 0.4425828, y: 0.07}
+  m_AnchoredPosition: {x: 0.4807, y: 0.031411707}
+  m_SizeDelta: {x: 0.7719447, y: 0.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6141478052085782028
 CanvasRenderer:
