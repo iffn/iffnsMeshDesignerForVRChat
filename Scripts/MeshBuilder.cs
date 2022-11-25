@@ -14,9 +14,10 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] VertexAdder LinkedVertexAdder;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] float DesktopVertexSpeed = 0.2f;
-    readonly float overlappingMergeTollerance = 0.001f;
-
+    public Scaler LinkedScaler;
     public MeshFilter SymmetryMeshFilter;
+
+    readonly float overlappingMergeTollerance = 0.001f;
 
     VRCPickup.PickupHand currentHand;
     Vector3 handOffset;
@@ -655,6 +656,8 @@ public class MeshBuilder : UdonSharpBehaviour
             LinkedLineRenderer.SetPosition(1, LinkedVertexAdder.transform.position);
             LinkedLineRenderer.SetPosition(2, secondClosestVertex.transform.position);
         }
+
+        stopwatch.Stop();
 
         updateFPSForDebug = 1/stopwatch.Elapsed.TotalSeconds;
     }

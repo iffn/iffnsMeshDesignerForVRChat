@@ -85,6 +85,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         }
     }
 
+    public void ResetScale()
+    {
+        LinkedMeshBuilder.LinkedScaler.ResetScale();
+    }
+
     public void MergeOverlappingVertices()
     {
         LinkedMeshBuilder.MergeOverlappingVertices();

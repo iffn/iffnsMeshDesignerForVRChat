@@ -1,5 +1,84 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &335819722
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 335819723}
+  - component: {fileID: 335819725}
+  - component: {fileID: 335819724}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &335819723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335819722}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children: []
+  m_Father: {fileID: 4866677365636747488}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &335819725
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335819722}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &335819724
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335819722}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 7ddfda330985e904ab6252d32ec9fdf4, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
 --- !u!1 &533554195697283724
 GameObject:
   m_ObjectHideFlags: 0
@@ -28,7 +107,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 335819723}
   m_Father: {fileID: 6566595584488635085}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -55,6 +135,9 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 459039316828968983}
   scaleObject: {fileID: 6566595584488635085}
+  indicator: {fileID: 335819722}
+  DebugHandLeft: {fileID: 0}
+  DebugHandRight: {fileID: 0}
 --- !u!114 &459039316828968983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +203,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2579306637667132066}
-  m_Mesh: {fileID: -462981019419857548, guid: 15065392b3dea7a48a315d0f3d1a1923, type: 3}
+  m_Mesh: {fileID: -2432090755550338912, guid: c721436482d472c49949d9aba954f617, type: 3}
 --- !u!23 &5037387048522153935
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -139,7 +222,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
+  - {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -334,7 +417,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4377925718625987032}
-  m_Mesh: {fileID: -462981019419857548, guid: 15065392b3dea7a48a315d0f3d1a1923, type: 3}
+  m_Mesh: {fileID: -2432090755550338912, guid: c721436482d472c49949d9aba954f617, type: 3}
 --- !u!23 &9009451292119751881
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -353,7 +436,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
+  - {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -401,9 +484,10 @@ MonoBehaviour:
   LinkedVertexAdder: {fileID: 5173938618246297332}
   LinkedLineRenderer: {fileID: 2312447528498381198}
   DesktopVertexSpeed: 0.2
+  LinkedScaler: {fileID: 3502828741474572845}
   SymmetryMeshFilter: {fileID: 4802339038477815330}
-  triangles: 
   setupComplete: 0
+  LatestDebugText: 
   verticesDebug: []
   mirrorActive: 1
   mirrorSnap: 0.01
