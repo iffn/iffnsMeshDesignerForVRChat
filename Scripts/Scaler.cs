@@ -10,9 +10,6 @@ public class Scaler : UdonSharpBehaviour
     [SerializeField] Transform scaleObject;
     [SerializeField] GameObject indicator;
 
-    [SerializeField] GameObject DebugHandLeft;
-    [SerializeField] GameObject DebugHandRight;
-
     float referenceDistance;
 
     bool isScaling = false;
@@ -42,59 +39,24 @@ public class Scaler : UdonSharpBehaviour
 
     private void Update()
     {
-        if (Networking.LocalPlayer.IsUserInVR())
+        if (Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f && Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f)
         {
-            if (Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f && Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f)
+            if (!isScaling)
             {
-                if (!isScaling)
-                {
-                    SetupScaling();
-                    isScaling = true;
-                }
+                SetupScaling();
+                isScaling = true;
+            }
 
-                Scale();
-            }
-            else
-            {
-                if (isScaling)
-                {
-                    StopScaling();
-                    isScaling = false;
-                }
-            }
+            Scale();
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.Home))
-            {
-                if(!isScaling) SetupDebugScaling();
-                else StopScaling();
-
-                isScaling = !isScaling;
-            }
-
             if (isScaling)
             {
-                DebugScale();
+                StopScaling();
+                isScaling = false;
             }
         }
-    }
-
-    void SetupDebugScaling()
-    {
-        Vector3 rightHand = DebugHandRight.transform.position;
-        Vector3 leftHand = DebugHandLeft.transform.position;
-
-        Vector3 rightToLeft = leftHand - rightHand;
-
-        referenceDistance = rightToLeft.magnitude;
-
-        transform.position = rightHand + referenceDistance * 0.5f * rightToLeft.normalized;
-
-        transform.parent = scaleObject.parent;
-        scaleObject.parent = transform;
-
-        indicator.SetActive(true);
     }
 
     void SetupScaling()
@@ -112,20 +74,6 @@ public class Scaler : UdonSharpBehaviour
         scaleObject.parent = transform;
 
         indicator.SetActive(true);
-    }
-
-    void DebugScale()
-    {
-        Vector3 rightHand = DebugHandRight.transform.position;
-        Vector3 leftHand = DebugHandLeft.transform.position;
-
-        Vector3 rightToLeft = leftHand - rightHand;
-
-        float currentDistance = rightToLeft.magnitude;
-
-        transform.position = rightHand + currentDistance * 0.5f * rightToLeft.normalized;
-
-        transform.localScale = currentDistance / referenceDistance * Vector3.one;
     }
 
     void Scale()
