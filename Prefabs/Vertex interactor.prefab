@@ -117,7 +117,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2193996211493599368}
-  index: 0
+  defaultColor: {fileID: 2100000, guid: f63c44673378d104da44d72a9e869482, type: 2}
+  interactColor: {fileID: 2100000, guid: bc450cf7320d7174db4c34dde78ce7d8, type: 2}
+  removeColor: {fileID: 2100000, guid: ba7e5c60c8c877049831a50c4c3e28ae, type: 2}
 --- !u!114 &2193996211493599368
 MonoBehaviour:
   m_ObjectHideFlags: 0
