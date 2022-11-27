@@ -128,7 +128,7 @@ public class ObjConterter : UdonSharpBehaviour
                 {
                     if (components[i].Contains("/"))
                     {
-                        components[i] = components[i].Substring(0, components[0].IndexOf("/"));
+                        components[i] = components[i].Substring(0, components[i].IndexOf("/"));
                     }
                 }
 
