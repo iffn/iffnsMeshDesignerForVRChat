@@ -42,6 +42,8 @@ public class MeshBuilder : UdonSharpBehaviour
 
     InteractionTypes currentInteractionType = InteractionTypes.Idle;
 
+    float currentDesktopPickupDistance = 0.5f;
+
     public InteractionTypes CurrentInteractionType
     {
         get
@@ -124,13 +126,24 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         get
         {
-            if(primaryHand == HandSides.Left)
+            if (isInVR)
             {
-                return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+                if (primaryHand == HandSides.Left)
+                {
+                    return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+                }
+                else
+                {
+                    return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+                }
             }
             else
             {
-                return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+                VRCPlayerApi.TrackingData currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+                currentDesktopPickupDistance = Mathf.Clamp(currentDesktopPickupDistance, 0, PlayerHeight);
+
+                return currentHandData.position + currentHandData.rotation * (currentDesktopPickupDistance * Vector3.forward);
             }
         }
     }
@@ -225,6 +238,13 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
+    public float PlayerHeight
+    {
+        get
+        {
+            return (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetPosition()).magnitude;
+        }
+    }
 
     public string LatestDebugText;
 
@@ -410,14 +430,21 @@ public class MeshBuilder : UdonSharpBehaviour
                 if (ActiveVertex == -1)
                 {
                     ActiveVertex = interactedVertex.Index;
+
+                    if (!isInVR)
+                    {
+                        currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - interactedVertex.transform.position).magnitude;
+                    }
                 }
                 else if(ManualVertexDrop && interactedVertex.Index != ActiveVertex)
                 {
-                    if (isInVR && (interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude > vertexInteractorScale) return;
+                    if (isInVR)
+                    {
+                        if((interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude > vertexInteractorScale) return;
+                    }
 
                     //Merging:
                     MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: true);
-                    //MergeVertices(keep: ActiveVertex, discard: interactedVertex.Index, true, updateInteractors: true);
 
                     SetElementsAndMeshFromData();
 
@@ -735,26 +762,6 @@ public class MeshBuilder : UdonSharpBehaviour
                         return;
                     }
                 }
-
-                VRCPlayerApi.TrackingData currentHandData;
-
-                switch (currentHand)
-                {
-                    case VRC_Pickup.PickupHand.None:
-                        ActiveVertex = -1;
-                        return;
-                    case VRC_Pickup.PickupHand.Left:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                        break;
-                    case VRC_Pickup.PickupHand.Right:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                        break;
-                    default:
-                        currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                        break;
-                }
-
-                newPosition = currentHandData.position;
             }
             else
             {
@@ -764,10 +771,6 @@ public class MeshBuilder : UdonSharpBehaviour
                     ActiveVertex = -1;
                     return;
                 }
-
-                VRCPlayerApi.TrackingData currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-
-                newPosition = currentHandData.position + currentHandData.rotation * (0.5f * Vector3.forward);
             }
 
             if (ActiveVertex >= interactorPositions.Length)
@@ -778,7 +781,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
             Transform currentVertex = interactorPositions[ActiveVertex].transform;
 
-            currentVertex.position = newPosition;
+            currentVertex.position = PrimaryHandPosition;
 
             if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
             {
@@ -834,12 +837,14 @@ public class MeshBuilder : UdonSharpBehaviour
 
             float distance = (localHandPosition - currentPosition).magnitude;
 
+            //Override second
             if (distance < secondclosestDistance)
             {
                 secondclosestDistance = distance;
                 secondClosestVertex = i;
             }
 
+            //Swap
             if (secondclosestDistance < closestDistance)
             {
                 float tempD = secondclosestDistance;
@@ -858,7 +863,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
         LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
         LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
-        LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[secondClosestVertex]));
+        LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
     }
 
     public void UseVertexAdder()
@@ -916,7 +921,7 @@ public class MeshBuilder : UdonSharpBehaviour
             triangles[i] = oldTriangles[i];
         }
 
-        if (direction > 0)
+        if (direction < 0)
         {
             triangles[triangles.Length - 3] = a;
             triangles[triangles.Length - 2] = b;
@@ -1149,14 +1154,14 @@ public class MeshBuilder : UdonSharpBehaviour
             case InteractionTypes.MoveAndMerge:
                 break;
             case InteractionTypes.StepAdd:
-                UseVertexAdder();
+                if(value) UseVertexAdder();
                 break;
             case InteractionTypes.Scale:
                 break;
             case InteractionTypes.AddTriagnle:
                 break;
             case InteractionTypes.ProximityAdd:
-                UseVertexAdder();
+                if (value) UseVertexAdder();
                 break;
             case InteractionTypes.RemoveTriangle:
                 break;
