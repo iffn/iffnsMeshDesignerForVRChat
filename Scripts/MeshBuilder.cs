@@ -1,4 +1,5 @@
 ﻿
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Mozilla;
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.AI;
@@ -33,8 +34,27 @@ public class MeshBuilder : UdonSharpBehaviour
     bool isInVR;
     public bool setupComplete = false;
 
+    float proximityAddTime = 0;
+
     public int closestVertex = -1;
+    public VertexInteractor ClosestVertex
+    {
+        get
+        {
+            if (closestVertex == -1) return null;
+            return interactorPositions[closestVertex];
+        }
+    }
+
     public int secondClosestVertex = -1;
+    public VertexInteractor SecondClosestVertex
+    {
+        get
+        {
+            if (secondClosestVertex == -1) return null;
+            return interactorPositions[secondClosestVertex];
+        }
+    }
 
     MeshFilter linkedMeshFilter;
     MeshRenderer linkedMeshRenderer;
@@ -64,12 +84,17 @@ public class MeshBuilder : UdonSharpBehaviour
                 case InteractionTypes.MoveAndMerge:
                     break;
                 case InteractionTypes.StepAdd:
+                    closestVertex = -1;
+                    secondClosestVertex = -1;
+                    LinkedLineRenderer.gameObject.SetActive(false);
                     break;
                 case InteractionTypes.Scale:
                     break;
                 case InteractionTypes.AddTriagnle:
                     break;
                 case InteractionTypes.ProximityAdd:
+                    closestVertex = -1;
+                    secondClosestVertex = -1;
                     LinkedLineRenderer.gameObject.SetActive(false);
                     break;
                 case InteractionTypes.RemoveTriangle:
@@ -90,6 +115,8 @@ public class MeshBuilder : UdonSharpBehaviour
                 case InteractionTypes.MoveAndMerge:
                     break;
                 case InteractionTypes.StepAdd:
+                    closestVertex = -1;
+                    secondClosestVertex = -1;
                     break;
                 case InteractionTypes.Scale:
                     break;
@@ -461,8 +488,28 @@ public class MeshBuilder : UdonSharpBehaviour
                 }
                 break;
             case InteractionTypes.StepAdd:
-                secondClosestVertex = closestVertex;
-                closestVertex = interactedVertex.Index;
+                if (closestVertex == interactedIndex)
+                {
+                    closestVertex = -1;
+                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
+                }
+                else if (secondClosestVertex == interactedIndex)
+                {
+                    secondClosestVertex = -1;
+                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
+                }
+                else if (secondClosestVertex == -1)
+                {
+                    secondClosestVertex = interactedIndex;
+                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
+                }
+                else if (closestVertex == -1)
+                {
+                    closestVertex = interactedIndex;
+                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
+                    LinkedLineRenderer.gameObject.SetActive(true);
+                    proximityAddTime = Time.time;
+                }
                 break;
             case InteractionTypes.Scale:
                 //Do nothing
@@ -725,13 +772,17 @@ public class MeshBuilder : UdonSharpBehaviour
                 MoveAndMergeUpdate();
                 break;
             case InteractionTypes.StepAdd:
+                if(closestVertex >= 0 && secondClosestVertex >= 0)
+                {
+                    UpdateVertexAdder(false);
+                }
                 break;
             case InteractionTypes.Scale:
                 break;
             case InteractionTypes.AddTriagnle:
                 break;
             case InteractionTypes.ProximityAdd:
-                UpdateVertexProximityAdder();
+                UpdateVertexAdder(true);
                 break;
             case InteractionTypes.RemoveTriangle:
                 break;
@@ -833,40 +884,43 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void UpdateVertexProximityAdder()
+    void UpdateVertexAdder(bool findAttachmentPoints)
     {
-        closestVertex = -1;
-        secondClosestVertex = -1;
-
-        float closestDistance = Mathf.Infinity;
-        float secondclosestDistance = Mathf.Infinity;
-
-        Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
-
-        for (int i = 0; i < interactorPositions.Length; i++)
+        if (findAttachmentPoints)
         {
-            Vector3 currentPosition = vertices[i];
+            closestVertex = -1;
+            secondClosestVertex = -1;
 
-            float distance = (localHandPosition - currentPosition).magnitude;
+            float closestDistance = Mathf.Infinity;
+            float secondclosestDistance = Mathf.Infinity;
 
-            //Override second
-            if (distance < secondclosestDistance)
+            Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+
+            for (int i = 0; i < interactorPositions.Length; i++)
             {
-                secondclosestDistance = distance;
-                secondClosestVertex = i;
-            }
+                Vector3 currentPosition = vertices[i];
 
-            //Swap
-            if (secondclosestDistance < closestDistance)
-            {
-                float tempD = secondclosestDistance;
-                int tempV = secondClosestVertex;
+                float distance = (localHandPosition - currentPosition).magnitude;
 
-                secondclosestDistance = closestDistance;
-                secondClosestVertex = closestVertex;
+                //Override second
+                if (distance < secondclosestDistance)
+                {
+                    secondclosestDistance = distance;
+                    secondClosestVertex = i;
+                }
 
-                closestDistance = tempD;
-                closestVertex = tempV;
+                //Swap
+                if (secondclosestDistance < closestDistance)
+                {
+                    float tempD = secondclosestDistance;
+                    int tempV = secondClosestVertex;
+
+                    secondclosestDistance = closestDistance;
+                    secondClosestVertex = closestVertex;
+
+                    closestDistance = tempD;
+                    closestVertex = tempV;
+                }
             }
         }
 
@@ -882,6 +936,8 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         if (closestVertex == -1) return;
         if (secondClosestVertex == -1) return;
+
+        if (Time.time == proximityAddTime) return;
 
         //Vertex
         VertexInteractor[] oldInteractors = interactorPositions;
