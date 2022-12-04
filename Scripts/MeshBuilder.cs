@@ -550,6 +550,8 @@ public class MeshBuilder : UdonSharpBehaviour
                 if(activeVertex == interactedIndex)
                 {
                     RemoveVertexFromArray(interactedIndex, true, true);
+
+                    RemoveUnconnectedVertices();
                 }
                 else
                 {
@@ -1080,20 +1082,29 @@ public class MeshBuilder : UdonSharpBehaviour
             int[] oldTriangles = this.triangles;
             triangles = new int[oldTriangles.Length - trianglesToBeRemoved * 3];
 
-            for (int i = 0; i<triangles.Length; i+=3)
+            int offset = 0;
+
+            for (int i = 0; i<oldTriangles.Length; i+=3)
             {
-                int a = oldTriangles[i];
+                int a = oldTriangles[i ];
                 int b = oldTriangles[i + 1];
                 int c = oldTriangles[i + 2];
 
                 if(a != index && b != index && c!= index)
                 {
-                    triangles[i] = a;
-                    triangles[i + 1] = b;
-                    triangles[i + 2] = c;
+                    if (a > index) a--;
+                    if (b > index) b--;
+                    if (c > index) c--;
+
+                    triangles[i - offset] = a;
+                    triangles[i + 1 - offset] = b;
+                    triangles[i + 2 - offset] = c;
+                }
+                else
+                {
+                    offset += 3;
                 }
             }
-
             
             BuildMeshFromData(true);
         }
