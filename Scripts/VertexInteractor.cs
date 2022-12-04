@@ -14,8 +14,6 @@ public class VertexInteractor : UdonSharpBehaviour
     [SerializeField] Material interactColor;
     [SerializeField] Material removeColor;
 
-    VertexSelectStates selectState = VertexSelectStates.Normal;
-
     int index;
     public int Index
     {
@@ -71,7 +69,7 @@ public class VertexInteractor : UdonSharpBehaviour
     {
         set
         {
-            switch (selectState)
+            switch (value)
             {
                 case VertexSelectStates.Normal:
                     attachedRenderer.material = defaultColor;
@@ -82,7 +80,7 @@ public class VertexInteractor : UdonSharpBehaviour
                     InteractionText = $"Remove {index}?";
                     break;
                 case VertexSelectStates.Selected:
-                    attachedRenderer.material = defaultColor;
+                    attachedRenderer.material = interactColor;
                     InteractionText = value.ToString();
                     break;
                 default:

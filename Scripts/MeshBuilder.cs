@@ -33,8 +33,8 @@ public class MeshBuilder : UdonSharpBehaviour
     bool isInVR;
     public bool setupComplete = false;
 
-    int closestVertex = -1;
-    int secondClosestVertex = -1;
+    public int closestVertex = -1;
+    public int secondClosestVertex = -1;
 
     MeshFilter linkedMeshFilter;
     MeshRenderer linkedMeshRenderer;
@@ -70,6 +70,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 case InteractionTypes.AddTriagnle:
                     break;
                 case InteractionTypes.ProximityAdd:
+                    LinkedLineRenderer.gameObject.SetActive(false);
                     break;
                 case InteractionTypes.RemoveTriangle:
                     break;
@@ -93,8 +94,11 @@ public class MeshBuilder : UdonSharpBehaviour
                 case InteractionTypes.Scale:
                     break;
                 case InteractionTypes.AddTriagnle:
+                    closestVertex = -1;
+                    secondClosestVertex = -1;
                     break;
                 case InteractionTypes.ProximityAdd:
+                    LinkedLineRenderer.gameObject.SetActive(true);
                     break;
                 case InteractionTypes.RemoveTriangle:
                     break;
@@ -469,7 +473,7 @@ public class MeshBuilder : UdonSharpBehaviour
                     closestVertex = -1;
                     interactedVertex.SetSelectState = VertexSelectStates.Normal;
                 }
-                if(secondClosestVertex == interactedIndex)
+                else if(secondClosestVertex == interactedIndex)
                 {
                     secondClosestVertex = -1;
                     interactedVertex.SetSelectState = VertexSelectStates.Normal;
@@ -481,8 +485,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 }
                 else if(closestVertex == -1)
                 {
-                    secondClosestVertex = interactedIndex;
-                    closestVertex = secondClosestVertex;
+                    closestVertex = interactedIndex;
                     interactedVertex.SetSelectState = VertexSelectStates.Selected;
                 }
                 else
@@ -557,6 +560,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 break;
         }
 
+        return;
         if(ActiveVertex == -1)
         {
             //Pick up
