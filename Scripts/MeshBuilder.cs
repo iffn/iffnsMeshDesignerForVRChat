@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UIElements;
 using VRC.SDK3.ClientSim;
 using VRC.SDK3.Components;
@@ -14,6 +15,8 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] VertexInteractor VertexInteractorPrefab;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] float DesktopVertexSpeed = 0.2f;
+    [SerializeField] InteractorController LinkedHandIndicator;
+
     public Scaler LinkedScaler;
     public MeshFilter SymmetryMeshFilter;
 
@@ -49,8 +52,8 @@ public class MeshBuilder : UdonSharpBehaviour
         set
         {
             //Unload
-            interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
-            interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
+            if(closestVertex >= 0) interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
+            if (secondClosestVertex >= 0) interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
             closestVertex = -1;
             secondClosestVertex = -1;
 
@@ -190,6 +193,8 @@ public class MeshBuilder : UdonSharpBehaviour
                 SetInteractorsFromMesh();
             }
 
+            LinkedHandIndicator.gameObject.SetActive(value);
+
             VertexInteractorScale = VertexInteractorScale; //Refresh scale
         }
     }
@@ -204,6 +209,12 @@ public class MeshBuilder : UdonSharpBehaviour
         set
         {
             Vector3 scale = value * Vector3.one;
+
+            if(interactorPositions == null)
+            {
+                Debug.LogWarning("Somehow null");
+                return;
+            }
 
             foreach(VertexInteractor vertex in interactorPositions)
             {
@@ -406,6 +417,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
                     //Merging:
                     MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: true);
+                    //MergeVertices(keep: ActiveVertex, discard: interactedVertex.Index, true, updateInteractors: true);
 
                     SetElementsAndMeshFromData();
 
@@ -413,7 +425,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
                     if (!isInVR)
                     {
-                        Networking.LocalPlayer.Immobilize(false);
+                        //Networking.LocalPlayer.Immobilize(false);
                     }
                 }
                 break;
@@ -547,7 +559,7 @@ public class MeshBuilder : UdonSharpBehaviour
             }
             else
             {
-                Networking.LocalPlayer.Immobilize(true);
+                //Networking.LocalPlayer.Immobilize(true);
             }
         }
         else if(interactedVertex.Index == ActiveVertex)
@@ -569,7 +581,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
             if (!isInVR)
             {
-                Networking.LocalPlayer.Immobilize(false);
+                //Networking.LocalPlayer.Immobilize(false);
             }
         }
     }
@@ -608,6 +620,11 @@ public class MeshBuilder : UdonSharpBehaviour
             correctSetup = false;
             Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
         }
+        if (LinkedHandIndicator == null)
+        {
+            correctSetup = false;
+            Debug.LogWarning($"Error: {nameof(LinkedHandIndicator)} not assinged");
+        }
 
         if (!correctSetup)
         {
@@ -621,11 +638,20 @@ public class MeshBuilder : UdonSharpBehaviour
         linkedMeshFilter = transform.GetComponent<MeshFilter>();
         linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
 
-        if(InEditMode) SetInteractorsFromMesh();
+        if (InEditMode)
+        {
+            SetInteractorsFromMesh();
+        }
+
+        LinkedHandIndicator.Setup(this);
+
+        LinkedHandIndicator.gameObject.SetActive(InEditMode);
 
         if(SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
 
         UpdateMeshInfoFromMesh();
+
+        CurrentInteractionType = (InteractionTypes)0;
     }
 
     // Start is called before the first frame update
@@ -687,6 +713,8 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         if (ActiveVertex >= 0)
         {
+            Vector3 newPosition;
+
             if (isInVR)
             {
                 if (ManualVertexDrop)
@@ -726,29 +754,38 @@ public class MeshBuilder : UdonSharpBehaviour
                         break;
                 }
 
-                Vector3 newPosition = currentHandData.position;
-
-                if (ActiveVertex >= interactorPositions.Length)
-                {
-                    Debug.LogWarning("Active vertex somehow larger than expected");
-                    return;
-                }
-
-                Transform currentVertex = interactorPositions[ActiveVertex].transform;
-
-                currentVertex.position = newPosition;
-
-                if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
-                {
-                    currentVertex.localPosition = new Vector3(0, currentVertex.localPosition.y, currentVertex.localPosition.z);
-                }
-
-                SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
+                newPosition = currentHandData.position;
             }
             else
             {
+                if ((ManualVertexDrop && Input.GetMouseButtonDown(1))
+                    || (!ManualVertexDrop && Input.GetMouseButtonUp(0)))
+                {
+                    ActiveVertex = -1;
+                    return;
+                }
 
+                VRCPlayerApi.TrackingData currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+                newPosition = currentHandData.position + currentHandData.rotation * (0.5f * Vector3.forward);
             }
+
+            if (ActiveVertex >= interactorPositions.Length)
+            {
+                Debug.LogWarning("Active vertex somehow larger than expected");
+                return;
+            }
+
+            Transform currentVertex = interactorPositions[ActiveVertex].transform;
+
+            currentVertex.position = newPosition;
+
+            if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
+            {
+                currentVertex.localPosition = new Vector3(0, currentVertex.localPosition.y, currentVertex.localPosition.z);
+            }
+
+            SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
         }
     }
 
@@ -1145,7 +1182,7 @@ public class MeshBuilder : UdonSharpBehaviour
         }
         else
         {
-            Networking.LocalPlayer.Immobilize(false);
+            //Networking.LocalPlayer.Immobilize(false);
         }
     }
 

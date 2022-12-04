@@ -16,11 +16,9 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Toggle SymmetryModeToggle;
     [SerializeField] Toggle ShowInteractionLocationToggle;
     [SerializeField] Toggle ShowScalingIndicatorToggle;
+    [SerializeField] Toggle ManualVertexDropToggle;
 
     [SerializeField] Material WireframeMaterial;
-
-    [SerializeField] Transform LeftHandInteractionIndicator;
-    [SerializeField] Transform RightHandInteractionIndicator;
 
     [SerializeField] ObjConterter LinkedObjConverter;
 
@@ -34,25 +32,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         bool correctSetup = true;
 
-        if (LeftHandInteractionIndicator == null)
-        {
-            correctSetup = false;
-            Debug.LogWarning($"Error: {nameof(LeftHandInteractionIndicator)} not assinged");
-        }
-        if (RightHandInteractionIndicator == null)
-        {
-            correctSetup = false;
-            Debug.LogWarning($"Error: {nameof(RightHandInteractionIndicator)} not assinged");
-        }
-
         if (!correctSetup)
         {
             gameObject.SetActive(false);
             return;
         }
-
-        RightHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
-        LeftHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
 
         ToggleEditMesh();
 
@@ -105,10 +89,9 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         LinkedMeshBuilder.SymmetryMode = SymmetryModeToggle.isOn;
     }
 
-    public void ToggleShowInteractionLocation()
+    public void ToggleManualVertexDrop()
     {
-        RightHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
-        LeftHandInteractionIndicator.gameObject.SetActive(isInVR && ShowInteractionLocationToggle.isOn);
+        LinkedMeshBuilder.ManualVertexDrop = ManualVertexDropToggle.isOn;
     }
 
     public void ToggleShowScalingIndicator()
