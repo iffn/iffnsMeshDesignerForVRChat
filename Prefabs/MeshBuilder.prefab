@@ -2817,7 +2817,7 @@ RectTransform:
   m_GameObject: {fileID: 1425333348751208704}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 116449607165245943}
   m_Father: {fileID: 3646392921916517831}
@@ -3588,6 +3588,8 @@ MonoBehaviour:
   SymmetryMeshFilter: {fileID: 4802339038477815330}
   ManualVertexDrop: 0
   setupComplete: 0
+  closestVertex: -1
+  secondClosestVertex: -1
   LatestDebugText: 
   verticesDebug: []
   mirrorActive: 1
@@ -4498,9 +4500,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Remove
-
-    Triangle'
+  m_text: Idle
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}

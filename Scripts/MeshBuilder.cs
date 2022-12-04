@@ -509,7 +509,7 @@ public class MeshBuilder : UdonSharpBehaviour
                     closestVertex = -1;
                     interactedVertex.SetSelectState = VertexSelectStates.Normal;
                 }
-                if (secondClosestVertex == interactedIndex)
+                else if (secondClosestVertex == interactedIndex)
                 {
                     secondClosestVertex = -1;
                     interactedVertex.SetSelectState = VertexSelectStates.Normal;
@@ -521,8 +521,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 }
                 else if (closestVertex == -1)
                 {
-                    secondClosestVertex = interactedIndex;
-                    closestVertex = secondClosestVertex;
+                    closestVertex = interactedIndex;
                     interactedVertex.SetSelectState = VertexSelectStates.Selected;
                 }
                 else
@@ -530,10 +529,17 @@ public class MeshBuilder : UdonSharpBehaviour
                     TryRemoveTriangle(closestVertex, secondClosestVertex, interactedIndex);
                     BuildMeshFromData(true);
 
-                    interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
-                    interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
-                    closestVertex = -1;
-                    secondClosestVertex = -1;
+                    //Check if -1 since unconnected vertices are removed when removing triangles
+                    if(secondClosestVertex >= 0)
+                    {
+                        interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
+                        secondClosestVertex = -1;
+                    }
+                    if (closestVertex >= 0)
+                    {
+                        interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
+                        closestVertex = -1;
+                    }
                 }
                 
                 break;
@@ -941,15 +947,26 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void TryRemoveTriangle(int a, int b, int c)
     {
+        if(a == b || a == c || b == c)
+        {
+            Debug.LogWarning("Error: double triangle found");
+        }
+
+        if(triangles.Length < 3)
+        {
+            Debug.LogWarning("Error: traingle length somehow 0");
+            return;
+        }
+
         for(int i = 0; i < triangles.Length; i+= 3)
         {
             int ta = triangles[i];
-            int tb = triangles[i+2];
-            int tc = triangles[i+3];
+            int tb = triangles[i+1];
+            int tc = triangles[i+2];
 
             bool found = (ta == a || tb == a || tc == a) &&
-                        (ta == b || tb == b || tc == b) &&
-                        (ta == c || tb == c || tc == c);
+                         (ta == b || tb == b || tc == b) &&
+                         (ta == c || tb == c || tc == c);
 
             if (!found) continue;
 
@@ -959,7 +976,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
             int indexAddition = 0;
 
-            for (int j = 0; j < oldTriangles.Length; j+=3)
+            for (int j = 0; j < triangles.Length; j+=3)
             {
                 if(j == i)
                 {
@@ -967,11 +984,45 @@ public class MeshBuilder : UdonSharpBehaviour
                 }
 
                 triangles[j] = oldTriangles[j + indexAddition];
-                triangles[j + 1] = oldTriangles[j + indexAddition + 2];
+                triangles[j + 1] = oldTriangles[j + indexAddition + 1];
                 triangles[j + 2] = oldTriangles[j + indexAddition + 2];
             }
 
+            RemoveUnconnectedVertices();
+
             return;
+        }
+
+        Debug.LogWarning($"Error: triangle {a}, {b}, {c} not found");
+    }
+
+    [RecursiveMethod]
+    void RemoveUnconnectedVertices()
+    {
+        bool[] vertexUsed = new bool[vertices.Length];
+
+        for(int i = 0; i<vertexUsed.Length; i++)
+        {
+            vertexUsed[i] = false;
+        }
+
+        for(int i = 0; i<triangles.Length; i++)
+        {
+            vertexUsed[triangles[i]] = true;
+        }
+
+        for(int i = 0; i< vertexUsed.Length; i++)
+        {
+            if (!vertexUsed[i])
+            {
+                Debug.Log("Removing vertex " + i);
+
+                RemoveVertexFromArray(i, true, true);
+
+                RemoveUnconnectedVertices();
+
+                return;
+            }
         }
     }
 
@@ -1009,6 +1060,12 @@ public class MeshBuilder : UdonSharpBehaviour
 
                 newIndex++;
             }
+
+            if (closestVertex == index) closestVertex = -1;
+            else if (closestVertex > index) closestVertex--;
+
+            if (secondClosestVertex == index) secondClosestVertex = -1;
+            else if (secondClosestVertex > index) secondClosestVertex--;
         }
 
         if (updateTriangles)
