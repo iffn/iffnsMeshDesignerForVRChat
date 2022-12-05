@@ -108,4 +108,14 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         LinkedMeshBuilder.VertexInteractorScale *= 0.8f;
     }
+
+    public void IndicatorSizeX1o25()
+    {
+        LinkedMeshBuilder.IndicatorScale *= 1.25f;
+    }
+
+    public void IndicatorSizeX0o8()
+    {
+        LinkedMeshBuilder.IndicatorScale *= 0.8f;
+    }
 }

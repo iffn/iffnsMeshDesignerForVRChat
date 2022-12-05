@@ -1,15 +1,9 @@
 ﻿
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Mozilla;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.UIElements;
-using VRC.SDK3.ClientSim;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
-using VRC.Udon;
 using VRC.Udon.Common;
-using VRC.Udon.Serialization.OdinSerializer;
 
 public class MeshBuilder : UdonSharpBehaviour
 {
@@ -266,6 +260,18 @@ public class MeshBuilder : UdonSharpBehaviour
             }
 
             vertexInteractorScale = value;
+        }
+    }
+
+    public float IndicatorScale
+    {
+        get
+        {
+            return LinkedHandIndicator.IndicatorScale;
+        }
+        set
+        {
+            LinkedHandIndicator.IndicatorScale = value;
         }
     }
 
@@ -1073,8 +1079,6 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             if (!vertexUsed[i])
             {
-                Debug.Log("Removing vertex " + i);
-
                 RemoveVertexFromArray(i, true, true);
 
                 RemoveUnconnectedVertices();
@@ -1199,6 +1203,46 @@ public class MeshBuilder : UdonSharpBehaviour
         BuildMeshFromData(true);
     }
 
+    void RemoveInvalidTriagnles()
+    {
+        int trianglesToBeRemoved = 0;
+
+        for(int i = 0; i<triangles.Length; i+=3)
+        {
+            int a = triangles[i];
+            int b = triangles[i + 1];
+            int c = triangles[i + 2];
+
+            if (a == b || a == c || b == c)
+            {
+                trianglesToBeRemoved++;
+            }
+        }
+
+        int[] oldTriangles = triangles;
+        triangles = new int[triangles.Length - trianglesToBeRemoved];
+
+        int offset = 0;
+
+        for (int i = 0; i < oldTriangles.Length; i+=3)
+        {
+            int a = oldTriangles[i];
+            int b = oldTriangles[i + 1];
+            int c = oldTriangles[i + 2];
+
+            if (a == b || a == c || b == c)
+            {
+                offset += 3;
+            }
+            else
+            {
+                triangles[i - offset] = a;
+                triangles[i + 1 - offset] = b;
+                triangles[i + 2 - offset] = c;
+            }
+        }
+    }
+
     void MergeVertices(int keep, int discard, bool updateMesh, bool updateInteractors)
     {
         //Debug.Log($"Keep: {keep}, discard: {discard}");
@@ -1235,6 +1279,24 @@ public class MeshBuilder : UdonSharpBehaviour
                 trianglesToBeRemoved += found - 1;
             }
         }
+        
+        /*
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            if (triangles[i] == discard)
+            {
+                triangles[i] = keep;
+            }
+            if (triangles[i + 1] == discard)
+            {
+                triangles[i + 1] = keep;
+            }
+            if (triangles[i + 2] == discard)
+            {
+                triangles[i + 2] = keep;
+            }
+        }
+        */
 
         //decrement index
         for (int i = 0; i < triangles.Length; i++)
@@ -1244,6 +1306,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
         //Remove failed triangles
         int trianglesRemoved = 0;
+        int trianglesSkipped = 0;
 
         if(trianglesToBeRemoved > 0)
         {
@@ -1258,20 +1321,22 @@ public class MeshBuilder : UdonSharpBehaviour
 
                 if (a != b && b != c && c != a)
                 {
-                    triangles[i] = a - trianglesRemoved * 3;
-                    triangles[i + 1] = b - trianglesRemoved * 3;
-                    triangles[i + 2] = c - trianglesRemoved * 3;
+                    triangles[i - trianglesSkipped] = a ; // Subtract from index instead of value???????
+                    triangles[i + 1 - trianglesSkipped] = b;
+                    triangles[i + 2 - trianglesSkipped] = c;
                 }
                 else
                 {
                     trianglesRemoved++;
+                    trianglesSkipped += 3;
                 }
             }
         }
 
         if (ActiveVertex > discard) ActiveVertex--;
+        
 
-        if(updateMesh) BuildMeshFromData(vertices, this.triangles);
+        if (updateMesh) BuildMeshFromData(vertices, this.triangles);
         if (updateInteractors) SetInteractorsFromMesh();
     }
 

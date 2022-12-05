@@ -9,6 +9,7 @@ public class InteractorController : UdonSharpBehaviour
     [SerializeField] VRCPlayerApi.TrackingDataType handType;
     [SerializeField] Transform VRUI;
     [SerializeField] GameObject DesktopUI;
+    [SerializeField] Transform DesktopUIScaler;
     [SerializeField] Transform IndicatorArrowVR;
     [SerializeField] Transform IndicatorArrowDesktop;
 
@@ -16,6 +17,30 @@ public class InteractorController : UdonSharpBehaviour
 
     MeshBuilder linkedMeshBuilder;
     const float sectionAngle = 1f / 45;
+
+    public float indicatorScale = 1f;
+    public float IndicatorScale
+    {
+        get
+        {
+            return indicatorScale;
+        }
+        set
+        {
+            Vector3 scale = value * Vector3.one;
+
+            if (Networking.LocalPlayer.IsUserInVR())
+            {
+                VRUI.localScale = scale;
+            }
+            else
+            {
+                DesktopUIScaler.localScale = scale;
+            }
+
+            indicatorScale = value;
+        }
+    }
 
     public void Setup(MeshBuilder linkedMeshBuilder)
     {
@@ -27,11 +52,15 @@ public class InteractorController : UdonSharpBehaviour
         {
             GameObject.Destroy(DesktopUI);
             IndicatorArrowVR.localRotation = Quaternion.Euler(0, 180, -index * 45);
+            indicatorScale = VRUI.localScale.x;
+            transform.parent = null;
         }
         else
         {
             GameObject.Destroy(VRUI.gameObject);
             IndicatorArrowVR.localRotation = Quaternion.Euler(0, 0, -index * 45);
+            indicatorScale = DesktopUIScaler.localScale.x;
+            transform.parent = null;
         }
     }
 
@@ -48,9 +77,18 @@ public class InteractorController : UdonSharpBehaviour
 
             if (rightJoytickPosition.magnitude > 0.5)
             {
-                float angle = Mathf.Atan2(rightJoytickPosition.x, rightJoytickPosition.y);
+                float angleDeg = Mathf.Atan2(rightJoytickPosition.x, rightJoytickPosition.y) * Mathf.Rad2Deg;
 
-                Index = (int)Mathf.Round(angle * sectionAngle);
+                if(angleDeg < 90)
+                {
+                    angleDeg = 90 - angleDeg;
+                }
+                else
+                {
+                    angleDeg = 450 - angleDeg;
+                }
+
+                Index = (int)Mathf.Round(angleDeg * sectionAngle);
             }
         }
         else

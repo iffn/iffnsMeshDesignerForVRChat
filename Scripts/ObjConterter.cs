@@ -26,9 +26,14 @@ public class ObjConterter : UdonSharpBehaviour
 
     public void ImportObj()
     {
-        Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
+        ImportObj(LinkedInputField.text);
+    }
 
-        SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, LinkedInputField.text);
+    public void ImportObj(string objString)
+    {
+        //Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
+
+        SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, objString);
 
         LinkedMeshBuilder.UpdateMeshInfoFromMesh();
 
