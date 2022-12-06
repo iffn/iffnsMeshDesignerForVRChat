@@ -580,9 +580,13 @@ public class MeshBuilder : UdonSharpBehaviour
             case InteractionTypes.RemoveVertex:
                 if(activeVertex == interactedIndex)
                 {
-                    RemoveVertexFromArray(interactedIndex, true, true);
+                    RemoveVertexFromArray(interactedIndex, false, true, false);
 
                     RemoveUnconnectedVertices();
+
+                    BuildMeshFromData(true);
+
+                    activeVertex = -1;
                 }
                 else
                 {
@@ -1015,7 +1019,7 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             if (!vertexUsed[i])
             {
-                RemoveVertexFromArray(i, true, true);
+                RemoveVertexFromArray(i, false, true, false);
 
                 RemoveUnconnectedVertices();
 
@@ -1024,7 +1028,7 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void RemoveVertexFromArray(int index, bool updateInteractors, bool updateTriangles)
+    void RemoveVertexFromArray(int index, bool updateInteractors, bool updateTriangles, bool buildMesh)
     {
         Vector3[] oldVertexPositons = vertices;
         Vector3[] newVertexPositions = new Vector3[oldVertexPositons.Length - 1];
@@ -1101,9 +1105,9 @@ public class MeshBuilder : UdonSharpBehaviour
                     offset += 3;
                 }
             }
-            
-            BuildMeshFromData(true);
         }
+
+        if(buildMesh) BuildMeshFromData(false);
     }
 
     public void MergeOverlappingVertices()
@@ -1183,7 +1187,7 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         //Debug.Log($"Keep: {keep}, discard: {discard}");
 
-        RemoveVertexFromArray(discard, false, false);
+        RemoveVertexFromArray(discard, false, false, false);
 
         int trianglesToBeRemoved = 0;
 
