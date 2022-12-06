@@ -41,6 +41,10 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         ToggleEditMesh();
 
         LinkedObjConverter.Setup(LinkedMeshBuilder);
+
+        ManualVertexDropToggle.gameObject.SetActive(false);
+        ManualVertexDropToggle.isOn = !Networking.LocalPlayer.IsUserInVR();
+        ManualVertexDropToggle.gameObject.SetActive(true);
     }
 
     private void Update()
@@ -92,6 +96,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     public void ToggleManualVertexDrop()
     {
         LinkedMeshBuilder.ManualVertexDrop = ManualVertexDropToggle.isOn;
+        Debug.Log(ManualVertexDropToggle.isOn);
     }
 
     public void ToggleShowScalingIndicator()

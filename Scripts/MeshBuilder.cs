@@ -1,4 +1,6 @@
 ﻿
+using System.Linq.Expressions;
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Components;
@@ -373,32 +375,12 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void UpdateMeshData()
-    {
-        Mesh mesh = linkedMeshFilter.sharedMesh;
-
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-    }
-
-
     public void UpdateMeshInfoFromMesh()
     {
         Mesh mesh = linkedMeshFilter.sharedMesh;
 
         vertices = mesh.vertices;
         triangles = mesh.triangles;
-    }
-
-    void SetElementsAndMeshFromData()
-    {
-        UpdateMeshData();
-
-        if (inEditMode)
-        {
-            SetInteractorsFromMesh();
-        }
     }
 
     void SetElementsAndMeshFromData(Vector3[] positions, int[] triangles)
@@ -483,14 +465,12 @@ public class MeshBuilder : UdonSharpBehaviour
                     //Merging:
                     MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: true);
 
-                    SetElementsAndMeshFromData();
+                    RemoveInvalidTriagnles();
+                    RemoveUnconnectedVertices();
+
+                    BuildMeshFromData(InEditMode);
 
                     ActiveVertex = -1;
-
-                    if (!isInVR)
-                    {
-                        //Networking.LocalPlayer.Immobilize(false);
-                    }
                 }
                 break;
             case InteractionTypes.StepAdd:
@@ -619,62 +599,6 @@ public class MeshBuilder : UdonSharpBehaviour
                 break;
             default:
                 break;
-        }
-
-        return;
-        if(ActiveVertex == -1)
-        {
-            //Pick up
-            ActiveVertex = interactedVertex.Index;
-
-            if (isInVR)
-            {
-                VRCPlayerApi.TrackingData leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                VRCPlayerApi.TrackingData rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-
-                Vector3 vertexPosition = interactedVertex.transform.position;
-
-                if ((leftHand.position - vertexPosition).magnitude < (rightHand.position - vertexPosition).magnitude)
-                {
-                    currentHand = VRCPickup.PickupHand.Left;
-
-                    interactedVertex.transform.SetPositionAndRotation(leftHand.position, leftHand.rotation);
-                }
-                else
-                {
-                    currentHand = VRCPickup.PickupHand.Right;
-
-                    interactedVertex.transform.SetPositionAndRotation(rightHand.position, rightHand.rotation);
-                }
-
-                interactedVertex.transform.position = vertexPosition;
-            }
-            else
-            {
-                //Networking.LocalPlayer.Immobilize(true);
-            }
-        }
-        else if(interactedVertex.Index == ActiveVertex)
-        {
-            //Same vertex: Ignore
-        }
-        else
-        {
-            //Check distance:
-
-            if (isInVR && (interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude > vertexInteractorScale) return;
-
-            //Merging:
-            MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: true);
-
-            SetElementsAndMeshFromData();
-
-            ActiveVertex = -1;
-
-            if (!isInVR)
-            {
-                //Networking.LocalPlayer.Immobilize(false);
-            }
         }
     }
 
@@ -1220,7 +1144,7 @@ public class MeshBuilder : UdonSharpBehaviour
         }
 
         int[] oldTriangles = triangles;
-        triangles = new int[triangles.Length - trianglesToBeRemoved];
+        triangles = new int[triangles.Length - trianglesToBeRemoved * 3];
 
         int offset = 0;
 
