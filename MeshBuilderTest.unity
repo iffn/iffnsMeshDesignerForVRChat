@@ -3999,11 +3999,6 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 5279270189558272080, guid: 4587af1411a250b46a19a3e18e45d5eb,
         type: 3}
-      propertyPath: ManualVertexDrop
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5279270189558272080, guid: 4587af1411a250b46a19a3e18e45d5eb,
-        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 5279270189558272080, guid: 4587af1411a250b46a19a3e18e45d5eb,
@@ -4107,7 +4102,7 @@ GameObject:
   - component: {fileID: 1842494187}
   - component: {fileID: 1842494186}
   - component: {fileID: 1842494185}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

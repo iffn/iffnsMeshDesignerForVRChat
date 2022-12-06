@@ -23,7 +23,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     double updateFPSForDebug;
 
-    VertexInteractor[] interactorPositions = new VertexInteractor[0];
+    public VertexInteractor[] interactorPositions = new VertexInteractor[0];
 
     VRCPickup.PickupHand currentHand;
 
@@ -339,8 +339,6 @@ public class MeshBuilder : UdonSharpBehaviour
         for(int i = 0; i<interactorPositions.Length; i++)
         {
             Destroy(interactorPositions[i].gameObject);
-
-            interactorPositions[i] = null;
         }
 
         interactorPositions = new VertexInteractor[0];
@@ -463,12 +461,12 @@ public class MeshBuilder : UdonSharpBehaviour
                     }
 
                     //Merging:
-                    MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: true);
+                    MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: false);
 
                     RemoveInvalidTriagnles();
                     RemoveUnconnectedVertices();
 
-                    BuildMeshFromData(InEditMode);
+                    BuildMeshFromData(true);
 
                     ActiveVertex = -1;
                 }
@@ -758,11 +756,23 @@ public class MeshBuilder : UdonSharpBehaviour
             }
             else
             {
-                if ((ManualVertexDrop && Input.GetMouseButtonDown(1))
-                    || (!ManualVertexDrop && Input.GetMouseButtonUp(0)))
+                if (ManualVertexDrop)
                 {
-                    ActiveVertex = -1;
-                    return;
+                    if (Input.GetMouseButtonDown(1))
+                    {
+                        //Make sure to set collider state again
+                        ActiveVertex = -1;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        DropAndMergeVertex();
+                        activeVertex = -1;
+                        return;
+                    }
                 }
             }
 
@@ -811,6 +821,8 @@ public class MeshBuilder : UdonSharpBehaviour
         if (currentClosestDistance < vertexInteractorScale)
         {
             MergeVertices(currentClosestVertex, activeVertex, true, true);
+
+
         }
     }
 

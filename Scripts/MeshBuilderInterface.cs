@@ -96,7 +96,6 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     public void ToggleManualVertexDrop()
     {
         LinkedMeshBuilder.ManualVertexDrop = ManualVertexDropToggle.isOn;
-        Debug.Log(ManualVertexDropToggle.isOn);
     }
 
     public void ToggleShowScalingIndicator()
