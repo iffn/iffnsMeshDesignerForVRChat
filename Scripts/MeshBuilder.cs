@@ -15,7 +15,7 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] float mirrorSnap = 0.01f;
 
     [Header("Unity assingments")]
-    [SerializeField] VertexInteractor VertexInteractorPrefab;
+    [SerializeField] VertexIndicator VertexInteractorPrefab;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] InteractorController LinkedHandIndicator;
     public Scaler LinkedScaler;
@@ -29,9 +29,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
     double updateFPSForDebug;
 
-    public VertexInteractor[] interactorPositions = new VertexInteractor[0];
-
-    VRCPickup.PickupHand currentHand;
+    public VertexIndicator[] interactorPositions = new VertexIndicator[0];
 
     bool isInVR;
     bool viveUser = false;
@@ -41,7 +39,7 @@ public class MeshBuilder : UdonSharpBehaviour
     float proximityAddTime = 0;
 
     public int closestVertex = -1;
-    public VertexInteractor ClosestVertex
+    public VertexIndicator ClosestVertex
     {
         get
         {
@@ -51,7 +49,7 @@ public class MeshBuilder : UdonSharpBehaviour
     }
 
     public int secondClosestVertex = -1;
-    public VertexInteractor SecondClosestVertex
+    public VertexIndicator SecondClosestVertex
     {
         get
         {
@@ -143,9 +141,9 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    HandSides primaryHand = HandSides.Right;
+    HandType primaryHand = HandType.RIGHT;
 
-    public HandSides PrimaryHand
+    public HandType PrimaryHand
     {
         get
         {
@@ -163,7 +161,7 @@ public class MeshBuilder : UdonSharpBehaviour
         {
             if (isInVR)
             {
-                if (primaryHand == HandSides.Left)
+                if (primaryHand == HandType.LEFT)
                 {
                     return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
                 }
@@ -187,7 +185,7 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         get
         {
-            if (primaryHand == HandSides.Left)
+            if (primaryHand == HandType.LEFT)
             {
                 return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation;
             }
@@ -207,16 +205,6 @@ public class MeshBuilder : UdonSharpBehaviour
         }
         set
         {
-            if(activeVertex >= 0 && activeVertex < interactorPositions.Length)
-            {
-                interactorPositions[activeVertex].ColliderState = true;
-            }
-
-            if (value >= 0 && value < interactorPositions.Length)
-            {
-                interactorPositions[value].ColliderState = false;
-            }
-
             activeVertex = value;
         }
     }
@@ -264,7 +252,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 return;
             }
 
-            foreach(VertexInteractor vertex in interactorPositions)
+            foreach(VertexIndicator vertex in interactorPositions)
             {
                 vertex.transform.localScale = scale;
             }
@@ -346,7 +334,7 @@ public class MeshBuilder : UdonSharpBehaviour
             Destroy(interactorPositions[i].gameObject);
         }
 
-        interactorPositions = new VertexInteractor[0];
+        interactorPositions = new VertexIndicator[0];
     }
 
     public Vector3[] verticesDebug;
@@ -413,11 +401,11 @@ public class MeshBuilder : UdonSharpBehaviour
 
             Vector3[] positions = vertices;
 
-            interactorPositions = new VertexInteractor[positions.Length];
+            interactorPositions = new VertexIndicator[positions.Length];
 
             for (int i = 0; i < positions.Length; i++)
             {
-                VertexInteractor currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexInteractor>();
+                VertexIndicator currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexIndicator>();
 
                 currentInteractor.Setup(i, transform, positions[i], this);
 
@@ -442,7 +430,8 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    public void InteractWithVertex(VertexInteractor interactedVertex)
+    //ToDo: Replace this function
+    public void InteractWithVertex(VertexIndicator interactedVertex)
     {
         int interactedIndex = interactedVertex.Index;
 
@@ -747,55 +736,39 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void MoveAndMergeUpdate()
     {
-        if (ActiveVertex >= 0)
+        //Check state
+        if (ActiveVertex < 0) return;
+
+        if (ActiveVertex >= interactorPositions.Length)
         {
-            if (ActiveVertex >= interactorPositions.Length)
-            {
-                Debug.LogWarning("Active vertex somehow larger than expected");
-                return;
-            }
-
-            Transform currentVertex = interactorPositions[ActiveVertex].transform;
-
-            currentVertex.position = PrimaryHandPosition;
-
-            if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
-            {
-                currentVertex.localPosition = new Vector3(0, currentVertex.localPosition.y, currentVertex.localPosition.z);
-            }
-
-            SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
+            Debug.LogWarning("Active vertex somehow larger than expected");
+            return;
         }
+
+        //Set indicator position
+        Transform currentVertex = interactorPositions[ActiveVertex].transform;
+
+        currentVertex.position = PrimaryHandPosition;
+
+        //Snap to mirror
+        if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
+        {
+            currentVertex.localPosition = new Vector3(0, currentVertex.localPosition.y, currentVertex.localPosition.z);
+        }
+
+        //Apply mesh
+        SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
     }
 
-    void DropAndMergeVertex()
+    void UseMergeVertex()
     {
-        int currentClosestVertex = -1;
-
-        float currentClosestDistance = Mathf.Infinity;
-
-        Vector3 localHandPosition = vertices[activeVertex];
-
-        for (int i = 0; i < vertices.Length; i++)
+        if (activeVertex >= 0)
         {
-            if (i == activeVertex) continue;
+            int closestVertex = GetClosestVertex(primaryHand);
 
-            Vector3 currentPosition = vertices[i];
+            if (closestVertex >= 0) MergeVertices(activeVertex, closestVertex, true, true);
 
-            float distance = (localHandPosition - currentPosition).magnitude;
-
-            if (distance < currentClosestDistance)
-            {
-                currentClosestVertex = i;
-                currentClosestDistance = distance;
-            }
-        }
-
-        if (currentClosestDistance < vertexInteractorScale)
-        {
-            MergeVertices(currentClosestVertex, activeVertex, true, true);
-
-
+            activeVertex = -1;
         }
     }
 
@@ -855,9 +828,9 @@ public class MeshBuilder : UdonSharpBehaviour
         if (Time.time == proximityAddTime) return;
 
         //Vertex
-        VertexInteractor[] oldInteractors = interactorPositions;
+        VertexIndicator[] oldInteractors = interactorPositions;
         Vector3[] oldVertexPositions = vertices;
-        interactorPositions = new VertexInteractor[oldInteractors.Length + 1];
+        interactorPositions = new VertexIndicator[oldInteractors.Length + 1];
         vertices = new Vector3[oldInteractors.Length + 1];
 
         for (int i = 0; i < oldInteractors.Length; i++)
@@ -868,7 +841,7 @@ public class MeshBuilder : UdonSharpBehaviour
 
         int newVertexIndex = interactorPositions.Length - 1;
 
-        VertexInteractor currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexInteractor>();
+        VertexIndicator currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexIndicator>();
 
         Vector3 localPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 
@@ -1018,8 +991,8 @@ public class MeshBuilder : UdonSharpBehaviour
         if (updateInteractors)
         {
             GameObject.Destroy(interactorPositions[index].gameObject);
-            VertexInteractor[] oldVertexInteractors = interactorPositions;
-            interactorPositions = new VertexInteractor[oldVertexInteractors.Length - 1];
+            VertexIndicator[] oldVertexInteractors = interactorPositions;
+            interactorPositions = new VertexIndicator[oldVertexInteractors.Length - 1];
             
             newIndex = 0;
 
@@ -1249,24 +1222,6 @@ public class MeshBuilder : UdonSharpBehaviour
         if (updateInteractors) SetInteractorsFromMesh();
     }
 
-
-    void DropFunction()
-    {
-        if (!inEditMode) return;
-
-        if (ActiveVertex < 0) return;
-
-        ActiveVertex = -1;
-        if (isInVR)
-        {
-
-        }
-        else
-        {
-            //Networking.LocalPlayer.Immobilize(false);
-        }
-    }
-
     int GetClosestVertex(HandType handType)
     {
         Vector3 handPosition = (handType == HandType.RIGHT) ?
@@ -1278,8 +1233,10 @@ public class MeshBuilder : UdonSharpBehaviour
 
         for(int i = 0; i<vertices.Length; i++)
         {
-            Vector3 v = vertices[i];
-            float distance = (v - handPosition).magnitude;
+            if (i == activeVertex) continue;
+
+            Vector3 currentPosition = vertices[i];
+            float distance = (currentPosition - handPosition).magnitude;
 
             if(distance < closestDistance)
             {
@@ -1291,8 +1248,11 @@ public class MeshBuilder : UdonSharpBehaviour
         return closestVertex;
     }
 
+    //Common VR input functions
     void GrabInput(HandType handType)
     {
+        if (handType != HandType.RIGHT) return; //Currently only right hand use
+
         switch (currentInteractionType)
         {
             case InteractionTypes.MoveAndMerge:
@@ -1308,6 +1268,7 @@ public class MeshBuilder : UdonSharpBehaviour
             case InteractionTypes.AddTriagnle:
                 break;
             case InteractionTypes.ProximityAdd:
+                //Ignore
                 break;
             case InteractionTypes.RemoveTriangle:
                 break;
@@ -1322,6 +1283,8 @@ public class MeshBuilder : UdonSharpBehaviour
     
     void DropInput(HandType handType)
     {
+        if (handType != HandType.RIGHT) return; //Currently only right hand use
+
         switch (currentInteractionType)
         {
             case InteractionTypes.MoveAndMerge:
@@ -1348,11 +1311,14 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void UseInput(bool value, HandType handType)
     {
+        if (handType != HandType.RIGHT) return; //Currently only right hand use
+
         if (value)
         {
             switch (currentInteractionType)
             {
                 case InteractionTypes.MoveAndMerge:
+                    UseMergeVertex();
                     break;
                 case InteractionTypes.StepAdd:
                     UseVertexAdder();
@@ -1376,13 +1342,21 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
+    //VRChat input functions
     public override void InputGrab(bool value, UdonInputEventArgs args)
     {
         if (!isInVR) return;
 
         if (!viveUser)
         {
-            GrabInput(args.handType);
+            if (value)
+            {
+                GrabInput(args.handType);
+            }
+            else
+            {
+                DropInput(args.handType);
+            }
         }
         else
         {
@@ -1411,7 +1385,7 @@ public class MeshBuilder : UdonSharpBehaviour
     {
         if (!isInVR) return;
 
-        //Only for Vive user
+        //InputDrop only called for Vive users
         DropInput(args.handType);
     }
 }
@@ -1428,8 +1402,3 @@ public enum InteractionTypes
     RemoveVertex
 }
 
-public enum HandSides
-{
-    Left,
-    Right,
-}

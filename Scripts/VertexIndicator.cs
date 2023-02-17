@@ -4,10 +4,9 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class VertexInteractor : UdonSharpBehaviour
+public class VertexIndicator : UdonSharpBehaviour
 {
     MeshBuilder linkedMeshBuilder;
-    Collider attachedCollider;
     MeshRenderer attachedRenderer;
 
     [SerializeField] Material defaultColor;
@@ -41,28 +40,9 @@ public class VertexInteractor : UdonSharpBehaviour
         transform.localPosition = localPosition;
         gameObject.SetActive(true);
         this.linkedMeshBuilder = linkedMeshBuilder;
-        attachedCollider = transform.GetComponent<Collider>();
         transform.localScale = linkedMeshBuilder.VertexInteractorScale * Vector3.one;
 
         attachedRenderer = transform.GetComponent<MeshRenderer>();
-    }
-
-    public bool ColliderState
-    {
-        set
-        {
-            attachedCollider.enabled = value;
-        }
-    }
-
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-
     }
 
     public VertexSelectStates SetSelectState
@@ -73,25 +53,17 @@ public class VertexInteractor : UdonSharpBehaviour
             {
                 case VertexSelectStates.Normal:
                     attachedRenderer.material = defaultColor;
-                    InteractionText = value.ToString();
                     break;
                 case VertexSelectStates.ReadyToDelete:
                     attachedRenderer.material = removeColor;
-                    InteractionText = $"Remove {index}?";
                     break;
                 case VertexSelectStates.Selected:
                     attachedRenderer.material = interactColor;
-                    InteractionText = value.ToString();
                     break;
                 default:
                     break;
             }
         }
-    }
-
-    public override void Interact()
-    {
-        linkedMeshBuilder.InteractWithVertex(this);
     }
 }
 
