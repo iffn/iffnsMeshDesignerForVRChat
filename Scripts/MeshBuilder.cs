@@ -13,11 +13,13 @@ public class MeshBuilder : UdonSharpBehaviour
     [SerializeField] float minInteractionDistance;
     [SerializeField] bool mirrorActive = true;
     [SerializeField] float mirrorSnap = 0.01f;
+    [SerializeField] float maxDesktopInteractionDistance = 1.5f;
 
     [Header("Unity assingments")]
     [SerializeField] VertexIndicator VertexInteractorPrefab;
     [SerializeField] LineRenderer LinkedLineRenderer;
     [SerializeField] InteractorController LinkedHandIndicator;
+    [SerializeField] Transform HelperTransform;
     public Scaler LinkedScaler;
     public MeshFilter SymmetryMeshFilter;
 
@@ -430,174 +432,6 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    //ToDo: Replace this function
-    public void InteractWithVertex(VertexIndicator interactedVertex)
-    {
-        int interactedIndex = interactedVertex.Index;
-
-        switch (currentInteractionType)
-        {
-            case InteractionTypes.MoveAndMerge:
-                if (ActiveVertex == -1)
-                {
-                    ActiveVertex = interactedVertex.Index;
-
-                    if (!isInVR)
-                    {
-                        currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - interactedVertex.transform.position).magnitude;
-                    }
-                }
-                else if(ManualVertexDrop && interactedVertex.Index != ActiveVertex)
-                {
-                    if (isInVR)
-                    {
-                        if((interactedVertex.transform.localPosition - vertices[ActiveVertex]).magnitude > vertexInteractorScale) return;
-                    }
-
-                    //Merging:
-                    MergeVertices(keep: interactedVertex.Index, discard: ActiveVertex, true, updateInteractors: false);
-
-                    RemoveInvalidTriagnles();
-                    RemoveUnconnectedVertices();
-
-                    BuildMeshFromData(true);
-
-                    ActiveVertex = -1;
-                }
-                break;
-            case InteractionTypes.StepAdd:
-                if (closestVertex == interactedIndex)
-                {
-                    closestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if (secondClosestVertex == interactedIndex)
-                {
-                    secondClosestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if (secondClosestVertex == -1)
-                {
-                    secondClosestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                }
-                else if (closestVertex == -1)
-                {
-                    closestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                    LinkedLineRenderer.gameObject.SetActive(true);
-                    proximityAddTime = Time.time;
-                }
-                break;
-            case InteractionTypes.MoveAndScaleObject:
-                //Do nothing
-                break;
-            case InteractionTypes.AddTriagnle:
-                if (closestVertex == interactedIndex)
-                {
-                    closestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if(secondClosestVertex == interactedIndex)
-                {
-                    secondClosestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if(secondClosestVertex == -1)
-                {
-                    secondClosestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                }
-                else if(closestVertex == -1)
-                {
-                    closestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                }
-                else
-                {
-                    AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedIndex);
-                    BuildMeshFromData(false);
-
-                    interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
-                    interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
-                    closestVertex = -1;
-                    secondClosestVertex = -1;
-                }
-                
-                break;
-            case InteractionTypes.ProximityAdd:
-                //Do nothing
-                break;
-            case InteractionTypes.RemoveTriangle:
-                if (closestVertex == interactedIndex)
-                {
-                    closestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if (secondClosestVertex == interactedIndex)
-                {
-                    secondClosestVertex = -1;
-                    interactedVertex.SetSelectState = VertexSelectStates.Normal;
-                }
-                else if (secondClosestVertex == -1)
-                {
-                    secondClosestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                }
-                else if (closestVertex == -1)
-                {
-                    closestVertex = interactedIndex;
-                    interactedVertex.SetSelectState = VertexSelectStates.Selected;
-                }
-                else
-                {
-                    TryRemoveTriangle(closestVertex, secondClosestVertex, interactedIndex);
-                    BuildMeshFromData(true);
-
-                    //Check if -1 since unconnected vertices are removed when removing triangles
-                    if(secondClosestVertex >= 0)
-                    {
-                        interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
-                        secondClosestVertex = -1;
-                    }
-                    if (closestVertex >= 0)
-                    {
-                        interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
-                        closestVertex = -1;
-                    }
-                }
-                
-                break;
-            case InteractionTypes.Idle:
-                //Do nothing
-                break;
-            case InteractionTypes.RemoveVertex:
-                if(activeVertex == interactedIndex)
-                {
-                    RemoveVertexFromArray(interactedIndex, false, true, false);
-
-                    RemoveUnconnectedVertices();
-
-                    BuildMeshFromData(true);
-
-                    activeVertex = -1;
-                }
-                else
-                {
-                    if(activeVertex != -1)
-                    {
-                        interactorPositions[activeVertex].SetSelectState = VertexSelectStates.Normal;
-                    }
-                    activeVertex = interactedIndex;
-
-                    interactedVertex.SetSelectState = VertexSelectStates.ReadyToDelete;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
     void SetupBasicMesh()
     {
         Vector3[] vertexPositions = new Vector3[]
@@ -701,16 +535,47 @@ public class MeshBuilder : UdonSharpBehaviour
 
         stopwatch.Start();
 
+        if (!isInVR)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                switch (currentInteractionType)
+                {
+                    case InteractionTypes.MoveAndMerge:
+                        MoveAndMergeUseDesktop();
+                        break;
+                    case InteractionTypes.StepAdd:
+                        StepAddUse();
+                        break;
+                    case InteractionTypes.MoveAndScaleObject:
+                        break;
+                    case InteractionTypes.AddTriagnle:
+                        TriangleAdditionUse();
+                        break;
+                    case InteractionTypes.ProximityAdd:
+                        UseVertexAdder();
+                        break;
+                    case InteractionTypes.RemoveTriangle:
+                        TriangleRemovalUse();
+                        break;
+                    case InteractionTypes.Idle:
+                        break;
+                    case InteractionTypes.RemoveVertex:
+                        RemoveVertexUse();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         switch (currentInteractionType)
         {
             case InteractionTypes.MoveAndMerge:
                 MoveAndMergeUpdate();
                 break;
             case InteractionTypes.StepAdd:
-                if(closestVertex >= 0 && secondClosestVertex >= 0)
-                {
-                    UpdateVertexAdder(false);
-                }
+                UpdateStepAdd();
                 break;
             case InteractionTypes.MoveAndScaleObject:
                 break;
@@ -734,9 +599,62 @@ public class MeshBuilder : UdonSharpBehaviour
         updateFPSForDebug = 1/stopwatch.Elapsed.TotalSeconds;
     }
 
+    //Move and merge
+    void MoveAndMergeUseDesktop()
+    {
+        int interactedVertex = SelectVertex();
+
+        if (activeVertex < 0)
+        {
+            activeVertex = interactedVertex;
+        }
+        else if (interactedVertex >= 0 && activeVertex != interactedVertex)
+        {
+            MergeVertices(activeVertex, interactedVertex, true, true, true);
+
+            activeVertex = 0;
+
+            return;
+        }
+    }
+
+    void UseMergeVertexVR()
+    {
+        if (activeVertex >= 0)
+        {
+            int closestVertex = SelectClosestVertexInVR();
+
+            if (closestVertex >= 0) MergeVertices(activeVertex, closestVertex, true, true, true);
+
+            activeVertex = -1;
+        }
+    }
+
     void MoveAndMergeUpdate()
     {
         //Check state
+        if (!isInVR)
+        {
+            //Desktop input logic
+            if (Input.GetMouseButtonDown(0))
+            {
+                int interactedVertex = SelectVertexInDesktop();
+
+                if (activeVertex < 0)
+                {
+                    activeVertex = interactedVertex;
+                }
+                else if (interactedVertex >= 0 && activeVertex != interactedVertex)
+                {
+                    MergeVertices(activeVertex, interactedVertex, true, true, true);
+
+                    activeVertex = 0;
+
+                    return;
+                }
+            }
+        }
+
         if (ActiveVertex < 0) return;
 
         if (ActiveVertex >= interactorPositions.Length)
@@ -760,18 +678,7 @@ public class MeshBuilder : UdonSharpBehaviour
         SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
     }
 
-    void UseMergeVertex()
-    {
-        if (activeVertex >= 0)
-        {
-            int closestVertex = GetClosestVertex(primaryHand);
-
-            if (closestVertex >= 0) MergeVertices(activeVertex, closestVertex, true, true);
-
-            activeVertex = -1;
-        }
-    }
-
+    //General Vertex addition
     void UpdateVertexAdder(bool findAttachmentPoints)
     {
         if (findAttachmentPoints)
@@ -825,8 +732,6 @@ public class MeshBuilder : UdonSharpBehaviour
         if (closestVertex == -1) return;
         if (secondClosestVertex == -1) return;
 
-        if (Time.time == proximityAddTime) return;
-
         //Vertex
         VertexIndicator[] oldInteractors = interactorPositions;
         Vector3[] oldVertexPositions = vertices;
@@ -856,6 +761,138 @@ public class MeshBuilder : UdonSharpBehaviour
         BuildMeshFromData(true);
     }
 
+    //General vertex interaction
+    void SelectClosesVertex(int vertex)
+    {
+        closestVertex = vertex;
+        interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Selected;
+    }
+
+    void DeselectClosestVertex()
+    {
+        closestVertex = -1;
+        interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
+    }
+
+    void SelectSecondClosesVertex(int vertex)
+    {
+        secondClosestVertex = vertex;
+        interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Selected;
+    }
+
+    void DeselectSecondClosestVertex()
+    {
+        secondClosestVertex = -1;
+        interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
+    }
+
+    //Step add:
+    void UpdateStepAdd()
+    {
+        if (!isInVR)
+        {
+            if (Input.GetMouseButtonDown(0)) StepAddUse();
+        }
+
+        if (closestVertex >= 0 && secondClosestVertex >= 0)
+        {
+            UpdateVertexAdder(false);
+        }
+    }
+
+    void StepAddUse()
+    {
+        int interactedVertex = SelectVertex();
+
+        if(interactedVertex != -1)
+        {
+            if (closestVertex == -1)
+            {
+                SelectClosesVertex(interactedVertex);
+                return;
+            }
+            else if(closestVertex == interactedVertex)
+            {
+                DeselectClosestVertex();
+                return;
+            }
+            else if (secondClosestVertex == -1)
+            {
+                SelectSecondClosesVertex(interactedVertex);
+                return;
+            }
+            else if (secondClosestVertex == interactedVertex)
+            {
+                DeselectSecondClosestVertex();
+                return;
+            }
+            else
+            {
+                AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex);
+                BuildMeshFromData(true);
+                DeselectClosestVertex();
+                DeselectSecondClosestVertex();
+            }
+        }
+        else
+        {
+            if(closestVertex == -1 || secondClosestVertex == -1) return;
+
+            UseVertexAdder();
+
+            DeselectClosestVertex();
+            DeselectSecondClosestVertex();
+        }
+    }
+
+    // Remove vertex
+    void RemoveVertexUse()
+    {
+        int interactedVertex = SelectVertex();
+
+        if (interactedVertex != -1)
+        {
+            RemoveVertexFromArray(interactedVertex, true, true, true);
+        }
+    }
+
+    // Triangle addition
+    void TriangleAdditionUse()
+    {
+        int interactedVertex = SelectVertex();
+
+        if (interactedVertex != -1)
+        {
+            if (closestVertex == -1)
+            {
+                SelectClosesVertex(interactedVertex);
+                return;
+            }
+            else if (closestVertex == interactedVertex)
+            {
+                DeselectClosestVertex();
+                return;
+            }
+            else if (secondClosestVertex == -1)
+            {
+                SelectSecondClosesVertex(interactedVertex);
+                return;
+            }
+            else if (secondClosestVertex == interactedVertex)
+            {
+                DeselectSecondClosestVertex();
+                return;
+            }
+            else
+            {
+                AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex);
+                BuildMeshFromData(true);
+                DeselectClosestVertex();
+                DeselectSecondClosestVertex();
+            }
+        }
+    }
+    
     void AddPlayerFacingTriangle(int a, int b, int c)
     {
         Vector3 vecA = vertices[a];
@@ -888,6 +925,43 @@ public class MeshBuilder : UdonSharpBehaviour
             triangles[triangles.Length - 3] = a;
             triangles[triangles.Length - 2] = c;
             triangles[triangles.Length - 1] = b;
+        }
+    }
+
+    //Triangle removal
+    void TriangleRemovalUse()
+    {
+        int interactedVertex = SelectVertex();
+
+        if (interactedVertex != -1)
+        {
+            if (closestVertex == -1)
+            {
+                SelectClosesVertex(interactedVertex);
+                return;
+            }
+            else if (closestVertex == interactedVertex)
+            {
+                DeselectClosestVertex();
+                return;
+            }
+            else if (secondClosestVertex == -1)
+            {
+                SelectSecondClosesVertex(interactedVertex);
+                return;
+            }
+            else if (secondClosestVertex == interactedVertex)
+            {
+                DeselectSecondClosestVertex();
+                return;
+            }
+            else
+            {
+                TryRemoveTriangle(closestVertex, secondClosestVertex, interactedVertex);
+                BuildMeshFromData(true);
+                DeselectClosestVertex();
+                DeselectSecondClosestVertex();
+            }
         }
     }
 
@@ -1073,7 +1147,7 @@ public class MeshBuilder : UdonSharpBehaviour
                 {
                     //Debug.Log($"Merging vertex {firstVertex} with {secondVertex} at distance {distance}" );
 
-                    MergeVertices(firstVertex, secondVertex, false, false);
+                    MergeVertices(firstVertex, secondVertex, false, false, false);
                     secondVertex--;
                     verticesMerged++;
                 }
@@ -1125,7 +1199,7 @@ public class MeshBuilder : UdonSharpBehaviour
         }
     }
 
-    void MergeVertices(int keep, int discard, bool updateMesh, bool updateInteractors)
+    void MergeVertices(int keep, int discard, bool updateMesh, bool updateInteractors, bool removeInvalid)
     {
         //Debug.Log($"Keep: {keep}, discard: {discard}");
 
@@ -1216,17 +1290,62 @@ public class MeshBuilder : UdonSharpBehaviour
         }
 
         if (ActiveVertex > discard) ActiveVertex--;
-        
+
+        if (removeInvalid)
+        {
+            RemoveInvalidTriagnles();
+            RemoveUnconnectedVertices();
+        }
 
         if (updateMesh) BuildMeshFromData(vertices, this.triangles);
         if (updateInteractors) SetInteractorsFromMesh();
+
+        
+    }
+    
+    int SelectVertex()
+    {
+        if (isInVR) return SelectClosestVertexInVR();
+        else return SelectVertexInDesktop();
     }
 
-    int GetClosestVertex(HandType handType)
+    int SelectVertexInDesktop()
     {
-        Vector3 handPosition = (handType == HandType.RIGHT) ?
-            Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position :
-            Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+        VRCPlayerApi.TrackingData data = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+        HelperTransform.transform.SetPositionAndRotation(data.position, data.rotation);
+
+        float closestDistance = maxDesktopInteractionDistance;
+        int closestIndex = -1;
+
+        for(int i = 0; i<vertices.Length; i++)
+        {
+            if (i == activeVertex) continue;
+
+            Vector3 currentPosition = transform.TransformPoint(vertices[i]);
+
+            Vector3 relativePosition = HelperTransform.InverseTransformPoint(currentPosition);
+
+            float distance = relativePosition.z;
+
+            if (distance > closestDistance) continue;
+
+            relativePosition.z = 0;
+
+            if (relativePosition.magnitude > vertexInteractorScale) continue;
+
+            closestIndex = i;
+            closestDistance = distance;
+        }
+
+        currentDesktopPickupDistance = closestDistance;
+
+        return closestIndex;
+    }
+
+    int SelectClosestVertexInVR()
+    {
+        Vector3 handPosition = PrimaryHandPosition;
 
         int closestVertex = -1;
         float closestDistance = minInteractionDistance;
@@ -1238,11 +1357,10 @@ public class MeshBuilder : UdonSharpBehaviour
             Vector3 currentPosition = vertices[i];
             float distance = (currentPosition - handPosition).magnitude;
 
-            if(distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestVertex = i;
-            }
+            if (distance > closestDistance) continue;
+
+            closestDistance = distance;
+            closestVertex = i;
         }
 
         return closestVertex;
@@ -1251,14 +1369,14 @@ public class MeshBuilder : UdonSharpBehaviour
     //Common VR input functions
     void GrabInput(HandType handType)
     {
-        if (handType != HandType.RIGHT) return; //Currently only right hand use
+        if (handType != primaryHand) return; //Currently only one handed
 
         switch (currentInteractionType)
         {
             case InteractionTypes.MoveAndMerge:
                 if (activeVertex < 0)
                 {
-                    activeVertex = GetClosestVertex(handType);
+                    activeVertex = SelectClosestVertexInVR();
                 }
             break;
             case InteractionTypes.StepAdd:
@@ -1283,7 +1401,7 @@ public class MeshBuilder : UdonSharpBehaviour
     
     void DropInput(HandType handType)
     {
-        if (handType != HandType.RIGHT) return; //Currently only right hand use
+        if (handType != primaryHand) return; //Currently only one handed
 
         switch (currentInteractionType)
         {
@@ -1311,30 +1429,33 @@ public class MeshBuilder : UdonSharpBehaviour
 
     void UseInput(bool value, HandType handType)
     {
-        if (handType != HandType.RIGHT) return; //Currently only right hand use
+        if (handType != primaryHand) return; //Currently only one handed
 
         if (value)
         {
             switch (currentInteractionType)
             {
                 case InteractionTypes.MoveAndMerge:
-                    UseMergeVertex();
+                    UseMergeVertexVR();
                     break;
                 case InteractionTypes.StepAdd:
-                    UseVertexAdder();
+                    StepAddUse();
                     break;
                 case InteractionTypes.MoveAndScaleObject:
                     break;
                 case InteractionTypes.AddTriagnle:
+                    TriangleAdditionUse();
                     break;
                 case InteractionTypes.ProximityAdd:
                     UseVertexAdder();
                     break;
                 case InteractionTypes.RemoveTriangle:
+                    TriangleRemovalUse();
                     break;
                 case InteractionTypes.Idle:
                     break;
                 case InteractionTypes.RemoveVertex:
+                    RemoveVertexUse();
                     break;
                 default:
                     break;
