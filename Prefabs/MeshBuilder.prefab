@@ -220,7 +220,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -435,7 +435,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -883,6 +883,12 @@ PrefabInstance:
       propertyPath: LinkedInteractionController
       value: 
       objectReference: {fileID: 5495231307631215892}
+    - target: {fileID: 1308684765739100242, guid: a9e39b4849bcd33499036553c807ca82,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 1308684765739100242, guid: a9e39b4849bcd33499036553c807ca82,
+        type: 3}
     - target: {fileID: 1452293243648392810, guid: a9e39b4849bcd33499036553c807ca82,
         type: 3}
       propertyPath: serializationData.Prefab

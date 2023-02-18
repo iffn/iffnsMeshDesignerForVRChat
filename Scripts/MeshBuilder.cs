@@ -649,29 +649,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void MoveAndMergeUpdate()
         {
-            //Check state
-            if (!isInVR)
-            {
-                //Desktop input logic
-                if (Input.GetMouseButtonDown(0))
-                {
-                    int interactedVertex = SelectVertexInDesktop();
-
-                    if (activeVertex < 0)
-                    {
-                        activeVertex = interactedVertex;
-                    }
-                    else if (interactedVertex >= 0 && activeVertex != interactedVertex)
-                    {
-                        MergeVertices(activeVertex, interactedVertex, true, true, true);
-
-                        activeVertex = 0;
-
-                        return;
-                    }
-                }
-            }
-
             if (ActiveVertex < 0) return;
 
             if (ActiveVertex >= interactorPositions.Length)
@@ -1355,7 +1332,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 closestDistance = distance;
             }
 
-            currentDesktopPickupDistance = closestDistance;
+            if(closestIndex >= 0) currentDesktopPickupDistance = closestDistance;
 
             return closestIndex;
         }
