@@ -26,49 +26,30 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public Scaler LinkedScaler;
         public MeshFilter SymmetryMeshFilter;
 
+        //Runtime data
+        [Header("Debug info")]
         Vector3[] vertices;
-
         int[] triangles;
 
-        public bool ManualVertexDrop;
-
+        float lastUpdateTime = Mathf.NegativeInfinity;
         double updateFPSForDebug;
 
         public VertexIndicator[] interactorPositions = new VertexIndicator[0];
-
-        bool isInVR;
-        bool viveUser = false;
-
-        public bool setupComplete = false;
-
-        float proximityAddTime = 0;
-
+        
+        public int activeVertex = -1;
         public int closestVertex = -1;
-        public VertexIndicator ClosestVertex
-        {
-            get
-            {
-                if (closestVertex == -1) return null;
-                return interactorPositions[closestVertex];
-            }
-        }
-
         public int secondClosestVertex = -1;
-        public VertexIndicator SecondClosestVertex
-        {
-            get
-            {
-                if (secondClosestVertex == -1) return null;
-                return interactorPositions[secondClosestVertex];
-            }
-        }
 
         MeshFilter linkedMeshFilter;
         MeshRenderer linkedMeshRenderer;
         MeshRenderer symmetryMeshRenderer;
+        
+        public bool setupComplete = false;
+        bool isInVR;
+        bool viveUser = false;
 
         InteractionTypes currentInteractionType = InteractionTypes.Idle;
-
+        
         float currentDesktopPickupDistance = 0.5f;
 
         public InteractionTypes CurrentInteractionType
@@ -149,7 +130,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         HandType primaryHand = HandType.RIGHT;
-
         public HandType PrimaryHand
         {
             get
@@ -200,19 +180,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation;
                 }
-            }
-        }
-
-        int activeVertex = -1;
-        int ActiveVertex
-        {
-            get
-            {
-                return activeVertex;
-            }
-            set
-            {
-                activeVertex = value;
             }
         }
 
@@ -276,18 +243,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public string LatestDebugText;
-
-        void UpdateDebugText()
+        public string DebugState()
         {
-            LatestDebugText = "Debug output:\n";
-            LatestDebugText += $"Time: {Time.time}\n";
-            LatestDebugText += $"{nameof(ActiveVertex)}: {ActiveVertex}\n";
-            LatestDebugText += $"Number of interactors: {interactorPositions.Length}\n";
-            LatestDebugText += $"{nameof(primaryHand)}: {primaryHand}\n";
-            LatestDebugText += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
-            LatestDebugText += $"Mesh vertices: {vertices.Length}\n";
-            LatestDebugText += $"Mesh triangles: {triangles.Length}\n";
+            string returnString = "";
+
+            returnString += $"Debug output at {Time.time}:\n";
+            returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
+            returnString += $"{nameof(currentInteractionType)}: {currentInteractionType}\n";
+            returnString += $"{nameof(activeVertex)}: {activeVertex}\n";
+            returnString += $"Number of interactors: {interactorPositions.Length}\n";
+            returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
+            returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
+            returnString += $"Mesh vertices: {vertices.Length}\n";
+            returnString += $"Mesh triangles: {triangles.Length}\n";
+
+            return returnString;
         }
 
         public Mesh SharedMesh
@@ -297,7 +267,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 return linkedMeshFilter.sharedMesh;
             }
         }
-
 
         public bool SymmetryMode
         {
@@ -367,16 +336,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             vertices = mesh.vertices;
             triangles = mesh.triangles;
-        }
-
-        void SetElementsAndMeshFromData(Vector3[] positions, int[] triangles)
-        {
-            BuildMeshFromData(positions, triangles);
-
-            if (inEditMode)
-            {
-                SetInteractorsFromMesh();
-            }
         }
 
         public void SetInteractorsFromMesh()
@@ -452,8 +411,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 return;
             }
 
-
-
             //Setup:
             isInVR = Networking.LocalPlayer.IsUserInVR();
 
@@ -503,7 +460,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         // Update is called once per frame
         void Update()
         {
-            UpdateDebugText();
+            lastUpdateTime = Time.time;
 
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
@@ -632,16 +589,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void MoveAndMergeUpdate()
         {
-            if (ActiveVertex < 0) return;
+            if (activeVertex < 0) return;
 
-            if (ActiveVertex >= interactorPositions.Length)
+            if (activeVertex >= interactorPositions.Length)
             {
                 Debug.LogWarning("Active vertex somehow larger than expected");
                 return;
             }
 
             //Set indicator position
-            Transform currentVertex = interactorPositions[ActiveVertex].transform;
+            Transform currentVertex = interactorPositions[activeVertex].transform;
 
             currentVertex.position = PrimaryHandPosition;
 
@@ -652,7 +609,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
 
             //Apply mesh
-            SetSingleVertexPosition(ActiveVertex, currentVertex.localPosition);
+            SetSingleVertexPosition(activeVertex, currentVertex.localPosition);
         }
 
         //General Vertex addition
@@ -1301,7 +1258,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            if (ActiveVertex > discard) ActiveVertex--;
+            if (activeVertex > discard) activeVertex--;
 
             if (removeInvalid)
             {

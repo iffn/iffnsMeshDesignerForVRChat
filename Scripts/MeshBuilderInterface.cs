@@ -17,7 +17,6 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Toggle SymmetryModeToggle;
     [SerializeField] Toggle ShowInteractionLocationToggle;
     [SerializeField] Toggle ShowScalingIndicatorToggle;
-    [SerializeField] Toggle ManualVertexDropToggle;
 
     [SerializeField] Material WireframeMaterial;
 
@@ -42,15 +41,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         ToggleEditMesh();
 
         LinkedObjConverter.Setup(LinkedMeshBuilder);
-
-        ManualVertexDropToggle.gameObject.SetActive(false);
-        ManualVertexDropToggle.isOn = !Networking.LocalPlayer.IsUserInVR();
-        ManualVertexDropToggle.gameObject.SetActive(true);
     }
 
     private void Update()
     {
-        debugText.text = LinkedMeshBuilder.LatestDebugText;
+        debugText.text = LinkedMeshBuilder.DebugState();
     }
 
     //Toggle calls
@@ -92,11 +87,6 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     public void ToggleSymmetryMode()
     {
         LinkedMeshBuilder.SymmetryMode = SymmetryModeToggle.isOn;
-    }
-
-    public void ToggleManualVertexDrop()
-    {
-        LinkedMeshBuilder.ManualVertexDrop = ManualVertexDropToggle.isOn;
     }
 
     public void ToggleShowScalingIndicator()
