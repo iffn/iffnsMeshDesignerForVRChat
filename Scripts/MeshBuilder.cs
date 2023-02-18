@@ -81,10 +81,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             set
             {
                 //Unload
-                if (closestVertex >= 0) interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
-                if (secondClosestVertex >= 0) interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
+                if (closestVertex >= 0) interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
+                if (secondClosestVertex >= 0) interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Normal;
                 closestVertex = -1;
                 secondClosestVertex = -1;
+
+                currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position).magnitude;
 
                 switch (currentInteractionType)
                 {
@@ -423,25 +425,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        void SetupBasicMesh()
-        {
-            Vector3[] vertexPositions = new Vector3[]
-            {
-            new Vector3(0, 0, 0),
-            new Vector3(1, 0, 0),
-            new Vector3(1, 1, 0),
-            new Vector3(0, 1, 0)
-            };
-
-            int[] triangles = new int[]
-            {
-            0, 1, 2,
-            0, 2, 3
-            };
-
-            SetElementsAndMeshFromData(vertexPositions, triangles);
-        }
-
         void Setup()
         {
             //Check setup:
@@ -759,25 +742,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
-            interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Selected;
+            interactorPositions[closestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectClosestVertex()
         {
+            if (closestVertex < 0) return;
+            interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
             closestVertex = -1;
-            interactorPositions[closestVertex].SetSelectState = VertexSelectStates.Normal;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Selected;
+            interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectSecondClosestVertex()
         {
+            if (secondClosestVertex < 0) return;
+            interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Normal;
             secondClosestVertex = -1;
-            interactorPositions[secondClosestVertex].SetSelectState = VertexSelectStates.Normal;
         }
 
         //Step add:
@@ -844,9 +829,31 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             int interactedVertex = SelectVertex();
 
-            if (interactedVertex != -1)
+            if(closestVertex == -1)
+            {
+                if(interactedVertex >= 0)
+                {
+                    closestVertex = interactedVertex;
+
+                    interactorPositions[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                }
+            }
+            else if (closestVertex == interactedVertex)
             {
                 RemoveVertexFromArray(interactedVertex, true, true, true);
+            }
+            else
+            {
+                interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
+
+                closestVertex = interactedVertex;
+
+                if(interactedVertex >= 0)
+                {
+                    Debug.Log(interactedVertex);
+
+                    interactorPositions[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                }
             }
         }
 
@@ -1015,9 +1022,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             bool[] vertexUsed = new bool[vertices.Length];
 
-            for (int i = 0; i < vertexUsed.Length; i++)
+            if (vertexUsed[0] == true)
             {
-                vertexUsed[i] = false;
+                //Should never be called
+
+                Debug.LogWarning("Unlike normal C#, U# apparently sets the default boolean value to true");
+
+                for (int i = 0; i < vertexUsed.Length; i++)
+                {
+                    vertexUsed[i] = false;
+                }
             }
 
             for (int i = 0; i < triangles.Length; i++)
@@ -1117,7 +1131,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            if (buildMesh) BuildMeshFromData(false);
+            if (buildMesh)
+            {
+                RemoveUnconnectedVertices();
+                BuildMeshFromData(true);
+            }
         }
 
         public void MergeOverlappingVertices()

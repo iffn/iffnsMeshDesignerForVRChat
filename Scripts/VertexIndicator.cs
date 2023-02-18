@@ -47,7 +47,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             attachedRenderer = transform.GetComponent<MeshRenderer>();
         }
 
-        public VertexSelectStates SetSelectState
+        public VertexSelectStates SelectState
         {
             set
             {
