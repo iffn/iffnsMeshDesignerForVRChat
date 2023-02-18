@@ -6,168 +6,171 @@ using VRC.Udon;
 using UnityEngine.UI;
 using Newtonsoft.Json.Linq;
 
-public class ObjConterter : UdonSharpBehaviour
+namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    [SerializeField] InputField LinkedInputField;
-    
-    MeshBuilder LinkedMeshBuilder;
-
-    readonly char newLine = '\n';
-
-    public void Setup(MeshBuilder linkedMeshBuilder)
+    public class ObjConterter : UdonSharpBehaviour
     {
-        this.LinkedMeshBuilder = linkedMeshBuilder;
-    }
+        [SerializeField] InputField LinkedInputField;
 
-    private void Start()
-    {
-        //Use Setup instead
-    }
+        MeshBuilder LinkedMeshBuilder;
 
-    public void ImportObj()
-    {
-        ImportObj(LinkedInputField.text);
-    }
+        readonly char newLine = '\n';
 
-    public void ImportObj(string objString)
-    {
-        //Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
-
-        SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, objString);
-
-        LinkedMeshBuilder.UpdateMeshInfoFromMesh();
-
-        LinkedMeshBuilder.SetInteractorsFromMesh();
-    }
-
-    public void ExportObj()
-    {
-        Debug.Log("Export");
-        LinkedInputField.text = GetObjStringFromMesh(LinkedMeshBuilder.SharedMesh);
-    }
-
-    string GetObjStringFromMesh(Mesh mesh)
-    {
-        string returnString = "";
-
-        returnString += $"o New mesh{newLine}";
-
-        foreach (Vector3 vertex in mesh.vertices)
+        public void Setup(MeshBuilder linkedMeshBuilder)
         {
-            string x = vertex.x.ToString("0.00000");
-            string y = vertex.y.ToString("0.00000");
-            string z = vertex.z.ToString("0.00000");
-
-            returnString += $"v {x} {y} {z}{newLine}";
+            LinkedMeshBuilder = linkedMeshBuilder;
         }
 
-        int[] triangles = mesh.triangles;
-
-        for (int i = 0; i < triangles.Length; i += 3)
+        private void Start()
         {
-            returnString += $"f {triangles[i] + 1} {triangles[i + 1] + 1} {triangles[i + 2] + 1}{newLine}";
+            //Use Setup instead
         }
 
-        return returnString;
-    }
-
-    void SetMeshFromObjString(Mesh mesh, string objString)
-    {
-        string[] lines = objString.Split(newLine);
-
-        int vertexCount = 0;
-        int triangleCount = 0;
-
-        foreach (string line in lines)
+        public void ImportObj()
         {
-            if (line.StartsWith("v "))
+            ImportObj(LinkedInputField.text);
+        }
+
+        public void ImportObj(string objString)
+        {
+            //Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
+
+            SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, objString);
+
+            LinkedMeshBuilder.UpdateMeshInfoFromMesh();
+
+            LinkedMeshBuilder.SetInteractorsFromMesh();
+        }
+
+        public void ExportObj()
+        {
+            Debug.Log("Export");
+            LinkedInputField.text = GetObjStringFromMesh(LinkedMeshBuilder.SharedMesh);
+        }
+
+        string GetObjStringFromMesh(Mesh mesh)
+        {
+            string returnString = "";
+
+            returnString += $"o New mesh{newLine}";
+
+            foreach (Vector3 vertex in mesh.vertices)
             {
-                vertexCount++;
-                continue;
+                string x = vertex.x.ToString("0.00000");
+                string y = vertex.y.ToString("0.00000");
+                string z = vertex.z.ToString("0.00000");
+
+                returnString += $"v {x} {y} {z}{newLine}";
             }
-            if (line.StartsWith("f "))
+
+            int[] triangles = mesh.triangles;
+
+            for (int i = 0; i < triangles.Length; i += 3)
             {
-                triangleCount++;
-                continue;
+                returnString += $"f {triangles[i] + 1} {triangles[i + 1] + 1} {triangles[i + 2] + 1}{newLine}";
             }
+
+            return returnString;
         }
 
-        Vector3[] vertices = new Vector3[vertexCount];
-        int[] triangles = new int[triangleCount * 3];
-
-        int vertexIndex = 0;
-        int triangleIndex = 0;
-
-        foreach (string line in lines)
+        void SetMeshFromObjString(Mesh mesh, string objString)
         {
-            if (line.StartsWith("v "))
-            {
-                string[] components = line.Substring(2).Split(' ');
+            string[] lines = objString.Split(newLine);
 
-                if (components.Length != 3)
+            int vertexCount = 0;
+            int triangleCount = 0;
+
+            foreach (string line in lines)
+            {
+                if (line.StartsWith("v "))
                 {
-                    Debug.LogWarning($"Error: {line} could not be converted to a vertex position");
-
-                    return;
+                    vertexCount++;
+                    continue;
                 }
-
-                vertices[vertexIndex].x = float.Parse(components[0]);
-                vertices[vertexIndex].y = float.Parse(components[1]);
-                vertices[vertexIndex].z = float.Parse(components[2]);
-
-                vertexIndex++;
-
-                continue;
-            }
-            if (line.StartsWith("f "))
-            {
-                string[] components = line.Substring(2).Split(' ');
-
-                if (components.Length != 3)
+                if (line.StartsWith("f "))
                 {
-                    Debug.LogWarning($"Error: {line} could not be converted to a triangle");
-                    return;
+                    triangleCount++;
+                    continue;
                 }
+            }
 
-                for(int i = 0; i<3; i++)
+            Vector3[] vertices = new Vector3[vertexCount];
+            int[] triangles = new int[triangleCount * 3];
+
+            int vertexIndex = 0;
+            int triangleIndex = 0;
+
+            foreach (string line in lines)
+            {
+                if (line.StartsWith("v "))
                 {
-                    if (components[i].Contains("/"))
+                    string[] components = line.Substring(2).Split(' ');
+
+                    if (components.Length != 3)
                     {
-                        components[i] = components[i].Substring(0, components[i].IndexOf("/"));
+                        Debug.LogWarning($"Error: {line} could not be converted to a vertex position");
+
+                        return;
                     }
+
+                    vertices[vertexIndex].x = float.Parse(components[0]);
+                    vertices[vertexIndex].y = float.Parse(components[1]);
+                    vertices[vertexIndex].z = float.Parse(components[2]);
+
+                    vertexIndex++;
+
+                    continue;
                 }
+                if (line.StartsWith("f "))
+                {
+                    string[] components = line.Substring(2).Split(' ');
 
-                triangles[triangleIndex] = int.Parse(components[0]) - 1;
-                triangles[triangleIndex + 1] = int.Parse(components[1]) - 1;
-                triangles[triangleIndex + 2] = int.Parse(components[2]) - 1;
+                    if (components.Length != 3)
+                    {
+                        Debug.LogWarning($"Error: {line} could not be converted to a triangle");
+                        return;
+                    }
 
-                triangleIndex += 3;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (components[i].Contains("/"))
+                        {
+                            components[i] = components[i].Substring(0, components[i].IndexOf("/"));
+                        }
+                    }
 
-                continue;
+                    triangles[triangleIndex] = int.Parse(components[0]) - 1;
+                    triangles[triangleIndex + 1] = int.Parse(components[1]) - 1;
+                    triangles[triangleIndex + 2] = int.Parse(components[2]) - 1;
+
+                    triangleIndex += 3;
+
+                    continue;
+                }
             }
-        }
 
-        if(vertices.Length <= 3
-            || triangles.Length <= 3)
-        {
-            return;
-        }
+            if (vertices.Length <= 3
+                || triangles.Length <= 3)
+            {
+                return;
+            }
 
-        if(vertices.Length > mesh.vertices.Length)
-        {
-            //More vertices -> first set vertices
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-        }
-        else
-        {
-            //Less vertices -> first set triangles
-            mesh.triangles = triangles;
-            mesh.vertices = vertices;
-        }
+            if (vertices.Length > mesh.vertices.Length)
+            {
+                //More vertices -> first set vertices
+                mesh.vertices = vertices;
+                mesh.triangles = triangles;
+            }
+            else
+            {
+                //Less vertices -> first set triangles
+                mesh.triangles = triangles;
+                mesh.vertices = vertices;
+            }
 
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            mesh.RecalculateBounds();
+        }
     }
 }

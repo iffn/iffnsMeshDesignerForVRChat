@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -139232546766234077
+  scriptID: -3718767566063138212
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: MeshBuilder, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshBuilder, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

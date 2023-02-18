@@ -5,6 +5,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 using UnityEngine.UI;
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using iffnsStuff.iffnsVRCStuff.MeshBuilder;
 
 public class MeshBuilderInterface : UdonSharpBehaviour
 {
@@ -113,6 +114,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         LinkedMeshBuilder.VertexInteractorScale *= 0.8f;
     }
 
+    /*
     public void IndicatorSizeX1o25()
     {
         LinkedMeshBuilder.IndicatorScale *= 1.25f;
@@ -122,4 +124,5 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         LinkedMeshBuilder.IndicatorScale *= 0.8f;
     }
+    */
 }

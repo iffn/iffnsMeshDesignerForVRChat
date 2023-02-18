@@ -4,62 +4,65 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class MakeMeshUnique : EditorWindow
+namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    [MenuItem("Tools/iffnsStuff/MeshBuilder/MakeMeshUnique")]
-    public static void ShowWindow()
+    public class MakeMeshUnique : EditorWindow
     {
-        EditorWindow.GetWindow(typeof(MakeMeshUnique));
-    }
-
-    MeshBuilder currentBuilder;
-
-    void OnGUI()
-    {
-        currentBuilder = EditorGUILayout.ObjectField(
-           obj: currentBuilder,
-           objType: typeof(MeshBuilder),
-           true) as MeshBuilder;
-
-        if (currentBuilder != null)
+        [MenuItem("Tools/iffnsStuff/MeshBuilder/MakeMeshUnique")]
+        public static void ShowWindow()
         {
-            if (GUILayout.Button("Make current mesh unique"))
-            {
-                MakeCurrentMeshUnique();
-            }
-
+            GetWindow(typeof(MakeMeshUnique));
         }
-    }
 
-    void MakeCurrentMeshUnique()
-    {
-        MeshFilter currentMeshFilter = currentBuilder.transform.GetComponent<MeshFilter>();
+        MeshBuilder currentBuilder;
 
-        Mesh currentMesh = currentMeshFilter.sharedMesh;
-
-        Mesh newMesh = new Mesh
+        void OnGUI()
         {
-            vertices = currentMesh.vertices,
-            triangles = currentMesh.triangles,
-            uv = currentMesh.uv,
-            uv2 = currentMesh.uv2,
-            uv3 = currentMesh.uv3,
-            uv4 = currentMesh.uv4,
-            uv5 = currentMesh.uv5,
-            uv6 = currentMesh.uv6,
-            uv7 = currentMesh.uv7,
-            uv8 = currentMesh.uv8,
-            normals = currentMesh.normals,
-            tangents = currentMesh.tangents,
-            bounds = currentMesh.bounds
-        };
+            currentBuilder = EditorGUILayout.ObjectField(
+               obj: currentBuilder,
+               objType: typeof(MeshBuilder),
+               true) as MeshBuilder;
 
-        currentMeshFilter.mesh = null;
-        currentMeshFilter.mesh = newMesh;
+            if (currentBuilder != null)
+            {
+                if (GUILayout.Button("Make current mesh unique"))
+                {
+                    MakeCurrentMeshUnique();
+                }
 
-        if(currentBuilder.SymmetryMeshFilter != null)
+            }
+        }
+
+        void MakeCurrentMeshUnique()
         {
-            currentBuilder.SymmetryMeshFilter.mesh = newMesh;
+            MeshFilter currentMeshFilter = currentBuilder.transform.GetComponent<MeshFilter>();
+
+            Mesh currentMesh = currentMeshFilter.sharedMesh;
+
+            Mesh newMesh = new Mesh
+            {
+                vertices = currentMesh.vertices,
+                triangles = currentMesh.triangles,
+                uv = currentMesh.uv,
+                uv2 = currentMesh.uv2,
+                uv3 = currentMesh.uv3,
+                uv4 = currentMesh.uv4,
+                uv5 = currentMesh.uv5,
+                uv6 = currentMesh.uv6,
+                uv7 = currentMesh.uv7,
+                uv8 = currentMesh.uv8,
+                normals = currentMesh.normals,
+                tangents = currentMesh.tangents,
+                bounds = currentMesh.bounds
+            };
+
+            currentMeshFilter.mesh = null;
+            currentMeshFilter.mesh = newMesh;
+
+            if (currentBuilder.SymmetryMeshFilter != null)
+            {
+                currentBuilder.SymmetryMeshFilter.mesh = newMesh;
+            }
         }
     }
 }
