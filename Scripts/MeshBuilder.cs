@@ -6,6 +6,7 @@ using UnityEngine;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
 using VRC.Udon.Common;
+using UnityEngine.EventSystems;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
@@ -13,7 +14,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class MeshBuilder : UdonSharpBehaviour
     {
         [Header("Settings")]
-        [SerializeField] float minInteractionDistance;
         [SerializeField] bool mirrorActive = true;
         [SerializeField] float mirrorSnap = 0.01f;
         [SerializeField] float maxDesktopInteractionDistance = 1.5f;
@@ -21,21 +21,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Unity assingments")]
         [SerializeField] VertexIndicator VertexInteractorPrefab;
         [SerializeField] LineRenderer LinkedLineRenderer;
-        [SerializeField] InteractorController LinkedHandIndicator;
+        [SerializeField] InteractorController LinkedInteractionIndicator;
         [SerializeField] Transform HelperTransform;
         public Scaler LinkedScaler;
         public MeshFilter SymmetryMeshFilter;
 
         //Runtime data
         [Header("Debug info")]
-        Vector3[] vertices;
-        int[] triangles;
+        Vector3[] vertices = new Vector3[0];
+        int[] triangles = new int[0];
 
         float lastUpdateTime = Mathf.NegativeInfinity;
         double updateFPSForDebug;
 
         public VertexIndicator[] interactorPositions = new VertexIndicator[0];
-        
+
         public int activeVertex = -1;
         public int closestVertex = -1;
         public int secondClosestVertex = -1;
@@ -43,13 +43,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         MeshFilter linkedMeshFilter;
         MeshRenderer linkedMeshRenderer;
         MeshRenderer symmetryMeshRenderer;
-        
+
         public bool setupComplete = false;
         bool isInVR;
-        bool viveUser = false;
+        bool inputDropWorks = false;
 
         InteractionTypes currentInteractionType = InteractionTypes.Idle;
-        
+
         float currentDesktopPickupDistance = 0.5f;
 
         public InteractionTypes CurrentInteractionType
@@ -203,7 +203,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     SetInteractorsFromMesh();
                 }
 
-                LinkedHandIndicator.gameObject.SetActive(value);
+                LinkedInteractionIndicator.gameObject.SetActive(value);
+
+                LinkedScaler.gameObject.SetActive(value);
 
                 VertexInteractorScale = VertexInteractorScale; //Refresh scale
             }
@@ -249,13 +251,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             returnString += $"Debug output at {Time.time}:\n";
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
-            returnString += $"{nameof(currentInteractionType)}: {currentInteractionType}\n";
+            returnString += $"{nameof(currentInteractionType)}: {interactionTypeStrings[(int)currentInteractionType]}\n";
             returnString += $"{nameof(activeVertex)}: {activeVertex}\n";
             returnString += $"Number of interactors: {interactorPositions.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
-            returnString += $"Mesh vertices: {vertices.Length}\n";
-            returnString += $"Mesh triangles: {triangles.Length}\n";
+            returnString += $"Mesh vertices: {(vertices != null ? vertices.Length.ToString() : "null")}\n";
+            returnString += $"Mesh triangles: {(triangles != null ? triangles.Length.ToString() : "null")}\n";
 
             return returnString;
         }
@@ -359,7 +361,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 for (int i = 0; i < positions.Length; i++)
                 {
-                    VertexIndicator currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexIndicator>();
+                    GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
+
+                    VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
+
+                    if (currentInteractor == null)
+                    {
+                        Debug.Log("Error: Script did not attach");
+                    }
 
                     currentInteractor.Setup(i, transform, positions[i], this);
 
@@ -399,10 +408,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 correctSetup = false;
                 Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
             }
-            if (LinkedHandIndicator == null)
+            if (LinkedInteractionIndicator == null)
             {
                 correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(LinkedHandIndicator)} not assinged");
+                Debug.LogWarning($"Error: {nameof(LinkedInteractionIndicator)} not assinged");
             }
 
             if (!correctSetup)
@@ -422,9 +431,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 SetInteractorsFromMesh();
             }
 
-            LinkedHandIndicator.Setup(this);
+            LinkedInteractionIndicator.Setup(this);
 
-            LinkedHandIndicator.gameObject.SetActive(InEditMode);
+            LinkedInteractionIndicator.gameObject.SetActive(InEditMode);
 
             if (SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
 
@@ -435,13 +444,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Vive user detection
             string[] controllers = Input.GetJoystickNames();
 
-            viveUser = false;
+            inputDropWorks = false;
 
             foreach (string controller in controllers)
             {
                 if (!controller.ToLower().Contains("vive")) continue;
 
-                viveUser = true;
+                inputDropWorks = true;
                 break;
             }
         }
@@ -786,9 +795,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             int interactedVertex = SelectVertex();
 
-            if(closestVertex == -1)
+            if (closestVertex == -1)
             {
-                if(interactedVertex >= 0)
+                if (interactedVertex >= 0)
                 {
                     closestVertex = interactedVertex;
 
@@ -805,7 +814,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 closestVertex = interactedVertex;
 
-                if(interactedVertex >= 0)
+                if (interactedVertex >= 0)
                 {
                     Debug.Log(interactedVertex);
 
@@ -1112,7 +1121,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     Vector3 secondPosition = vertices[secondVertex];
                     float distance = (firstPosition - secondPosition).magnitude;
 
-                    if (distance < minInteractionDistance)
+                    if (distance < vertexInteractorScale)
                     {
                         //Debug.Log($"Merging vertex {firstVertex} with {secondVertex} at distance {distance}" );
 
@@ -1307,17 +1316,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 closestDistance = distance;
             }
 
-            if(closestIndex >= 0) currentDesktopPickupDistance = closestDistance;
+            if (closestIndex >= 0) currentDesktopPickupDistance = closestDistance;
 
             return closestIndex;
         }
 
         int SelectClosestVertexInVR()
         {
-            Vector3 handPosition = PrimaryHandPosition;
+            Vector3 handPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 
             int closestVertex = -1;
-            float closestDistance = minInteractionDistance;
+            float closestDistance = vertexInteractorScale;
 
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -1332,12 +1341,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 closestVertex = i;
             }
 
+            Debug.Log($"Closest vertex was {closestVertex} with a distance of {closestDistance}");
+
             return closestVertex;
         }
 
         //Common VR input functions
         void GrabInput(HandType handType)
         {
+            Debug.Log("Grab input");
+
             if (handType != primaryHand) return; //Currently only one handed
 
             switch (currentInteractionType)
@@ -1370,6 +1383,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void DropInput(HandType handType)
         {
+            Debug.Log("Drop input");
+
             if (handType != primaryHand) return; //Currently only one handed
 
             switch (currentInteractionType)
@@ -1398,6 +1413,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void UseInput(bool value, HandType handType)
         {
+            Debug.Log("Use input");
+
             if (handType != primaryHand) return; //Currently only one handed
 
             if (value)
@@ -1437,7 +1454,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!isInVR) return;
 
-            if (!viveUser)
+
+            if (!inputDropWorks)
             {
                 if (value)
                 {
@@ -1450,14 +1468,45 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else
             {
-                if (activeVertex >= 0)
+                if (!value) return;
+
+                switch (CurrentInteractionType)
                 {
-                    UseInput(value, args.handType);
+                    case InteractionTypes.MoveAndMerge:
+                        if (activeVertex >= 0)
+                        {
+                            UseInput(value, args.handType);
+                        }
+                        else
+                        {
+                            GrabInput(args.handType);
+                        }
+                        break;
+                    case InteractionTypes.StepAdd:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.MoveAndScaleObject:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.AddTriagnle:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.ProximityAdd:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.RemoveTriangle:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.Idle:
+                        break;
+                    case InteractionTypes.RemoveVertex:
+                        UseInput(value, args.handType);
+                        break;
+                    default:
+                        break;
                 }
-                else
-                {
-                    GrabInput(args.handType);
-                }
+
+                
             }
         }
 
@@ -1465,7 +1514,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!isInVR) return;
 
-            if (!viveUser)
+            if (!inputDropWorks)
             {
                 if (value) UseInput(value, args.handType);
             }
@@ -1475,9 +1524,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!isInVR) return;
 
+            if (!value) return;
+
+            inputDropWorks = true;
+
             //InputDrop only called for Vive users
             DropInput(args.handType);
         }
+
+        string[] interactionTypeStrings = new string[] {
+            "MoveAndMerge",
+            "StepAdd",
+            "MoveAndScaleObject",
+            "AddTriagnle",
+            "ProximityAdd",
+            "RemoveTriangle",
+            "Idle",
+            "RemoveVertex"};
     }
 
     public enum InteractionTypes

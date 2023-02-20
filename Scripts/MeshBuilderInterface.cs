@@ -81,6 +81,18 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     public void ToggleEditMesh()
     {
+        if(LinkedMeshBuilder == null)
+        {
+            Debug.LogWarning("Error: LinkedMeshBuilder is null");
+            return;
+        }
+
+        if(EditMeshToggle == null)
+        {
+            Debug.LogWarning("Error: EditMeshToggle is null");
+            return;
+        }
+
         LinkedMeshBuilder.InEditMode = EditMeshToggle.isOn;
     }
 

@@ -2,6 +2,8 @@
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Wrapper.Modules;
+using static VRC.Dynamics.VRCPhysBoneBase;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
@@ -12,6 +14,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] GameObject DesktopUI;
         [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsVR;
         [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsDesktop;
+        [SerializeField] Transform LinkedVRHandIndicator;
+
+        Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
 
         public InteractionTypes debugInteractorType;
 
@@ -21,23 +26,29 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         InteractionTypeSelectorButton currentButton;
 
+        VRCPlayerApi localPlayer;
+
         public void Setup(MeshBuilder linkedMeshBuilder)
         {
+            localPlayer = Networking.LocalPlayer;
+
             this.linkedMeshBuilder = linkedMeshBuilder;
 
             int index = (int)linkedMeshBuilder.CurrentInteractionType;
 
             isInVR = Networking.LocalPlayer.IsUserInVR();
 
+            transform.parent = null;
+            transform.localScale = Vector3.one;
+
             if (Networking.LocalPlayer.IsUserInVR())
             {
                 Destroy(DesktopUI);
-                transform.parent = null;
+                
             }
             else
             {
                 Destroy(VRUI.gameObject);
-                transform.parent = null;
             }
         }
 
@@ -45,7 +56,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (isInVR)
             {
-                
+                LinkedVRHandIndicator.position = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+
+                Vector3 handPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
+                Vector3 ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.RightLowerArm);
+
+                Quaternion playerRotation = localPlayer.GetRotation();
+
+                float distance = (handPosition - ellbowPosition).magnitude;
+
+                VRUI.SetPositionAndRotation(
+                    localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position + playerRotation * (distance * new Vector3(0.5f, 0.3f, 0)),
+                    playerRotation * additionalRotation);
+
+                //VRUI.position = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position + distance * 0.1f * Vector3.up;
+                //VRUI.position = (handPosition * 3 + ellbowPosition) * 0.25f + distance * 0.2f * Vector3.up;
+                //VRUI.LookAt(handPosition, Vector3.up);
+
+
+                //VRUI.LookAt(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, Vector3.up);
+
+
+                VRUI.localScale = distance * 0.5f * Vector3.one;
             }
             else
             {
@@ -114,6 +146,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         else
                         {
                             currentButton = button;
+                            button.Highlighted = true;
+                            Debug.Log($"Setting mode {value} and highlighting button {button.transform.parent.name}");
+                            break;
                         }
                     }
                 }
@@ -132,6 +167,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         {
                             currentButton = button;
                             button.Highlighted = true;
+                            break;
                         }
                     }
                 }

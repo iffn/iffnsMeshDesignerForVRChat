@@ -22,7 +22,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void Use()
         {
+            Debug.Log($"Setting mode {interactionType} from button {transform.parent.name}");
+
             if (!IsValid()) return;
+
 
             LinkedInteractionController.CurrentInteractionType = InteractionType;
         }
