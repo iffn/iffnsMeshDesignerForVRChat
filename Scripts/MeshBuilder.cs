@@ -461,11 +461,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             Setup();
         }
 
-        public void DropVertexAdder()
-        {
-            LinkedLineRenderer.gameObject.SetActive(false);
-        }
-
         // Update is called once per frame
         void Update()
         {
@@ -578,7 +573,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 MergeVertices(activeVertex, interactedVertex, true, true, true);
 
-                activeVertex = 0;
+                activeVertex = -1;
 
                 return;
             }
