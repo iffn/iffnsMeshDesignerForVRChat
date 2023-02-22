@@ -2,7 +2,6 @@
 
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
-using UnityEditorInternal;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;

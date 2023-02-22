@@ -12,6 +12,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [SerializeField] InputField LinkedInputField;
 
+        [SerializeField] GameObject ReferenceMeshHolder;
+        [SerializeField] GameObject MirrorReferenceMeshHolder;
+        [SerializeField] MeshFilter ReferenceMesh;
+
+        [SerializeField] Toggle ShowRefernceMeshToggle;
+        [SerializeField] Toggle MirrorRefernceMeshToggle;
+
         MeshInteractor LinkedMeshInteractor;
 
         readonly char newLine = '\n';
@@ -38,8 +45,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             SetMeshFromObjString(LinkedMeshInteractor.LinkedMeshController.SharedMesh, objString);
 
             LinkedMeshInteractor.LinkedMeshController.UpdateMeshInfoFromMesh();
-
-            LinkedMeshInteractor.UpdateMesh(true);
 
             LinkedMeshInteractor.SetInteractorsFromMesh();
         }
@@ -73,6 +78,19 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
 
             return returnString;
+        }
+
+        public void ImportObjAsReferenceMesh()
+        {
+            SetMeshFromObjString(ReferenceMesh.sharedMesh, LinkedInputField.text);
+
+            if (!ShowRefernceMeshToggle.isOn) ShowRefernceMeshToggle.isOn = true;
+        }
+
+        public void UpdateReferenceMeshUI()
+        {
+            ReferenceMeshHolder.SetActive(ShowRefernceMeshToggle.isOn);
+            MirrorReferenceMeshHolder.SetActive(MirrorRefernceMeshToggle.isOn);
         }
 
         void SetMeshFromObjString(Mesh mesh, string objString)
