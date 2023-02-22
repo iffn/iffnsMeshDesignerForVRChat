@@ -44,13 +44,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (Networking.LocalPlayer.IsUserInVR())
             {
-                //Destroy(DesktopUI);
-                DesktopUI.SetActive(false);
+                Destroy(DesktopUI);
             }
             else
             {
-                //Destroy(VRUI.gameObject);
-                VRUI.gameObject.SetActive(false);
+                Destroy(VRUI.gameObject);
+                Destroy(LinkedVRHandIndicator.gameObject);
             }
         }
 

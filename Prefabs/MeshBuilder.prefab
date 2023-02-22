@@ -646,7 +646,6 @@ MonoBehaviour:
   - {fileID: 1255199537947917784}
   LinkedVRHandIndicator: {fileID: 3756649840648833714}
   debugInteractorType: 0
-  lastButton: {fileID: 0}
 --- !u!114 &4785201870997098024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1358,7 +1357,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 459039316828968983}
     - target: {fileID: 1897749559802200207, guid: a9e39b4849bcd33499036553c807ca82,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName

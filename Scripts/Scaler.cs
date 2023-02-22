@@ -16,7 +16,6 @@ public class Scaler : UdonSharpBehaviour
 
     Vector3 originalLocalPosition;
     Vector3 originalLocalScale;
-    
 
     public void ResetScale()
     {
