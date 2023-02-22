@@ -12,13 +12,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [SerializeField] InputField LinkedInputField;
 
-        MeshBuilder LinkedMeshBuilder;
+        MeshInteractor LinkedMeshInteractor;
 
         readonly char newLine = '\n';
 
-        public void Setup(MeshBuilder linkedMeshBuilder)
+        public void Setup(MeshInteractor linkedMeshBuilder)
         {
-            LinkedMeshBuilder = linkedMeshBuilder;
+            LinkedMeshInteractor = linkedMeshBuilder;
         }
 
         private void Start()
@@ -35,17 +35,19 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             //Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
 
-            SetMeshFromObjString(LinkedMeshBuilder.SharedMesh, objString);
+            SetMeshFromObjString(LinkedMeshInteractor.LinkedMeshController.SharedMesh, objString);
 
-            LinkedMeshBuilder.UpdateMeshInfoFromMesh();
+            LinkedMeshInteractor.LinkedMeshController.UpdateMeshInfoFromMesh();
 
-            LinkedMeshBuilder.SetInteractorsFromMesh();
+            LinkedMeshInteractor.UpdateMesh(true);
+
+            LinkedMeshInteractor.SetInteractorsFromMesh();
         }
 
         public void ExportObj()
         {
             Debug.Log("Export");
-            LinkedInputField.text = GetObjStringFromMesh(LinkedMeshBuilder.SharedMesh);
+            LinkedInputField.text = GetObjStringFromMesh(LinkedMeshInteractor.LinkedMeshController.SharedMesh);
         }
 
         string GetObjStringFromMesh(Mesh mesh)

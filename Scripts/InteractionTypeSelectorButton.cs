@@ -42,7 +42,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             set
             {
-                if (!IsValid()) return;
+                if (!IsValid())
+                {
+                    Debug.LogWarning($"Error: Button {transform.parent.name} is not set up correctly");
+                    return;
+                }
 
                 Highlight.SetActive(value);
             }

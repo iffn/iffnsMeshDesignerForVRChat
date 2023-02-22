@@ -10,7 +10,7 @@ using iffnsStuff.iffnsVRCStuff.MeshBuilder;
 public class MeshBuilderInterface : UdonSharpBehaviour
 {
     //Unity setup
-    [SerializeField] MeshBuilder LinkedMeshBuilder;
+    [SerializeField] MeshInteractor LinkedMeshInteractor;
 
     [SerializeField] Toggle UseWireframeMaterialToggle;
     [SerializeField] Toggle EditMeshToggle;
@@ -40,12 +40,18 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
         ToggleEditMesh();
 
-        LinkedObjConverter.Setup(LinkedMeshBuilder);
+        LinkedObjConverter.Setup(LinkedMeshInteractor);
     }
 
     private void Update()
     {
-        debugText.text = LinkedMeshBuilder.DebugState();
+        string debugString = "";
+
+        debugString += LinkedMeshInteractor.DebugState();
+        debugString += "\n";
+        debugString += LinkedMeshInteractor.LinkedMeshController.DebugState();
+
+        debugText.text = debugString;
     }
 
     //Toggle calls
@@ -53,8 +59,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         if (UseWireframeMaterialToggle.isOn)
         {
-            defaultMaterial = LinkedMeshBuilder.AttachedMaterial;
-            LinkedMeshBuilder.AttachedMaterial = WireframeMaterial;
+            defaultMaterial = LinkedMeshInteractor.AttachedMaterial;
+            LinkedMeshInteractor.AttachedMaterial = WireframeMaterial;
         }
         else
         {
@@ -64,24 +70,25 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             }
             else
             {
-                LinkedMeshBuilder.AttachedMaterial = defaultMaterial;
+                LinkedMeshInteractor.AttachedMaterial = defaultMaterial;
             }
         }
     }
 
     public void ResetScale()
     {
-        LinkedMeshBuilder.LinkedScaler.ResetScale();
+        LinkedMeshInteractor.LinkedScaler.ResetScale();
     }
 
     public void MergeOverlappingVertices()
     {
-        LinkedMeshBuilder.MergeOverlappingVertices();
+        LinkedMeshInteractor.LinkedMeshController.MergeOverlappingVertices(0.001f);
+        LinkedMeshInteractor.UpdateMesh(true);
     }
 
     public void ToggleEditMesh()
     {
-        if(LinkedMeshBuilder == null)
+        if(LinkedMeshInteractor == null)
         {
             Debug.LogWarning("Error: LinkedMeshBuilder is null");
             return;
@@ -93,12 +100,12 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             return;
         }
 
-        LinkedMeshBuilder.InEditMode = EditMeshToggle.isOn;
+        LinkedMeshInteractor.InEditMode = EditMeshToggle.isOn;
     }
 
     public void ToggleSymmetryMode()
     {
-        LinkedMeshBuilder.SymmetryMode = SymmetryModeToggle.isOn;
+        LinkedMeshInteractor.SymmetryMode = SymmetryModeToggle.isOn;
     }
 
     public void ToggleShowScalingIndicator()
@@ -108,12 +115,12 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     public void InderactorSizeX1o25()
     {
-        LinkedMeshBuilder.VertexInteractorScale *= 1.25f;
+        LinkedMeshInteractor.VertexInteractionDistance *= 1.25f;
     }
 
     public void InderactorSizeX0o8()
     {
-        LinkedMeshBuilder.VertexInteractorScale *= 0.8f;
+        LinkedMeshInteractor.VertexInteractionDistance *= 0.8f;
     }
 
     /*

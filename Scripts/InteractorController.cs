@@ -20,7 +20,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public InteractionTypes debugInteractorType;
 
-        MeshBuilder linkedMeshBuilder;
+        MeshInteractor linkedMeshInteractor;
 
         bool isInVR;
 
@@ -28,27 +28,29 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         VRCPlayerApi localPlayer;
 
-        public void Setup(MeshBuilder linkedMeshBuilder)
+        public void Setup(MeshInteractor linkedMeshInteractor)
         {
             localPlayer = Networking.LocalPlayer;
 
-            this.linkedMeshBuilder = linkedMeshBuilder;
+            this.linkedMeshInteractor = linkedMeshInteractor;
 
-            int index = (int)linkedMeshBuilder.CurrentInteractionType;
+            int index = (int)linkedMeshInteractor.CurrentInteractionType;
 
             isInVR = Networking.LocalPlayer.IsUserInVR();
+
 
             transform.parent = null;
             transform.localScale = Vector3.one;
 
             if (Networking.LocalPlayer.IsUserInVR())
             {
-                Destroy(DesktopUI);
-                
+                //Destroy(DesktopUI);
+                DesktopUI.SetActive(false);
             }
             else
             {
-                Destroy(VRUI.gameObject);
+                //Destroy(VRUI.gameObject);
+                VRUI.gameObject.SetActive(false);
             }
         }
 
@@ -147,7 +149,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         {
                             currentButton = button;
                             button.Highlighted = true;
-                            Debug.Log($"Setting mode {value} and highlighting button {button.transform.parent.name}");
                             break;
                         }
                     }
@@ -172,7 +173,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     }
                 }
 
-                linkedMeshBuilder.CurrentInteractionType = value;
+                linkedMeshInteractor.CurrentInteractionType = value;
             }
         }
     }

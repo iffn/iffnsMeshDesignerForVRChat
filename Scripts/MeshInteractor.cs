@@ -1,17 +1,16 @@
-﻿
-using System.Linq.Expressions;
-using System;
+﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
+using UnityEditorInternal;
 using UnityEngine;
-using VRC.SDK3.Components;
 using VRC.SDKBase;
+using VRC.Udon;
 using VRC.Udon.Common;
-using UnityEngine.EventSystems;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-
-    public class MeshBuilder : UdonSharpBehaviour
+    [RequireComponent(typeof(MeshController))]
+    [RequireComponent(typeof(MeshRenderer))]
+    public class MeshInteractor : UdonSharpBehaviour
     {
         [Header("Settings")]
         [SerializeField] bool mirrorActive = true;
@@ -19,17 +18,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] float maxDesktopInteractionDistance = 1.5f;
 
         [Header("Unity assingments")]
+        [SerializeField] MeshController linkedMeshController;
         [SerializeField] VertexIndicator VertexInteractorPrefab;
         [SerializeField] LineRenderer LinkedLineRenderer;
         [SerializeField] InteractorController LinkedInteractionIndicator;
         [SerializeField] Transform HelperTransform;
         public Scaler LinkedScaler;
         public MeshFilter SymmetryMeshFilter;
-
-        //Runtime data
-        [Header("Debug info")]
-        Vector3[] vertices = new Vector3[0];
-        int[] triangles = new int[0];
 
         float lastUpdateTime = Mathf.NegativeInfinity;
         double updateFPSForDebug;
@@ -40,17 +35,98 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public int closestVertex = -1;
         public int secondClosestVertex = -1;
 
-        MeshFilter linkedMeshFilter;
         MeshRenderer linkedMeshRenderer;
         MeshRenderer symmetryMeshRenderer;
 
-        public bool setupComplete = false;
         bool isInVR;
         bool inputDropWorks = false;
 
         InteractionTypes currentInteractionType = InteractionTypes.Idle;
 
         float currentDesktopPickupDistance = 0.5f;
+
+        VRCPlayerApi localPlayer;
+
+        public MeshController LinkedMeshController
+        {
+            get
+            {
+                return linkedMeshController;
+            }
+        }
+
+        bool checkSetup()
+        {
+            bool correctSetup = true;
+
+            if (VertexInteractorPrefab == null)
+            {
+                correctSetup = false;
+                Debug.LogWarning($"Error: {nameof(VertexInteractorPrefab)} not assinged");
+            }
+            if (LinkedLineRenderer == null)
+            {
+                correctSetup = false;
+                Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
+            }
+            if (LinkedInteractionIndicator == null)
+            {
+                correctSetup = false;
+                Debug.LogWarning($"Error: {nameof(LinkedInteractionIndicator)} not assinged");
+            }
+
+            return correctSetup;
+        }
+
+        void Setup()
+        {
+            if (!checkSetup())
+            {
+                enabled = false;
+                return;
+            }
+
+            linkedMeshController.Setup();
+
+            linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
+
+            localPlayer = Networking.LocalPlayer;
+            isInVR = localPlayer.IsUserInVR();
+
+            if (InEditMode)
+            {
+                SetInteractorsFromMesh();
+            }
+
+            LinkedInteractionIndicator.Setup(this);
+
+            LinkedInteractionIndicator.gameObject.SetActive(InEditMode);
+
+            if (SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
+
+            CurrentInteractionType = InteractionTypes.Idle;
+
+            //Vive user detection
+            string[] controllers = Input.GetJoystickNames();
+
+            inputDropWorks = false;
+
+            foreach (string controller in controllers)
+            {
+                if (!controller.ToLower().Contains("vive")) continue;
+
+                inputDropWorks = true;
+                break;
+            }
+        }
+
+        public Vector3 LocalHeadPosition
+        {
+            get
+            {
+                return transform.InverseTransformPoint(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
+            }
+        }
 
         public InteractionTypes CurrentInteractionType
         {
@@ -69,63 +145,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position).magnitude;
 
-                switch (currentInteractionType)
-                {
-                    case InteractionTypes.MoveAndMerge:
-                        break;
-                    case InteractionTypes.StepAdd:
-                        closestVertex = -1;
-                        secondClosestVertex = -1;
-                        LinkedLineRenderer.gameObject.SetActive(false);
-                        break;
-                    case InteractionTypes.MoveAndScaleObject:
-                        break;
-                    case InteractionTypes.AddTriagnle:
-                        break;
-                    case InteractionTypes.ProximityAdd:
-                        closestVertex = -1;
-                        secondClosestVertex = -1;
-                        LinkedLineRenderer.gameObject.SetActive(false);
-                        break;
-                    case InteractionTypes.RemoveTriangle:
-                        break;
-                    case InteractionTypes.Idle:
-                        break;
-                    case InteractionTypes.RemoveVertex:
-                        break;
-                    default:
-                        break;
-                }
+                LinkedLineRenderer.gameObject.SetActive(false);
 
                 currentInteractionType = value;
-
-                //Load
-                switch (value)
-                {
-                    case InteractionTypes.MoveAndMerge:
-                        break;
-                    case InteractionTypes.StepAdd:
-                        closestVertex = -1;
-                        secondClosestVertex = -1;
-                        break;
-                    case InteractionTypes.MoveAndScaleObject:
-                        break;
-                    case InteractionTypes.AddTriagnle:
-                        closestVertex = -1;
-                        secondClosestVertex = -1;
-                        break;
-                    case InteractionTypes.ProximityAdd:
-                        LinkedLineRenderer.gameObject.SetActive(true);
-                        break;
-                    case InteractionTypes.RemoveTriangle:
-                        break;
-                    case InteractionTypes.Idle:
-                        break;
-                    case InteractionTypes.RemoveVertex:
-                        break;
-                    default:
-                        break;
-                }
             }
         }
 
@@ -207,16 +229,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 LinkedScaler.gameObject.SetActive(value);
 
-                VertexInteractorScale = VertexInteractorScale; //Refresh scale
+                VertexInteractionDistance = VertexInteractionDistance; //Refresh scale
             }
         }
 
-        float vertexInteractorScale = 0.02f;
-        public float VertexInteractorScale
+        float vertexInteractionDistance = 0.02f;
+        public float VertexInteractionDistance
         {
             get
             {
-                return vertexInteractorScale;
+                return vertexInteractionDistance;
             }
             set
             {
@@ -233,7 +255,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     vertex.transform.localScale = scale;
                 }
 
-                vertexInteractorScale = value;
+                vertexInteractionDistance = value;
             }
         }
 
@@ -241,7 +263,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             get
             {
-                return (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetPosition()).magnitude;
+                return (localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - localPlayer.GetPosition()).magnitude;
             }
         }
 
@@ -249,25 +271,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             string returnString = "";
 
-            returnString += $"Debug output at {Time.time}:\n";
+            returnString += $"Debug output of {nameof(MeshInteractor)} at {Time.time}:\n";
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
             returnString += $"{nameof(currentInteractionType)}: {interactionTypeStrings[(int)currentInteractionType]}\n";
             returnString += $"{nameof(activeVertex)}: {activeVertex}\n";
             returnString += $"Number of interactors: {interactorPositions.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
-            returnString += $"Mesh vertices: {(vertices != null ? vertices.Length.ToString() : "null")}\n";
-            returnString += $"Mesh triangles: {(triangles != null ? triangles.Length.ToString() : "null")}\n";
 
             return returnString;
-        }
-
-        public Mesh SharedMesh
-        {
-            get
-            {
-                return linkedMeshFilter.sharedMesh;
-            }
         }
 
         public bool SymmetryMode
@@ -305,163 +317,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public Vector3[] verticesDebug;
 
-        void BuildMeshFromData(Vector3[] positions, int[] triangles)
-        {
-            this.triangles = triangles;
-            this.vertices = positions;
-
-            BuildMeshFromData(true);
-        }
-
-        void BuildMeshFromData(bool updateInteractorInfo)
-        {
-            Mesh mesh = linkedMeshFilter.sharedMesh;
-
-            mesh.triangles = new int[0];
-
-            mesh.vertices = vertices;
-            mesh.triangles = triangles;
-
-            mesh.RecalculateNormals();
-            mesh.RecalculateTangents();
-            mesh.RecalculateBounds();
-
-            if (updateInteractorInfo && inEditMode)
-            {
-                SetInteractorsFromMesh();
-            }
-        }
-
-        public void UpdateMeshInfoFromMesh()
-        {
-            Mesh mesh = linkedMeshFilter.sharedMesh;
-
-            vertices = mesh.vertices;
-            triangles = mesh.triangles;
-        }
-
-        public void SetInteractorsFromMesh()
-        {
-            if (!InEditMode) return;
-
-            if (interactorPositions.Length == vertices.Length)
-            {
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    interactorPositions[i].SetInfo(i, vertices[i]);
-                }
-            }
-            else
-            {
-                ClearVertexInteractorData();
-
-                Vector3[] positions = vertices;
-
-                interactorPositions = new VertexIndicator[positions.Length];
-
-                for (int i = 0; i < positions.Length; i++)
-                {
-                    GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
-
-                    VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
-
-                    if (currentInteractor == null)
-                    {
-                        Debug.Log("Error: Script did not attach");
-                    }
-
-                    currentInteractor.Setup(i, transform, positions[i], this);
-
-                    interactorPositions[i] = currentInteractor;
-                }
-            }
-        }
-
-        void SetSingleVertexPosition(int index, Vector3 localPosition)
-        {
-            Vector3[] positions = vertices;
-
-            positions[index] = localPosition;
-
-            vertices = positions;
-
-            BuildMeshFromData(false);
-
-            if (inEditMode)
-            {
-                interactorPositions[index].transform.localPosition = localPosition;
-            }
-        }
-
-        void Setup()
-        {
-            //Check setup:
-            bool correctSetup = true;
-
-            if (VertexInteractorPrefab == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(VertexInteractorPrefab)} not assinged");
-            }
-            if (LinkedLineRenderer == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
-            }
-            if (LinkedInteractionIndicator == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(LinkedInteractionIndicator)} not assinged");
-            }
-
-            if (!correctSetup)
-            {
-                enabled = false;
-                return;
-            }
-
-            //Setup:
-            isInVR = Networking.LocalPlayer.IsUserInVR();
-
-            linkedMeshFilter = transform.GetComponent<MeshFilter>();
-            linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
-
-            if (InEditMode)
-            {
-                SetInteractorsFromMesh();
-            }
-
-            LinkedInteractionIndicator.Setup(this);
-
-            LinkedInteractionIndicator.gameObject.SetActive(InEditMode);
-
-            if (SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
-
-            UpdateMeshInfoFromMesh();
-
-            CurrentInteractionType = (InteractionTypes)0;
-
-            //Vive user detection
-            string[] controllers = Input.GetJoystickNames();
-
-            inputDropWorks = false;
-
-            foreach (string controller in controllers)
-            {
-                if (!controller.ToLower().Contains("vive")) continue;
-
-                inputDropWorks = true;
-                break;
-            }
-        }
-
-        // Start is called before the first frame update
         void Start()
         {
             Setup();
         }
 
-        // Update is called once per frame
         void Update()
         {
             lastUpdateTime = Time.time;
@@ -560,7 +420,49 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             updateFPSForDebug = 1 / stopwatch.Elapsed.TotalSeconds;
         }
 
-        //Move and merge
+        public void SetInteractorsFromMesh()
+        {
+            if (!InEditMode) return;
+
+            Vector3[] vertices = linkedMeshController.Vertices;
+
+            if (interactorPositions.Length == vertices.Length)
+            {
+                Debug.Log("Just updating positions");
+
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    interactorPositions[i].SetInfo(i, vertices[i]);
+                }
+            }
+            else
+            {
+                Debug.Log("Reassigning interactors");
+
+                ClearVertexInteractorData();
+
+                Vector3[] positions = vertices;
+
+                interactorPositions = new VertexIndicator[positions.Length];
+
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
+
+                    VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
+
+                    if (currentInteractor == null)
+                    {
+                        Debug.Log("Error: Script did not attach");
+                    }
+
+                    currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
+
+                    interactorPositions[i] = currentInteractor;
+                }
+            }
+        }
+
         void MoveAndMergeUseDesktop()
         {
             int interactedVertex = SelectVertex();
@@ -571,7 +473,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else if (interactedVertex >= 0 && activeVertex != interactedVertex)
             {
-                MergeVertices(activeVertex, interactedVertex, true, true, true);
+                linkedMeshController.MergeVertices(interactedVertex, activeVertex, true);
+                UpdateMesh(true);
+
+                //ToDo: Update interactors
 
                 activeVertex = -1;
 
@@ -585,7 +490,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 int closestVertex = SelectClosestVertexInVR();
 
-                if (closestVertex >= 0) MergeVertices(activeVertex, closestVertex, true, true, true);
+                if (closestVertex >= 0) linkedMeshController.MergeVertices(closestVertex, activeVertex, true);
+                UpdateMesh(true);
+
+                //ToDo: Update interactors
 
                 activeVertex = -1;
             }
@@ -613,12 +521,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
 
             //Apply mesh
-            SetSingleVertexPosition(activeVertex, currentVertex.localPosition);
+            linkedMeshController.SetSingleVertexPosition(activeVertex, currentVertex.localPosition);
+            interactorPositions[activeVertex].transform.localPosition = currentVertex.localPosition;
+
+            UpdateMesh(false);
         }
 
         //General Vertex addition
         void UpdateVertexAdder(bool findAttachmentPoints)
         {
+            Vector3[] vertices = linkedMeshController.Vertices;
+
             if (findAttachmentPoints)
             {
                 closestVertex = -1;
@@ -657,8 +570,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            if (closestVertex == -1) return;
-            if (secondClosestVertex == -1) return;
+            if (closestVertex == -1 || secondClosestVertex == -1)
+            {
+                LinkedLineRenderer.gameObject.SetActive(false);
+
+                return;
+            }
+
+            LinkedLineRenderer.gameObject.SetActive(true);
 
             LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
             LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
@@ -670,16 +589,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (closestVertex == -1) return;
             if (secondClosestVertex == -1) return;
 
-            //Vertex
+            //Indicator
             VertexIndicator[] oldInteractors = interactorPositions;
-            Vector3[] oldVertexPositions = vertices;
             interactorPositions = new VertexIndicator[oldInteractors.Length + 1];
-            vertices = new Vector3[oldInteractors.Length + 1];
 
             for (int i = 0; i < oldInteractors.Length; i++)
             {
                 interactorPositions[i] = oldInteractors[i];
-                vertices[i] = oldVertexPositions[i];
             }
 
             int newVertexIndex = interactorPositions.Length - 1;
@@ -688,15 +604,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3 localPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 
-            currentInteractor.Setup(newVertexIndex, transform, localPosition, this);
+            currentInteractor.Setup(newVertexIndex, transform, localPosition, vertexInteractionDistance);
 
             interactorPositions[interactorPositions.Length - 1] = currentInteractor;
-            vertices[interactorPositions.Length - 1] = localPosition;
 
-            //Triangles
-            AddPlayerFacingTriangle(closestVertex, secondClosestVertex, vertices.Length - 1);
-
-            BuildMeshFromData(true);
+            //Mesh
+            linkedMeshController.AddVertex(localPosition, closestVertex, secondClosestVertex, LocalHeadPosition);
+            UpdateMesh(true);
         }
 
         //General vertex interaction
@@ -726,14 +640,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             secondClosestVertex = -1;
         }
 
+        public void UpdateMesh(bool updateInteractors)
+        {
+            linkedMeshController.BuildMeshFromData();
+            if (updateInteractors) SetInteractorsFromMesh();
+        }
+
         //Step add:
         void UpdateStepAdd()
         {
-            if (!isInVR)
-            {
-                if (Input.GetMouseButtonDown(0)) StepAddUse();
-            }
-
             if (closestVertex >= 0 && secondClosestVertex >= 0)
             {
                 UpdateVertexAdder(false);
@@ -768,8 +683,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex);
-                    BuildMeshFromData(true);
+                    linkedMeshController.AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, LocalHeadPosition);
+                    UpdateMesh(true);
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
@@ -801,7 +716,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else if (closestVertex == interactedVertex)
             {
-                RemoveVertexFromArray(interactedVertex, true, true, true);
+                linkedMeshController.RemoveVertexFromArrayClean(interactedVertex);
+                UpdateMesh(true);
+                closestVertex = -1;
             }
             else
             {
@@ -847,50 +764,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex);
-                    BuildMeshFromData(true);
+                    linkedMeshController.AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, LocalHeadPosition);
+                    UpdateMesh(false);
+
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
             }
         }
 
-        void AddPlayerFacingTriangle(int a, int b, int c)
-        {
-            Vector3 vecA = vertices[a];
-            Vector3 vecB = vertices[b];
-            Vector3 vecC = vertices[c];
-
-            Vector3 localHead = transform.InverseTransformPoint(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
-
-            Vector3 normal = Vector3.Cross(vecA - vecB, vecA - vecC);
-
-            float direction = Vector3.Dot(normal, 0.333333f * (vecA + vecB + vecC) - localHead);
-
-            int[] oldTriangles = triangles;
-
-            triangles = new int[oldTriangles.Length + 3];
-
-            for (int i = 0; i < oldTriangles.Length; i++)
-            {
-                triangles[i] = oldTriangles[i];
-            }
-
-            if (direction < 0)
-            {
-                triangles[triangles.Length - 3] = a;
-                triangles[triangles.Length - 2] = b;
-                triangles[triangles.Length - 1] = c;
-            }
-            else
-            {
-                triangles[triangles.Length - 3] = a;
-                triangles[triangles.Length - 2] = c;
-                triangles[triangles.Length - 1] = b;
-            }
-        }
-
-        //Triangle removal
         void TriangleRemovalUse()
         {
             int interactedVertex = SelectVertex();
@@ -919,361 +801,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    TryRemoveTriangle(closestVertex, secondClosestVertex, interactedVertex);
-                    BuildMeshFromData(true);
+                    linkedMeshController.TryRemoveTriangle(closestVertex, secondClosestVertex, interactedVertex);
+                    UpdateMesh(true);
+
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
             }
-        }
-
-        void TryRemoveTriangle(int a, int b, int c)
-        {
-            if (a == b || a == c || b == c)
-            {
-                Debug.LogWarning("Error: double triangle found");
-            }
-
-            if (triangles.Length < 3)
-            {
-                Debug.LogWarning("Error: traingle length somehow 0");
-                return;
-            }
-
-            for (int i = 0; i < triangles.Length; i += 3)
-            {
-                int ta = triangles[i];
-                int tb = triangles[i + 1];
-                int tc = triangles[i + 2];
-
-                bool found = (ta == a || tb == a || tc == a) &&
-                             (ta == b || tb == b || tc == b) &&
-                             (ta == c || tb == c || tc == c);
-
-                if (!found) continue;
-
-                int[] oldTriangles = triangles;
-
-                triangles = new int[oldTriangles.Length - 3];
-
-                int indexAddition = 0;
-
-                for (int j = 0; j < triangles.Length; j += 3)
-                {
-                    if (j == i)
-                    {
-                        indexAddition += 3;
-                    }
-
-                    triangles[j] = oldTriangles[j + indexAddition];
-                    triangles[j + 1] = oldTriangles[j + indexAddition + 1];
-                    triangles[j + 2] = oldTriangles[j + indexAddition + 2];
-                }
-
-                RemoveUnconnectedVertices();
-
-                return;
-            }
-
-            Debug.LogWarning($"Error: triangle {a}, {b}, {c} not found");
-        }
-
-        [RecursiveMethod]
-        void RemoveUnconnectedVertices()
-        {
-            bool[] vertexUsed = new bool[vertices.Length];
-
-            if (vertexUsed[0] == true)
-            {
-                //Should never be called
-
-                Debug.LogWarning("Unlike normal C#, U# apparently sets the default boolean value to true");
-
-                for (int i = 0; i < vertexUsed.Length; i++)
-                {
-                    vertexUsed[i] = false;
-                }
-            }
-
-            for (int i = 0; i < triangles.Length; i++)
-            {
-                vertexUsed[triangles[i]] = true;
-            }
-
-            for (int i = 0; i < vertexUsed.Length; i++)
-            {
-                if (!vertexUsed[i])
-                {
-                    RemoveVertexFromArray(i, false, true, false);
-
-                    RemoveUnconnectedVertices();
-
-                    return;
-                }
-            }
-        }
-
-        void RemoveVertexFromArray(int index, bool updateInteractors, bool updateTriangles, bool buildMesh)
-        {
-            Vector3[] oldVertexPositons = vertices;
-            Vector3[] newVertexPositions = new Vector3[oldVertexPositons.Length - 1];
-
-            int newIndex = 0;
-
-            for (int i = 0; i < oldVertexPositons.Length; i++)
-            {
-                if (i == index) continue;
-
-                newVertexPositions[newIndex] = oldVertexPositons[i];
-
-                newIndex++;
-            }
-
-            vertices = newVertexPositions;
-
-            if (updateInteractors)
-            {
-                GameObject.Destroy(interactorPositions[index].gameObject);
-                VertexIndicator[] oldVertexInteractors = interactorPositions;
-                interactorPositions = new VertexIndicator[oldVertexInteractors.Length - 1];
-
-                newIndex = 0;
-
-                for (int i = 0; i < oldVertexInteractors.Length; i++)
-                {
-                    if (i == index) continue;
-
-                    interactorPositions[newIndex] = oldVertexInteractors[i];
-
-                    newIndex++;
-                }
-
-                if (closestVertex == index) closestVertex = -1;
-                else if (closestVertex > index) closestVertex--;
-
-                if (secondClosestVertex == index) secondClosestVertex = -1;
-                else if (secondClosestVertex > index) secondClosestVertex--;
-            }
-
-            if (updateTriangles)
-            {
-                int trianglesToBeRemoved = 0;
-
-                foreach (int triangle in this.triangles)
-                {
-                    if (triangle == index) trianglesToBeRemoved++;
-                }
-
-                int[] oldTriangles = this.triangles;
-                triangles = new int[oldTriangles.Length - trianglesToBeRemoved * 3];
-
-                int offset = 0;
-
-                for (int i = 0; i < oldTriangles.Length; i += 3)
-                {
-                    int a = oldTriangles[i];
-                    int b = oldTriangles[i + 1];
-                    int c = oldTriangles[i + 2];
-
-                    if (a != index && b != index && c != index)
-                    {
-                        if (a > index) a--;
-                        if (b > index) b--;
-                        if (c > index) c--;
-
-                        triangles[i - offset] = a;
-                        triangles[i + 1 - offset] = b;
-                        triangles[i + 2 - offset] = c;
-                    }
-                    else
-                    {
-                        offset += 3;
-                    }
-                }
-            }
-
-            if (buildMesh)
-            {
-                RemoveUnconnectedVertices();
-                BuildMeshFromData(true);
-            }
-        }
-
-        public void MergeOverlappingVertices()
-        {
-            int verticesMerged = 0;
-
-            Debug.Log($"Checking {vertices.Length} for merging");
-
-            //return;
-
-            for (int firstVertex = 0; firstVertex < vertices.Length - 1; firstVertex++)
-            {
-                Vector3 firstPosition = vertices[firstVertex];
-
-                for (int secondVertex = firstVertex + 1; secondVertex < vertices.Length; secondVertex++)
-                {
-                    Vector3 secondPosition = vertices[secondVertex];
-                    float distance = (firstPosition - secondPosition).magnitude;
-
-                    if (distance < vertexInteractorScale)
-                    {
-                        //Debug.Log($"Merging vertex {firstVertex} with {secondVertex} at distance {distance}" );
-
-                        MergeVertices(firstVertex, secondVertex, false, false, false);
-                        secondVertex--;
-                        verticesMerged++;
-                    }
-                }
-            }
-
-            Debug.Log($"{verticesMerged} vertices merged");
-
-            BuildMeshFromData(true);
-        }
-
-        void RemoveInvalidTriagnles()
-        {
-            int trianglesToBeRemoved = 0;
-
-            for (int i = 0; i < triangles.Length; i += 3)
-            {
-                int a = triangles[i];
-                int b = triangles[i + 1];
-                int c = triangles[i + 2];
-
-                if (a == b || a == c || b == c)
-                {
-                    trianglesToBeRemoved++;
-                }
-            }
-
-            int[] oldTriangles = triangles;
-            triangles = new int[triangles.Length - trianglesToBeRemoved * 3];
-
-            int offset = 0;
-
-            for (int i = 0; i < oldTriangles.Length; i += 3)
-            {
-                int a = oldTriangles[i];
-                int b = oldTriangles[i + 1];
-                int c = oldTriangles[i + 2];
-
-                if (a == b || a == c || b == c)
-                {
-                    offset += 3;
-                }
-                else
-                {
-                    triangles[i - offset] = a;
-                    triangles[i + 1 - offset] = b;
-                    triangles[i + 2 - offset] = c;
-                }
-            }
-        }
-
-        void MergeVertices(int keep, int discard, bool updateMesh, bool updateInteractors, bool removeInvalid)
-        {
-            //Debug.Log($"Keep: {keep}, discard: {discard}");
-
-            RemoveVertexFromArray(discard, false, false, false);
-
-            int trianglesToBeRemoved = 0;
-
-            //Replace keep with discard
-            for (int i = 0; i < triangles.Length; i += 3)
-            {
-                int found = 0;
-
-                if (triangles[i] == discard || triangles[i] == keep)
-                {
-                    triangles[i] = keep;
-
-                    found++;
-                }
-                if (triangles[i + 1] == discard || triangles[i + 1] == keep)
-                {
-                    triangles[i + 1] = keep;
-                    found++;
-                }
-                if (triangles[i + 2] == discard || triangles[i + 2] == keep)
-                {
-                    triangles[i + 2] = keep;
-                    found++;
-                }
-
-                //When triangles are being destroyed
-                if (found > 1)
-                {
-                    trianglesToBeRemoved += found - 1;
-                }
-            }
-
-            /*
-            for (int i = 0; i < triangles.Length; i += 3)
-            {
-                if (triangles[i] == discard)
-                {
-                    triangles[i] = keep;
-                }
-                if (triangles[i + 1] == discard)
-                {
-                    triangles[i + 1] = keep;
-                }
-                if (triangles[i + 2] == discard)
-                {
-                    triangles[i + 2] = keep;
-                }
-            }
-            */
-
-            //decrement index
-            for (int i = 0; i < triangles.Length; i++)
-            {
-                if (triangles[i] > discard) triangles[i]--;
-            }
-
-            //Remove failed triangles
-            int trianglesRemoved = 0;
-            int trianglesSkipped = 0;
-
-            if (trianglesToBeRemoved > 0)
-            {
-                int[] oldTriangles = triangles;
-                triangles = new int[triangles.Length - trianglesToBeRemoved * 3];
-
-                for (int i = 0; i < triangles.Length; i += 3)
-                {
-                    int a = oldTriangles[i];
-                    int b = oldTriangles[i + 1];
-                    int c = oldTriangles[i + 2];
-
-                    if (a != b && b != c && c != a)
-                    {
-                        triangles[i - trianglesSkipped] = a; // Subtract from index instead of value???????
-                        triangles[i + 1 - trianglesSkipped] = b;
-                        triangles[i + 2 - trianglesSkipped] = c;
-                    }
-                    else
-                    {
-                        trianglesRemoved++;
-                        trianglesSkipped += 3;
-                    }
-                }
-            }
-
-            if (activeVertex > discard) activeVertex--;
-
-            if (removeInvalid)
-            {
-                RemoveInvalidTriagnles();
-                RemoveUnconnectedVertices();
-            }
-
-            if (updateMesh) BuildMeshFromData(vertices, this.triangles);
-            if (updateInteractors) SetInteractorsFromMesh();
-
-
         }
 
         int SelectVertex()
@@ -1291,6 +825,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             float closestDistance = maxDesktopInteractionDistance;
             int closestIndex = -1;
 
+            Vector3[] vertices = linkedMeshController.Vertices;
+
             for (int i = 0; i < vertices.Length; i++)
             {
                 if (i == activeVertex) continue;
@@ -1305,7 +841,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 relativePosition.z = 0;
 
-                if (relativePosition.magnitude > vertexInteractorScale) continue;
+                if (relativePosition.magnitude > vertexInteractionDistance) continue;
 
                 closestIndex = i;
                 closestDistance = distance;
@@ -1321,7 +857,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             Vector3 handPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 
             int closestVertex = -1;
-            float closestDistance = vertexInteractorScale;
+            float closestDistance = vertexInteractionDistance;
+
+            Vector3[] vertices = linkedMeshController.Vertices;
 
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -1449,7 +987,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!isInVR) return;
 
-
             if (!inputDropWorks)
             {
                 if (value)
@@ -1501,7 +1038,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         break;
                 }
 
-                
+
             }
         }
 
@@ -1527,7 +1064,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             DropInput(args.handType);
         }
 
-        string[] interactionTypeStrings = new string[] {
+        readonly string[] interactionTypeStrings = new string[] {
             "MoveAndMerge",
             "StepAdd",
             "MoveAndScaleObject",
@@ -1549,6 +1086,4 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         Idle,
         RemoveVertex
     }
-
 }
-

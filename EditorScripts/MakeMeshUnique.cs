@@ -14,14 +14,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             GetWindow(typeof(MakeMeshUnique));
         }
 
-        MeshBuilder currentBuilder;
+        MeshInteractor currentBuilder;
 
         void OnGUI()
         {
             currentBuilder = EditorGUILayout.ObjectField(
                obj: currentBuilder,
-               objType: typeof(MeshBuilder),
-               true) as MeshBuilder;
+               objType: typeof(MeshInteractor),
+               true) as MeshInteractor;
 
             if (currentBuilder != null)
             {

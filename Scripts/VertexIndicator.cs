@@ -8,7 +8,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class VertexIndicator : UdonSharpBehaviour
     {
-        MeshBuilder linkedMeshBuilder;
         MeshRenderer attachedRenderer;
 
         [SerializeField] Material defaultColor;
@@ -35,14 +34,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             transform.localPosition = localPosition;
         }
 
-        public void Setup(int index, Transform parent, Vector3 localPosition, MeshBuilder linkedMeshBuilder)
+        public void Setup(int index, Transform parent, Vector3 localPosition, float scale)
         {
             this.Index = index;
             transform.parent = parent;
             transform.localPosition = localPosition;
             gameObject.SetActive(true);
-            this.linkedMeshBuilder = linkedMeshBuilder;
-            transform.localScale = linkedMeshBuilder.VertexInteractorScale * Vector3.one;
+            transform.localScale = scale * Vector3.one;
 
             attachedRenderer = transform.GetComponent<MeshRenderer>();
         }
