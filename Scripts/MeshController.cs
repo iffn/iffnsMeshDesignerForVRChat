@@ -181,6 +181,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (!found) continue;
 
+                Debug.Log($"Found triangle {ta},{tb},{tc}");
+
                 int[] oldTriangles = triangles;
 
                 triangles = new int[oldTriangles.Length - 3];
@@ -233,14 +235,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 if (!vertexUsed[i])
                 {
-                    RemoveVertexFromArrayWithoutAffectingTriangles(i);
+                    RemoveVertexWithoutCleaning(i, false);
+                    //Recursion needed since index changes after removing vertex i
+                    RemoveUnconnectedVertices();
 
                     return;
                 }
             }
         }
 
-        void RemoveVertexFromArrayWithoutAffectingTriangles(int index)
+        void RemoveVertexWithoutCleaning(int index, bool vertexMayBeUsed)
         {
             Vector3[] oldVertexPositons = vertices;
             Vector3[] newVertexPositions = new Vector3[oldVertexPositons.Length - 1];
@@ -257,46 +261,60 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
 
             vertices = newVertexPositions;
-        }
-
-        public void RemoveVertexFromArrayClean(int index)
-        {
-            RemoveVertexFromArrayWithoutAffectingTriangles(index);
 
             //Remove affected triangles
-            int trianglesToBeRemoved = 0;
 
-            foreach (int triangle in this.triangles)
+            if (vertexMayBeUsed)
             {
-                if (triangle == index) trianglesToBeRemoved++;
+                int trianglesToBeRemoved = 0;
+
+                foreach (int triangle in this.triangles)
+                {
+                    if (triangle == index) trianglesToBeRemoved++;
+                }
+
+                int[] oldTriangles = this.triangles;
+                triangles = new int[oldTriangles.Length - trianglesToBeRemoved * 3];
+
+                int offset = 0;
+
+                for (int i = 0; i < oldTriangles.Length; i += 3)
+                {
+                    int a = oldTriangles[i];
+                    int b = oldTriangles[i + 1];
+                    int c = oldTriangles[i + 2];
+
+                    if (a != index && b != index && c != index)
+                    {
+                        if (a > index) a--;
+                        if (b > index) b--;
+                        if (c > index) c--;
+
+                        triangles[i - offset] = a;
+                        triangles[i + 1 - offset] = b;
+                        triangles[i + 2 - offset] = c;
+                    }
+                    else
+                    {
+                        offset += 3;
+                    }
+                }
             }
-
-            int[] oldTriangles = this.triangles;
-            triangles = new int[oldTriangles.Length - trianglesToBeRemoved * 3];
-
-            int offset = 0;
-
-            for (int i = 0; i < oldTriangles.Length; i += 3)
+            else
             {
-                int a = oldTriangles[i];
-                int b = oldTriangles[i + 1];
-                int c = oldTriangles[i + 2];
-
-                if (a != index && b != index && c != index)
+                for (int i = 0; i < triangles.Length; i++)
                 {
-                    if (a > index) a--;
-                    if (b > index) b--;
-                    if (c > index) c--;
-
-                    triangles[i - offset] = a;
-                    triangles[i + 1 - offset] = b;
-                    triangles[i + 2 - offset] = c;
-                }
-                else
-                {
-                    offset += 3;
+                    if (triangles[i] > index)
+                    {
+                        triangles[i]--;
+                    }
                 }
             }
+        }
+
+        public void RemoveVertexClean(int index)
+        {
+            RemoveVertexWithoutCleaning(index, true);
 
             RemoveUnconnectedVertices();
         }
@@ -378,7 +396,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             //Debug.Log($"Keep: {keep}, discard: {discard}");
 
-            RemoveVertexFromArrayWithoutAffectingTriangles(discard);
+            RemoveVertexWithoutCleaning(discard, true);
 
             int trianglesToBeRemoved = 0;
 

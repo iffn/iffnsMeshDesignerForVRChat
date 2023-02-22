@@ -1,4 +1,6 @@
-﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+﻿//#define debugLog
+
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
 using UnityEditorInternal;
 using UnityEngine;
@@ -10,6 +12,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     [RequireComponent(typeof(MeshController))]
     [RequireComponent(typeof(MeshRenderer))]
+
     public class MeshInteractor : UdonSharpBehaviour
     {
         [Header("Settings")]
@@ -428,7 +431,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (interactorPositions.Length == vertices.Length)
             {
+                #if debugLog
                 Debug.Log("Just updating positions");
+                #endif
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
@@ -437,7 +442,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else
             {
+                #if debugLog
                 Debug.Log("Reassigning interactors");
+                #endif
 
                 ClearVertexInteractorData();
 
@@ -450,11 +457,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
 
                     VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
-
-                    if (currentInteractor == null)
-                    {
-                        Debug.Log("Error: Script did not attach");
-                    }
 
                     currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
 
@@ -716,7 +718,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else if (closestVertex == interactedVertex)
             {
-                linkedMeshController.RemoveVertexFromArrayClean(interactedVertex);
+                linkedMeshController.RemoveVertexClean(interactedVertex);
                 UpdateMesh(true);
                 closestVertex = -1;
             }
@@ -728,8 +730,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (interactedVertex >= 0)
                 {
-                    Debug.Log(interactedVertex);
-
                     interactorPositions[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
                 }
             }
@@ -874,15 +874,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 closestVertex = i;
             }
 
-            Debug.Log($"Closest vertex was {closestVertex} with a distance of {closestDistance}");
-
             return closestVertex;
         }
 
         //Common VR input functions
         void GrabInput(HandType handType)
         {
+            #if debugLog
             Debug.Log("Grab input");
+            #endif
 
             if (handType != primaryHand) return; //Currently only one handed
 
@@ -916,7 +916,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void DropInput(HandType handType)
         {
+            #if debugLog
             Debug.Log("Drop input");
+            #endif
 
             if (handType != primaryHand) return; //Currently only one handed
 
@@ -946,7 +948,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void UseInput(bool value, HandType handType)
         {
+            #if debugLog
             Debug.Log("Use input");
+            #endif
 
             if (handType != primaryHand) return; //Currently only one handed
 
