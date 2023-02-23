@@ -117,8 +117,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             vertices[vertices.Length - 1] = localPosition;
 
             AddPlayerFacingTriangle(vertices.Length - 1, connectedIndex1, connectedIndex2, localFacingPosition);
+        }
 
-
+        public void AddQuad(int basePoint, int firstSidePoint, int secondSidePoint, Vector3 additionPoint, Vector3 localFacingPosition)
+        {
+            AddVertex(additionPoint, basePoint, firstSidePoint, localFacingPosition);
+            AddPlayerFacingTriangle(basePoint, secondSidePoint, vertices.Length - 1, localFacingPosition);
         }
 
         public void AddPlayerFacingTriangle(int a, int b, int c, Vector3 localFacingPosition)
@@ -243,7 +247,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        void RemoveVertexWithoutCleaning(int index, bool vertexMayBeUsed)
+        void RemoveVertexWithoutCleaning(int index, bool removeAffectedTriangles)
         {
             Vector3[] oldVertexPositons = vertices;
             Vector3[] newVertexPositions = new Vector3[oldVertexPositons.Length - 1];
@@ -262,8 +266,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             vertices = newVertexPositions;
 
             //Remove affected triangles
-
-            if (vertexMayBeUsed)
+            if (removeAffectedTriangles)
             {
                 int trianglesToBeRemoved = 0;
 
@@ -393,15 +396,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void MergeVertices(int keep, int discard, bool removeInvalid)
         {
-            //Debug.Log($"Keep: {keep}, discard: {discard}");
+            //Remove vertex:
+            Vector3[] oldVertexPositons = this.vertices;
+            vertices = new Vector3[oldVertexPositons.Length - 1];
 
-            RemoveVertexWithoutCleaning(discard, true);
+            int newIndex = 0;
+
+            for (int i = 0; i < oldVertexPositons.Length; i++)
+            {
+                if (i == discard) continue;
+
+                vertices[newIndex] = oldVertexPositons[i];
+
+                newIndex++;
+            }
 
             int trianglesToBeRemoved = 0;
 
-            //Replace keep with discard
+            //Replace keep with discard and count invalid triangles:
             for (int i = 0; i < triangles.Length; i += 3)
             {
+                Debug.Log($"Checking triangle = {i} with values {triangles[i]}, {triangles[i + 1]}, {triangles[i + 2]}");
+
                 int found = 0;
 
                 if (triangles[i] == discard || triangles[i] == keep)
@@ -424,7 +440,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 //When triangles are being destroyed
                 if (found > 1)
                 {
-                    trianglesToBeRemoved += found - 1;
+                    Debug.Log($"Triaggle to be removed = {i} with values {triangles[i]}, {triangles[i+1]}, {triangles[i+2]}");
+
+                    trianglesToBeRemoved += 1;
                 }
             }
 
@@ -434,12 +452,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (triangles[i] > discard) triangles[i]--;
             }
 
-            //Remove failed triangles
-            int trianglesRemoved = 0;
-            int trianglesSkipped = 0;
+            Debug.Log("trianglesToBeRemoved = " + trianglesToBeRemoved);
 
+            //Remove failed triangles
             if (trianglesToBeRemoved > 0)
             {
+                int trianglesRemoved = 0;
+                int trianglesSkipped = 0;
+
                 int[] oldTriangles = triangles;
                 triangles = new int[triangles.Length - trianglesToBeRemoved * 3];
 

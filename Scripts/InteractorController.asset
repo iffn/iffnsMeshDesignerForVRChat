@@ -230,13 +230,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: LinkedInteractionButtonsVR
+      Data: LinkedInteractionButtonsDesktop
     - Name: $v
       Entry: 7
       Data: 14|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: LinkedInteractionButtonsVR
+      Data: LinkedInteractionButtonsDesktop
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 15|System.RuntimeType, mscorlib
@@ -297,13 +297,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: LinkedInteractionButtonsDesktop
+      Data: LinkedInteractionButtonsVR
     - Name: $v
       Entry: 7
       Data: 19|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: LinkedInteractionButtonsDesktop
+      Data: LinkedInteractionButtonsVR
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 15

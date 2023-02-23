@@ -12,8 +12,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] VRCPlayerApi.TrackingDataType handType;
         [SerializeField] Transform VRUI;
         [SerializeField] GameObject DesktopUI;
-        [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsVR;
         [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsDesktop;
+        [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsVR;
         [SerializeField] Transform LinkedVRHandIndicator;
 
         Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
@@ -34,8 +34,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             this.linkedMeshInteractor = linkedMeshInteractor;
 
-            int index = (int)linkedMeshInteractor.CurrentInteractionType;
-
             isInVR = Networking.LocalPlayer.IsUserInVR();
 
 
@@ -44,10 +42,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (Networking.LocalPlayer.IsUserInVR())
             {
+                foreach(InteractionTypeSelectorButton button in LinkedInteractionButtonsVR)
+                {
+                    button.Setup(this);
+                }
+
                 Destroy(DesktopUI);
             }
             else
             {
+                foreach (InteractionTypeSelectorButton button in LinkedInteractionButtonsDesktop)
+                {
+                    button.Setup(this);
+                }
+
                 Destroy(VRUI.gameObject);
                 Destroy(LinkedVRHandIndicator.gameObject);
             }
@@ -103,7 +111,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (Input.GetKeyDown(KeyCode.Alpha5))
                 {
                     selection = 5;
-
                 }
                 if (Input.GetKeyDown(KeyCode.Alpha6))
                 {

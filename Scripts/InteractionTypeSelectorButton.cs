@@ -9,8 +9,19 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Unity assingments")]
         [SerializeField] InteractionTypes interactionType;
-        [SerializeField] InteractorController LinkedInteractionController;
         [SerializeField] GameObject Highlight;
+
+        InteractorController linkedInteractionController;
+
+        public void Setup(InteractorController linkedInteractionController)
+        {
+            this.linkedInteractionController = linkedInteractionController;
+
+            if (!IsValid())
+            {
+                Debug.LogWarning($"Error: {nameof(InteractionTypeSelectorButton)} called {gameObject.name} is not correctly set up");
+            }
+        }
 
         public InteractionTypes InteractionType
         {
@@ -27,13 +38,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (!IsValid()) return;
 
 
-            LinkedInteractionController.CurrentInteractionType = InteractionType;
+            linkedInteractionController.CurrentInteractionType = InteractionType;
         }
 
         public bool IsValid()
         {
             if (Highlight == null) return false;
-            if (LinkedInteractionController == null) return false;
 
             return true;
         }
@@ -49,14 +59,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
 
                 Highlight.SetActive(value);
-            }
-        }
-
-        private void Start()
-        {
-            if (!IsValid())
-            {
-                Debug.LogWarning($"Error: {nameof(InteractionTypeSelectorButton)} called {gameObject.name} is not correctly set up");
             }
         }
     }

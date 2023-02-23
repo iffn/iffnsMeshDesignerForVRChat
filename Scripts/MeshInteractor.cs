@@ -3,6 +3,7 @@
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.iOS;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
@@ -31,7 +32,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         float lastUpdateTime = Mathf.NegativeInfinity;
         double updateFPSForDebug;
 
-        public VertexIndicator[] interactorPositions = new VertexIndicator[0];
+        public VertexIndicator[] vertexIndicators = new VertexIndicator[0];
 
         public int activeVertex = -1;
         public int closestVertex = -1;
@@ -57,7 +58,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        bool checkSetup()
+        bool CheckSetup()
         {
             bool correctSetup = true;
 
@@ -82,7 +83,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void Setup()
         {
-            if (!checkSetup())
+            if (!CheckSetup())
             {
                 enabled = false;
                 return;
@@ -140,10 +141,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             set
             {
                 //Unload
-                if (closestVertex >= 0) interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
-                if (secondClosestVertex >= 0) interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Normal;
+                if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+                if (secondClosestVertex >= 0) vertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Normal;
+                if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                 closestVertex = -1;
                 secondClosestVertex = -1;
+                activeVertex = -1;
 
                 currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position).magnitude;
 
@@ -246,13 +249,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 Vector3 scale = value * Vector3.one;
 
-                if (interactorPositions == null)
+                if (vertexIndicators == null)
                 {
                     Debug.LogWarning("Somehow null");
                     return;
                 }
 
-                foreach (VertexIndicator vertex in interactorPositions)
+                foreach (VertexIndicator vertex in vertexIndicators)
                 {
                     vertex.transform.localScale = scale;
                 }
@@ -277,7 +280,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
             returnString += $"{nameof(currentInteractionType)}: {interactionTypeStrings[(int)currentInteractionType]}\n";
             returnString += $"{nameof(activeVertex)}: {activeVertex}\n";
-            returnString += $"Number of interactors: {interactorPositions.Length}\n";
+            returnString += $"Number of interactors: {vertexIndicators.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
 
@@ -309,12 +312,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void ClearVertexInteractorData()
         {
-            for (int i = 0; i < interactorPositions.Length; i++)
+            for (int i = 0; i < vertexIndicators.Length; i++)
             {
-                Destroy(interactorPositions[i].gameObject);
+                Destroy(vertexIndicators[i].gameObject);
             }
 
-            interactorPositions = new VertexIndicator[0];
+            vertexIndicators = new VertexIndicator[0];
         }
 
         public Vector3[] verticesDebug;
@@ -343,6 +346,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                             break;
                         case InteractionTypes.StepAdd:
                             StepAddUse();
+                            break;
+                        case InteractionTypes.QuadAdd:
+                            QuadAddUse();
                             break;
                         case InteractionTypes.MoveAndScaleObject:
                             break;
@@ -373,6 +379,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                             activeVertex = -1;
                             break;
                         case InteractionTypes.StepAdd:
+                            closestVertex = -1;
+                            secondClosestVertex = -1;
+                            break;
+                        case InteractionTypes.QuadAdd:
+                            activeVertex = -1;
                             break;
                         case InteractionTypes.MoveAndScaleObject:
                             break;
@@ -399,6 +410,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     break;
                 case InteractionTypes.StepAdd:
                     UpdateStepAdd();
+                    break;
+                case InteractionTypes.QuadAdd:
+                    UpdateQuadAdd();
                     break;
                 case InteractionTypes.MoveAndScaleObject:
                     break;
@@ -428,7 +442,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3[] vertices = linkedMeshController.Vertices;
 
-            if (interactorPositions.Length == vertices.Length)
+            if (vertexIndicators.Length == vertices.Length)
             {
                 #if debugLog
                 Debug.Log("Just updating positions");
@@ -436,7 +450,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    interactorPositions[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].SetInfo(i, vertices[i]);
                 }
             }
             else
@@ -449,7 +463,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 Vector3[] positions = vertices;
 
-                interactorPositions = new VertexIndicator[positions.Length];
+                vertexIndicators = new VertexIndicator[positions.Length];
 
                 for (int i = 0; i < positions.Length; i++)
                 {
@@ -459,7 +473,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
 
-                    interactorPositions[i] = currentInteractor;
+                    vertexIndicators[i] = currentInteractor;
                 }
             }
         }
@@ -504,14 +518,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (activeVertex < 0) return;
 
-            if (activeVertex >= interactorPositions.Length)
+            if (activeVertex >= vertexIndicators.Length)
             {
                 Debug.LogWarning("Active vertex somehow larger than expected");
                 return;
             }
 
             //Set indicator position
-            Transform currentVertex = interactorPositions[activeVertex].transform;
+            Transform currentVertex = vertexIndicators[activeVertex].transform;
 
             currentVertex.position = PrimaryHandPosition;
 
@@ -523,7 +537,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             //Apply mesh
             linkedMeshController.SetSingleVertexPosition(activeVertex, currentVertex.localPosition);
-            interactorPositions[activeVertex].transform.localPosition = currentVertex.localPosition;
+            vertexIndicators[activeVertex].transform.localPosition = currentVertex.localPosition;
 
             UpdateMesh(false);
         }
@@ -543,7 +557,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 
-                for (int i = 0; i < interactorPositions.Length; i++)
+                for (int i = 0; i < vertexIndicators.Length; i++)
                 {
                     Vector3 currentPosition = vertices[i];
 
@@ -571,18 +585,44 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            if (closestVertex == -1 || secondClosestVertex == -1)
+            if(currentInteractionType == InteractionTypes.QuadAdd)
             {
-                LinkedLineRenderer.gameObject.SetActive(false);
+                if(activeVertex > 0)
+                {
+                    LinkedLineRenderer.gameObject.SetActive(true);
 
-                return;
+                    LinkedLineRenderer.positionCount = 5;
+                    LinkedLineRenderer.loop = false;
+
+                    LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
+                    LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                    LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[activeVertex]));
+                    LinkedLineRenderer.SetPosition(3, PrimaryHandPosition);
+                    LinkedLineRenderer.SetPosition(4, transform.TransformPoint(vertices[secondClosestVertex]));
+                }
+                else
+                {
+                    LinkedLineRenderer.gameObject.SetActive(false);
+                }
             }
+            else
+            {
+                if (closestVertex >= 0 && secondClosestVertex > 0)
+                {
+                    LinkedLineRenderer.gameObject.SetActive(true);
 
-            LinkedLineRenderer.gameObject.SetActive(true);
+                    LinkedLineRenderer.positionCount = 3;
+                    LinkedLineRenderer.loop = true;
 
-            LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
-            LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
-            LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
+                    LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
+                    LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                    LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
+                }
+                else
+                {
+                    LinkedLineRenderer.gameObject.SetActive(false);
+                }
+            }
         }
 
         public void UseVertexAdder()
@@ -591,15 +631,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (secondClosestVertex == -1) return;
 
             //Indicator
-            VertexIndicator[] oldInteractors = interactorPositions;
-            interactorPositions = new VertexIndicator[oldInteractors.Length + 1];
+            VertexIndicator[] oldInteractors = vertexIndicators;
+            vertexIndicators = new VertexIndicator[oldInteractors.Length + 1];
 
             for (int i = 0; i < oldInteractors.Length; i++)
             {
-                interactorPositions[i] = oldInteractors[i];
+                vertexIndicators[i] = oldInteractors[i];
             }
 
-            int newVertexIndex = interactorPositions.Length - 1;
+            int newVertexIndex = vertexIndicators.Length - 1;
 
             VertexIndicator currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexIndicator>();
 
@@ -607,7 +647,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             currentInteractor.Setup(newVertexIndex, transform, localPosition, vertexInteractionDistance);
 
-            interactorPositions[interactorPositions.Length - 1] = currentInteractor;
+            vertexIndicators[vertexIndicators.Length - 1] = currentInteractor;
 
             //Mesh
             linkedMeshController.AddVertex(localPosition, closestVertex, secondClosestVertex, LocalHeadPosition);
@@ -618,26 +658,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
-            interactorPositions[closestVertex].SelectState = VertexSelectStates.Selected;
+            vertexIndicators[closestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
+            vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
             closestVertex = -1;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Selected;
+            vertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            interactorPositions[secondClosestVertex].SelectState = VertexSelectStates.Normal;
+            vertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Normal;
             secondClosestVertex = -1;
         }
 
@@ -701,6 +741,43 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        //Quad add
+        void UpdateQuadAdd()
+        {
+            UpdateVertexAdder(activeVertex >= 0);
+        }
+
+        void QuadAddUse()
+        {
+            int interactedVertex = SelectVertex();
+
+            if (activeVertex < 0)
+            {
+                //Select initial vertex
+                activeVertex = interactedVertex;
+                if(activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Selected;
+                return;
+            }
+
+            if (activeVertex == interactedVertex)
+            {
+                //Deselect vertex if alreadyselected
+                vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                activeVertex = -1;
+                return;
+            }
+
+            if (closestVertex >= 0 && secondClosestVertex >= 0)
+            {
+                LinkedMeshController.AddQuad(activeVertex, closestVertex, secondClosestVertex, transform.InverseTransformPoint(PrimaryHandPosition), LocalHeadPosition);
+                
+                vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                activeVertex = -1;
+
+                UpdateMesh(true);
+            }
+        }
+
         // Remove vertex
         void RemoveVertexUse()
         {
@@ -712,7 +789,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     closestVertex = interactedVertex;
 
-                    interactorPositions[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    vertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
                 }
             }
             else if (closestVertex == interactedVertex)
@@ -723,13 +800,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else
             {
-                interactorPositions[closestVertex].SelectState = VertexSelectStates.Normal;
+                vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
 
                 closestVertex = interactedVertex;
 
                 if (interactedVertex >= 0)
                 {
-                    interactorPositions[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    vertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
                 }
             }
         }
@@ -895,6 +972,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     break;
                 case InteractionTypes.StepAdd:
                     break;
+                case InteractionTypes.QuadAdd:
+                    break;
                 case InteractionTypes.MoveAndScaleObject:
                     break;
                 case InteractionTypes.AddTriagnle:
@@ -927,6 +1006,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     activeVertex = -1;
                     break;
                 case InteractionTypes.StepAdd:
+                    break;
+                case InteractionTypes.QuadAdd:
                     break;
                 case InteractionTypes.MoveAndScaleObject:
                     break;
@@ -962,6 +1043,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         break;
                     case InteractionTypes.StepAdd:
                         StepAddUse();
+                        break;
+                    case InteractionTypes.QuadAdd:
+                        QuadAddUse();
                         break;
                     case InteractionTypes.MoveAndScaleObject:
                         break;
@@ -1018,24 +1102,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         }
                         break;
                     case InteractionTypes.StepAdd:
-                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.QuadAdd:
                         break;
                     case InteractionTypes.MoveAndScaleObject:
-                        UseInput(value, args.handType);
                         break;
                     case InteractionTypes.AddTriagnle:
-                        UseInput(value, args.handType);
                         break;
                     case InteractionTypes.ProximityAdd:
-                        UseInput(value, args.handType);
                         break;
                     case InteractionTypes.RemoveTriangle:
-                        UseInput(value, args.handType);
                         break;
                     case InteractionTypes.Idle:
                         break;
                     case InteractionTypes.RemoveVertex:
-                        UseInput(value, args.handType);
                         break;
                     default:
                         break;
@@ -1070,6 +1150,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         readonly string[] interactionTypeStrings = new string[] {
             "MoveAndMerge",
             "StepAdd",
+            "QuadAdd",
             "MoveAndScaleObject",
             "AddTriagnle",
             "ProximityAdd",
@@ -1082,6 +1163,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         MoveAndMerge,
         StepAdd,
+        QuadAdd,
         MoveAndScaleObject,
         AddTriagnle,
         ProximityAdd,
