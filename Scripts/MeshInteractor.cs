@@ -41,14 +41,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         MeshRenderer linkedMeshRenderer;
         MeshRenderer symmetryMeshRenderer;
 
+        public bool[] vertexIsConnectedToActive;
+
         bool isInVR;
         bool inputDropWorks = false;
+        VRCPlayerApi localPlayer;
 
         InteractionTypes currentInteractionType = InteractionTypes.Idle;
 
         float currentDesktopPickupDistance = 0.5f;
 
-        VRCPlayerApi localPlayer;
 
         public MeshController LinkedMeshController
         {
@@ -339,6 +341,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 if (Input.GetMouseButtonDown(0))
                 {
+                    //Left click
                     switch (currentInteractionType)
                     {
                         case InteractionTypes.MoveAndMerge:
@@ -373,16 +376,22 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (Input.GetMouseButtonDown(1))
                 {
+                    //Right click
                     switch (currentInteractionType)
                     {
                         case InteractionTypes.MoveAndMerge:
+                            if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                             activeVertex = -1;
                             break;
                         case InteractionTypes.StepAdd:
+                            if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+                            if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
                             closestVertex = -1;
                             secondClosestVertex = -1;
                             break;
                         case InteractionTypes.QuadAdd:
+                            LinkedLineRenderer.gameObject.SetActive(false);
+                            if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                             activeVertex = -1;
                             break;
                         case InteractionTypes.MoveAndScaleObject:
@@ -585,43 +594,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            if(currentInteractionType == InteractionTypes.QuadAdd)
+            if (closestVertex >= 0 && secondClosestVertex > 0)
             {
-                if(activeVertex > 0)
-                {
-                    LinkedLineRenderer.gameObject.SetActive(true);
+                LinkedLineRenderer.gameObject.SetActive(true);
 
-                    LinkedLineRenderer.positionCount = 5;
-                    LinkedLineRenderer.loop = false;
+                LinkedLineRenderer.positionCount = 3;
+                LinkedLineRenderer.loop = true;
 
-                    LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
-                    LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
-                    LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[activeVertex]));
-                    LinkedLineRenderer.SetPosition(3, PrimaryHandPosition);
-                    LinkedLineRenderer.SetPosition(4, transform.TransformPoint(vertices[secondClosestVertex]));
-                }
-                else
-                {
-                    LinkedLineRenderer.gameObject.SetActive(false);
-                }
+                LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
+                LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
             }
             else
             {
-                if (closestVertex >= 0 && secondClosestVertex > 0)
-                {
-                    LinkedLineRenderer.gameObject.SetActive(true);
-
-                    LinkedLineRenderer.positionCount = 3;
-                    LinkedLineRenderer.loop = true;
-
-                    LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
-                    LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
-                    LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
-                }
-                else
-                {
-                    LinkedLineRenderer.gameObject.SetActive(false);
-                }
+                LinkedLineRenderer.gameObject.SetActive(false);
             }
         }
 
@@ -744,7 +730,61 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //Quad add
         void UpdateQuadAdd()
         {
-            UpdateVertexAdder(activeVertex >= 0);
+            if (activeVertex < 0) return;
+
+            Vector3[] vertices = LinkedMeshController.Vertices;
+
+            closestVertex = -1;
+            secondClosestVertex = -1;
+
+            float closestDistance = Mathf.Infinity;
+            float secondclosestDistance = Mathf.Infinity;
+
+            Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                if (i == activeVertex) continue;
+                if (!vertexIsConnectedToActive[i]) continue;
+
+                Vector3 currentPosition = vertices[i];
+
+                float distance = (localHandPosition - currentPosition).magnitude;
+
+                //Override second
+                if (distance < secondclosestDistance)
+                {
+                    secondclosestDistance = distance;
+                    secondClosestVertex = i;
+                }
+
+                //Swap
+                if (secondclosestDistance < closestDistance)
+                {
+                    float tempD = secondclosestDistance;
+                    int tempV = secondClosestVertex;
+
+                    secondclosestDistance = closestDistance;
+                    secondClosestVertex = closestVertex;
+
+                    closestDistance = tempD;
+                    closestVertex = tempV;
+                }
+            }
+
+            if(closestVertex >= 0 && secondClosestVertex >= 0)
+            {
+                LinkedLineRenderer.gameObject.SetActive(true);
+
+                LinkedLineRenderer.positionCount = 5;
+                LinkedLineRenderer.loop = false;
+
+                LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
+                LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[activeVertex]));
+                LinkedLineRenderer.SetPosition(3, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(4, transform.TransformPoint(vertices[secondClosestVertex]));
+            }
         }
 
         void QuadAddUse()
@@ -756,12 +796,33 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 //Select initial vertex
                 activeVertex = interactedVertex;
                 if(activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Selected;
+
+                //Setup connection array
+                int[] triangles = LinkedMeshController.Triangles;
+
+                vertexIsConnectedToActive = new bool[LinkedMeshController.Vertices.Length];
+
+                for (int i = 0; i < triangles.Length; i+= 3)
+                {
+                    int a = triangles[i];
+                    int b = triangles[i + 1];
+                    int c = triangles[i + 2];
+
+                    if (a == activeVertex || b == activeVertex || c == activeVertex)
+                    {
+                        vertexIsConnectedToActive[a] = true;
+                        vertexIsConnectedToActive[b] = true;
+                        vertexIsConnectedToActive[c] = true;
+                    }
+                }
+
                 return;
             }
 
             if (activeVertex == interactedVertex)
             {
                 //Deselect vertex if alreadyselected
+                LinkedLineRenderer.gameObject.SetActive(false);
                 vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                 activeVertex = -1;
                 return;
