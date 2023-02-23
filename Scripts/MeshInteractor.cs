@@ -377,38 +377,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (Input.GetMouseButtonDown(1))
                 {
                     //Right click
-                    switch (currentInteractionType)
-                    {
-                        case InteractionTypes.MoveAndMerge:
-                            if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
-                            activeVertex = -1;
-                            break;
-                        case InteractionTypes.StepAdd:
-                            if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
-                            if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
-                            closestVertex = -1;
-                            secondClosestVertex = -1;
-                            break;
-                        case InteractionTypes.QuadAdd:
-                            LinkedLineRenderer.gameObject.SetActive(false);
-                            if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
-                            activeVertex = -1;
-                            break;
-                        case InteractionTypes.MoveAndScaleObject:
-                            break;
-                        case InteractionTypes.AddTriagnle:
-                            break;
-                        case InteractionTypes.ProximityAdd:
-                            break;
-                        case InteractionTypes.RemoveTriangle:
-                            break;
-                        case InteractionTypes.Idle:
-                            break;
-                        case InteractionTypes.RemoveVertex:
-                            break;
-                        default:
-                            break;
-                    }
+                    DropInput(primaryHand, true);
                 }
             }
 
@@ -1053,7 +1022,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        void DropInput(HandType handType)
+        void DropInput(HandType handType, bool activeInput)
         {
             #if debugLog
             Debug.Log("Drop input");
@@ -1064,11 +1033,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             switch (currentInteractionType)
             {
                 case InteractionTypes.MoveAndMerge:
+                    if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                     activeVertex = -1;
                     break;
                 case InteractionTypes.StepAdd:
+                    if (!activeInput) break;
+                    if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+                    if (closestVertex >= 0) vertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+                    closestVertex = -1;
+                    secondClosestVertex = -1;
                     break;
                 case InteractionTypes.QuadAdd:
+                    if (!activeInput) break;
+                    LinkedLineRenderer.gameObject.SetActive(false);
+                    if (activeVertex >= 0) vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                    activeVertex = -1;
                     break;
                 case InteractionTypes.MoveAndScaleObject:
                     break;
@@ -1143,7 +1122,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    DropInput(args.handType);
+                    DropInput(args.handType, false);
                 }
             }
             else
@@ -1205,7 +1184,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             inputDropWorks = true;
 
             //InputDrop only called for Vive users
-            DropInput(args.handType);
+            DropInput(args.handType, true);
         }
 
         readonly string[] interactionTypeStrings = new string[] {
