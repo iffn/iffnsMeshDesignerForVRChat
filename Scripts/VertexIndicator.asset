@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: VertexIndicator
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 0b753eca7dea5ca45a51719ca53f819f,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: dc2669e8a08f95747b4429494320a97b,
     type: 2}
   udonAssembly: 
   assemblyError: 

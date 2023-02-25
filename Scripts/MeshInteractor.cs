@@ -3,7 +3,6 @@
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
 using UnityEngine;
-using UnityEngine.iOS;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
@@ -449,6 +448,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
 
+                    if(currentInteractor == null)
+                    {
+                        Debug.Log($"Error: {nameof(VertexIndicator)} was not found on instantiated object");
+                        GameObject.Destroy(newObject);
+                        continue;
+                    }
+
                     currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
 
                     vertexIndicators[i] = currentInteractor;
@@ -596,7 +602,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             int newVertexIndex = vertexIndicators.Length - 1;
 
-            VertexIndicator currentInteractor = GameObject.Instantiate(VertexInteractorPrefab.gameObject).GetComponent<VertexIndicator>();
+            GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
+
+            VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>();
 
             Vector3 localPosition = transform.InverseTransformPoint(PrimaryHandPosition);
 

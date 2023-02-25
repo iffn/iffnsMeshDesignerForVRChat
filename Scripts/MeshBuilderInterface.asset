@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: MeshBuilderInterface
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 3a59e259801c5da4c84f7ea1a32af755,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 4b33429d00c79bb4ebde3ef7f92ba3ca,
     type: 2}
   udonAssembly: 
   assemblyError: 

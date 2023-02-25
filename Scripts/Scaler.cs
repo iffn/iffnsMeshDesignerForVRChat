@@ -34,6 +34,7 @@ public class Scaler : UdonSharpBehaviour
     {
         originalLocalPosition = scaleObject.transform.localPosition;
         originalLocalScale = scaleObject.transform.localScale;
+        gameObject.SetActive(false);
     }
 
     private void Update()
