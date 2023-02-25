@@ -23,12 +23,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] MeshController linkedMeshController;
         [SerializeField] VertexIndicator VertexInteractorPrefab;
         [SerializeField] LineRenderer LinkedLineRenderer;
-        [SerializeField] InteractorController LinkedInteractionIndicator;
         [SerializeField] Transform HelperTransform;
         public Scaler LinkedScaler;
         public MeshFilter SymmetryMeshFilter;
 
         float lastUpdateTime = Mathf.NegativeInfinity;
+
+        public float LastUpdateTime
+        {
+            get
+            {
+                return lastUpdateTime;
+            }
+        }
+
         double updateFPSForDebug;
 
         public VertexIndicator[] vertexIndicators = new VertexIndicator[0];
@@ -37,6 +45,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public int closestVertex = -1;
         public int secondClosestVertex = -1;
 
+        InteractorController linkedInteractionController;
         MeshRenderer linkedMeshRenderer;
         MeshRenderer symmetryMeshRenderer;
 
@@ -59,7 +68,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        bool CheckSetup()
+        public bool CheckSetup()
         {
             bool correctSetup = true;
 
@@ -73,22 +82,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 correctSetup = false;
                 Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
             }
-            if (LinkedInteractionIndicator == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(LinkedInteractionIndicator)} not assinged");
-            }
 
             return correctSetup;
         }
 
-        void Setup()
+        public void Setup(InteractorController linkedInteractionIndicator)
         {
-            if (!CheckSetup())
-            {
-                enabled = false;
-                return;
-            }
+            this.linkedInteractionController = linkedInteractionIndicator;
+
+            lastUpdateTime = Time.time;
 
             linkedMeshController.Setup();
 
@@ -99,12 +101,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (InEditMode)
             {
-                SetInteractorsFromMesh();
+                SetIndicatorsFromMesh();
             }
-
-            LinkedInteractionIndicator.Setup(this);
-
-            LinkedInteractionIndicator.gameObject.SetActive(InEditMode);
 
             if (SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
 
@@ -228,14 +226,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    SetInteractorsFromMesh();
+                    SetIndicatorsFromMesh();
                 }
 
-                LinkedInteractionIndicator.gameObject.SetActive(value);
+                linkedInteractionController.InEditMode = value;
 
                 LinkedScaler.gameObject.SetActive(value);
 
                 VertexInteractionDistance = VertexInteractionDistance; //Refresh scale
+
             }
         }
 
@@ -311,7 +310,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        void ClearVertexInteractorData()
+        public void ClearVertexInteractorData()
         {
             for (int i = 0; i < vertexIndicators.Length; i++)
             {
@@ -322,11 +321,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         public Vector3[] verticesDebug;
-
-        void Start()
-        {
-            Setup();
-        }
 
         void Update()
         {
@@ -413,7 +407,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             updateFPSForDebug = 1 / stopwatch.Elapsed.TotalSeconds;
         }
 
-        public void SetInteractorsFromMesh()
+        public void SetIndicatorsFromMesh()
         {
             if (!InEditMode) return;
 
@@ -647,7 +641,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void UpdateMesh(bool updateInteractors)
         {
             linkedMeshController.BuildMeshFromData();
-            if (updateInteractors) SetInteractorsFromMesh();
+            if (updateInteractors) SetIndicatorsFromMesh();
         }
 
         //Step add:

@@ -10,48 +10,54 @@ using iffnsStuff.iffnsVRCStuff.MeshBuilder;
 public class MeshBuilderInterface : UdonSharpBehaviour
 {
     //Unity setup
-    [SerializeField] MeshInteractor LinkedMeshInteractor;
-
+    [Header("Unity assingments")]
     [SerializeField] Toggle UseWireframeMaterialToggle;
     [SerializeField] Toggle EditMeshToggle;
     [SerializeField] Toggle SymmetryModeToggle;
     [SerializeField] Toggle ShowInteractionLocationToggle;
     [SerializeField] Toggle ShowScalingIndicatorToggle;
-
     [SerializeField] Material WireframeMaterial;
-
     [SerializeField] ObjConterter LinkedObjConverter;
-
     [SerializeField] TMPro.TextMeshProUGUI debugText;
 
     Material defaultMaterial;
+    MeshInteractor linkedMeshInteractor;
 
     bool isInVR;
 
-    void Start()
+    public void Setup(MeshInteractor linkedMeshInteractor)
     {
-        bool correctSetup = true;
+        isInVR = Networking.LocalPlayer.IsUserInVR();
 
-        if (!correctSetup)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
+        this.linkedMeshInteractor = linkedMeshInteractor;
 
-        ToggleEditMesh();
-
-        LinkedObjConverter.Setup(LinkedMeshInteractor);
+        LinkedObjConverter.Setup(this.linkedMeshInteractor);
     }
 
     private void Update()
     {
         string debugString = "";
 
-        debugString += LinkedMeshInteractor.DebugState();
-        debugString += "\n";
-        debugString += LinkedMeshInteractor.LinkedMeshController.DebugState();
+        if (linkedMeshInteractor)
+        {
+            debugString += linkedMeshInteractor.DebugState();
+            debugString += "\n";
+            debugString += linkedMeshInteractor.LinkedMeshController.DebugState();
+        }
+        else
+        {
+            debugString = "Setup not completed at " + Time.time;
+        }
 
         debugText.text = debugString;
+    }
+
+    public bool InEditMode
+    {
+        set
+        {
+            EditMeshToggle.isOn = value; //Rest should be called automatically
+        }
     }
 
     //Toggle calls
@@ -59,8 +65,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         if (UseWireframeMaterialToggle.isOn)
         {
-            defaultMaterial = LinkedMeshInteractor.AttachedMaterial;
-            LinkedMeshInteractor.AttachedMaterial = WireframeMaterial;
+            defaultMaterial = linkedMeshInteractor.AttachedMaterial;
+            linkedMeshInteractor.AttachedMaterial = WireframeMaterial;
         }
         else
         {
@@ -70,25 +76,25 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             }
             else
             {
-                LinkedMeshInteractor.AttachedMaterial = defaultMaterial;
+                linkedMeshInteractor.AttachedMaterial = defaultMaterial;
             }
         }
     }
 
     public void ResetScale()
     {
-        LinkedMeshInteractor.LinkedScaler.ResetScale();
+        linkedMeshInteractor.LinkedScaler.ResetScale();
     }
 
     public void MergeOverlappingVertices()
     {
-        LinkedMeshInteractor.LinkedMeshController.MergeOverlappingVertices(0.001f);
-        LinkedMeshInteractor.UpdateMesh(true);
+        linkedMeshInteractor.LinkedMeshController.MergeOverlappingVertices(0.001f);
+        linkedMeshInteractor.UpdateMesh(true);
     }
 
     public void ToggleEditMesh()
     {
-        if(LinkedMeshInteractor == null)
+        if(linkedMeshInteractor == null)
         {
             Debug.LogWarning("Error: LinkedMeshBuilder is null");
             return;
@@ -100,12 +106,12 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             return;
         }
 
-        LinkedMeshInteractor.InEditMode = EditMeshToggle.isOn;
+        linkedMeshInteractor.InEditMode = EditMeshToggle.isOn;
     }
 
     public void ToggleSymmetryMode()
     {
-        LinkedMeshInteractor.SymmetryMode = SymmetryModeToggle.isOn;
+        linkedMeshInteractor.SymmetryMode = SymmetryModeToggle.isOn;
     }
 
     public void ToggleShowScalingIndicator()
@@ -115,23 +121,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     public void InderactorSizeX1o25()
     {
-        LinkedMeshInteractor.VertexInteractionDistance *= 1.25f;
+        linkedMeshInteractor.VertexInteractionDistance *= 1.25f;
     }
 
     public void InderactorSizeX0o8()
     {
-        LinkedMeshInteractor.VertexInteractionDistance *= 0.8f;
+        linkedMeshInteractor.VertexInteractionDistance *= 0.8f;
     }
-
-    /*
-    public void IndicatorSizeX1o25()
-    {
-        LinkedMeshBuilder.IndicatorScale *= 1.25f;
-    }
-
-    public void IndicatorSizeX0o8()
-    {
-        LinkedMeshBuilder.IndicatorScale *= 0.8f;
-    }
-    */
 }

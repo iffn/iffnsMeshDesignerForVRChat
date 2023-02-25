@@ -15,6 +15,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         float lastUpdateTime = Mathf.NegativeInfinity;
 
+        public float LastUpdateTime
+        {
+            get
+            {
+                return lastUpdateTime;
+            }
+        }
+
         MeshFilter linkedMeshFilter;
 
         public string DebugState()
@@ -36,6 +44,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void Setup()
         {
+            lastUpdateTime = Time.time;
+
             linkedMeshFilter = transform.GetComponent<MeshFilter>();
 
             UpdateMeshInfoFromMesh();

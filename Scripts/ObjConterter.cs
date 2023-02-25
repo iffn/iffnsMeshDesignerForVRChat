@@ -10,12 +10,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class ObjConterter : UdonSharpBehaviour
     {
+        [Header("Unity assingments")]
         [SerializeField] InputField LinkedInputField;
-
         [SerializeField] GameObject ReferenceMeshHolder;
         [SerializeField] GameObject MirrorReferenceMeshHolder;
         [SerializeField] MeshFilter ReferenceMesh;
-
         [SerializeField] Toggle ShowRefernceMeshToggle;
         [SerializeField] Toggle MirrorRefernceMeshToggle;
 
@@ -23,9 +22,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         readonly char newLine = '\n';
 
-        public void Setup(MeshInteractor linkedMeshBuilder)
+        public void Setup(MeshInteractor linkedMeshInteractor)
         {
-            LinkedMeshInteractor = linkedMeshBuilder;
+            LinkedMeshInteractor = linkedMeshInteractor;
         }
 
         private void Start()
@@ -46,7 +45,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             LinkedMeshInteractor.LinkedMeshController.UpdateMeshInfoFromMesh();
 
-            LinkedMeshInteractor.SetInteractorsFromMesh();
+            LinkedMeshInteractor.SetIndicatorsFromMesh();
         }
 
         public void ExportObj()

@@ -9,12 +9,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class InteractorController : UdonSharpBehaviour
     {
-        [SerializeField] VRCPlayerApi.TrackingDataType handType;
+        [Header("Unity assingments")]
         [SerializeField] Transform VRUI;
         [SerializeField] GameObject DesktopUI;
         [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsDesktop;
         [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsVR;
         [SerializeField] Transform LinkedVRHandIndicator;
+        [SerializeField] GameObject EditButtonsDesktop;
+        [SerializeField] GameObject EditButtonsVR;
+        [SerializeField] GameObject SpawnNoteDesktop;
+        [SerializeField] GameObject MoveNoteDesktop;
+        [SerializeField] GameObject SpawnButtonVR;
+        [SerializeField] GameObject MoveButtonVR;
 
         Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
 
@@ -28,6 +34,36 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         VRCPlayerApi localPlayer;
 
+        public void SwitchToMoveText()
+        {
+            if (isInVR)
+            {
+                SpawnButtonVR.SetActive(false);
+                MoveButtonVR.SetActive(true);
+            }
+            else
+            {
+                SpawnNoteDesktop.SetActive(false);
+                MoveNoteDesktop.SetActive(true);
+            }
+        }
+
+        public bool InEditMode
+        {
+            set
+            {
+                if (isInVR)
+                {
+                    EditButtonsVR.SetActive(value);
+                    LinkedVRHandIndicator.gameObject.SetActive(value);
+                }
+                else
+                {
+                    EditButtonsDesktop.SetActive(value);
+                }
+            }
+        }
+
         public void Setup(MeshInteractor linkedMeshInteractor)
         {
             localPlayer = Networking.LocalPlayer;
@@ -35,7 +71,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             this.linkedMeshInteractor = linkedMeshInteractor;
 
             isInVR = Networking.LocalPlayer.IsUserInVR();
-
 
             transform.parent = null;
             transform.localScale = Vector3.one;
@@ -47,7 +82,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     button.Setup(this);
                 }
 
-                Destroy(DesktopUI);
+                if(DesktopUI) Destroy(DesktopUI);
             }
             else
             {
@@ -56,8 +91,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     button.Setup(this);
                 }
 
-                Destroy(VRUI.gameObject);
-                Destroy(LinkedVRHandIndicator.gameObject);
+                if (VRUI) Destroy(VRUI.gameObject);
+                if (LinkedVRHandIndicator) Destroy(LinkedVRHandIndicator.gameObject);
             }
         }
 
