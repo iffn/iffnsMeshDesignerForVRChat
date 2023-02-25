@@ -59,7 +59,7 @@
      inkscape:pageopacity="0"
      borderopacity="1.0"
      bordercolor="#666666"
-     pagecolor="#ffffff"
+     pagecolor="#333333"
      id="base"
      inkscape:pagecheckerboard="0"
      inkscape:showpageshadow="2"
@@ -86,7 +86,7 @@
        sodipodi:nodetypes="cc" />
     <path
        id="rect1484-06-9-2-7"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:4, 2;stroke-opacity:1;paint-order:fill markers stroke;stroke-dashoffset:0"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:4, 2;stroke-opacity:1;paint-order:fill markers stroke;stroke-dashoffset:0;opacity:0.59621451"
        d="M 16.185823,56.313614 44.542434,27.51155 65.936885,56.630014"
        sodipodi:nodetypes="ccc" />
     <path

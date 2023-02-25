@@ -81,17 +81,17 @@
      inkscape:label="Layer 1">
     <path
        id="rect1484-06-9-2-36"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:1.35297;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.70594001,1.35297;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:0.6;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
        d="M 80.825829,31.935619 50.675815,54.937105"
        sodipodi:nodetypes="cc" />
     <path
        id="rect1484-06-9-2-36-5"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:1.35297;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.70594, 1.35297;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:0.6;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
        d="m 80.825829,31.935619 1e-5,22.839106"
        sodipodi:nodetypes="cc" />
     <path
        id="rect1484-06-9-2-36-5-3"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:1.35297;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.70594, 1.35297;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:0.6;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
        d="M 51.260697,31.935619 H 80.825829"
        sodipodi:nodetypes="cc" />
     <path
@@ -141,7 +141,7 @@
        sodipodi:nodetypes="cc" />
     <g
        id="g4142-8"
-       transform="matrix(0.2349144,0,0,0.2349144,-74.410621,-105.66561)"
+       transform="matrix(0.2349144,0,0,0.2349144,-88.041367,-113.81733)"
        style="display:inline;stroke-width:0.910448">
       <circle
          style="fill:#333333;fill-opacity:1;stroke:#dddddd;stroke-width:1.02699;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.991968;paint-order:fill markers stroke"

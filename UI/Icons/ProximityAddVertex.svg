@@ -2,7 +2,7 @@
 <svg
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-filename="C:\Users\iffn1\Documents\UnityProjects\CastleBuilder2\Assets\Modules\HumanBuildings\Builder\UI\Icons\Dark\AddFloorBelow-Dark.png"
+   inkscape:export-filename="ProximityAddVertex.png"
    sodipodi:docname="ProximityAddVertex.svg"
    inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    id="svg1397"
@@ -56,14 +56,15 @@
      inkscape:cx="190.41375"
      inkscape:zoom="1.979899"
      inkscape:pageshadow="2"
-     inkscape:pageopacity="1"
+     inkscape:pageopacity="0"
      borderopacity="1.0"
      bordercolor="#666666"
      pagecolor="#333333"
      id="base"
      inkscape:pagecheckerboard="0"
      inkscape:showpageshadow="2"
-     inkscape:deskcolor="#d1d1d1" />
+     inkscape:deskcolor="#d1d1d1"
+     showborder="true" />
   <metadata
      id="metadata1394">
     <rdf:RDF>
@@ -86,7 +87,7 @@
        sodipodi:nodetypes="cc" />
     <path
        id="rect1484-06-9-2-7"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:4, 2;stroke-opacity:1;paint-order:fill markers stroke;stroke-dashoffset:0"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:0.6;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke;stroke-dashoffset:0"
        d="M 16.185823,56.313614 44.542434,27.51155 65.936885,56.630014"
        sodipodi:nodetypes="ccc" />
     <path

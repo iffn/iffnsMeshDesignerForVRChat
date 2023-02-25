@@ -52,14 +52,14 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="175.26147"
-     inkscape:cx="145.46197"
+     inkscape:cy="175.76654"
+     inkscape:cx="145.96704"
      inkscape:zoom="1.979899"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
      bordercolor="#666666"
-     pagecolor="#ffffff"
+     pagecolor="#333333"
      id="base"
      inkscape:pagecheckerboard="0"
      inkscape:showpageshadow="2"
@@ -117,7 +117,7 @@
        sodipodi:nodetypes="cc" />
     <path
        id="rect1484-06-9-2-7"
-       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#dd6700;stroke-width:0.6;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
        d="M 23.268465,59.253579 51.625076,30.451515 73.019527,59.569979"
        sodipodi:nodetypes="ccc" />
     <path
