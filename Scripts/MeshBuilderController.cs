@@ -100,50 +100,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             //Setup
             LinkedMeshController = LinkedMeshInteractor.LinkedMeshController;
-
-
-            if (!LinkedMeshInteractor.gameObject.activeSelf)
-            {
-                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} object somehow not active. activating");
-
-                LinkedMeshInteractor.gameObject.SetActive(true);
-            }
-
-            if (!LinkedMeshInteractor.gameObject.activeSelf)
-            {
-                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} object somehow still not active. activating");
-            }
-
-            if (!LinkedMeshInteractor.enabled)
-            {
-                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} somehow not enabled. enabling");
-
-                LinkedMeshInteractor.enabled = true;
-
-                Debug.LogWarning($"enabling done");
-            }
-
-            if (!LinkedMeshInteractor.enabled)
-            {
-                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} somehow still not enabled");
-            }
-
-            Debug.Log($"The {nameof(LinkedMeshInteractor)} setup is now being called");
-            LinkedMeshInteractor.Setup(LinkedInteractorController);
             
-            if (!LinkedMeshInteractor.setupCalled)
-            {
-                Debug.LogWarning("Setup somehow not called");
-
-                LinkedMeshInteractor.TestFunction();
-
-                LinkedMeshInteractor.setupCalled = true;
-                Debug.Log("Manual setting = " + LinkedMeshInteractor.setupCalled);
-                Debug.Log("Script enabled = " + LinkedMeshInteractor.enabled);
-                LinkedMeshInteractor.setupCalled = false;
-            }
-
-            Debug.Log($"The {nameof(LinkedMeshInteractor)} setup has now been called");
+            LinkedMeshInteractor.Setup(LinkedInteractorController);
 
             LinkedBuilderInterface.Setup(LinkedMeshInteractor);
 

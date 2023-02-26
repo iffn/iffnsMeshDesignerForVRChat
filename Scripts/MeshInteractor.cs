@@ -1,4 +1,4 @@
-﻿//#define debugLog
+﻿#define debugLog
 
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
@@ -317,6 +317,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
             returnString += $"{nameof(currentInteractionType)}: {interactionTypeStrings[(int)currentInteractionType]}\n";
             returnString += $"{nameof(activeVertex)}: {activeVertex}\n";
+            returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
             returnString += $"Number of interactors: {vertexIndicators.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
@@ -1175,11 +1176,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 switch (CurrentInteractionType)
                 {
                     case InteractionTypes.MoveAndMerge:
-                        if (activeVertex >= 0)
-                        {
-                            UseInput(value, args.handType);
-                        }
-                        else
+                        if (activeVertex < 0)
                         {
                             GrabInput(args.handType);
                         }
@@ -1203,8 +1200,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     default:
                         break;
                 }
-
-
             }
         }
 
@@ -1215,6 +1210,44 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (!inputDropWorks)
             {
                 if (value) UseInput(value, args.handType);
+            }
+            else
+            {
+                switch (CurrentInteractionType)
+                {
+                    case InteractionTypes.MoveAndMerge:
+                        if (activeVertex >= 0)
+                        {
+                            UseInput(value, args.handType);
+                        }
+                        break;
+                    case InteractionTypes.StepAdd:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.QuadAdd:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.MoveAndScaleObject:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.AddTriagnle:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.ProximityAdd:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.RemoveTriangle:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.Idle:
+                        UseInput(value, args.handType);
+                        break;
+                    case InteractionTypes.RemoveVertex:
+                        UseInput(value, args.handType);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
