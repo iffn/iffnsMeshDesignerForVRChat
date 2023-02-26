@@ -1,5 +1,6 @@
 ﻿using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Wrapper.Modules;
@@ -21,6 +22,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] GameObject MoveNoteDesktop;
         [SerializeField] GameObject SpawnButtonVR;
         [SerializeField] GameObject MoveButtonVR;
+        [SerializeField] Text CurrentToolTextDesktop;
+        [SerializeField] Text CurrentToolTextVR;
 
         Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
 
@@ -197,6 +200,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                             break;
                         }
                     }
+
+                    CurrentToolTextVR.text = "Current tool = " + interactionTypeStrings[(int)value];
                 }
                 else
                 {
@@ -216,10 +221,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                             break;
                         }
                     }
+
+                    CurrentToolTextDesktop.text = "Current tool = " + interactionTypeStrings[(int)value];
                 }
 
                 linkedMeshInteractor.CurrentInteractionType = value;
             }
         }
+
+        readonly string[] interactionTypeStrings = new string[] {
+            "MoveAndMerge",
+            "StepAdd",
+            "QuadAdd",
+            "MoveAndScaleObject",
+            "AddTriagnle",
+            "ProximityAdd",
+            "RemoveTriangle",
+            "Idle",
+            "RemoveVertex"};
     }
 }

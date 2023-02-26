@@ -18,11 +18,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Toggle ShowScalingIndicatorToggle;
     [SerializeField] Slider interactionDistanceSlider;
     [SerializeField] Material WireframeMaterial;
+    [SerializeField] Material NonWireframeMaterial;
     [SerializeField] ObjConterter LinkedObjConverter;
     [SerializeField] GameObject[] VROnlyObjects;
     [SerializeField] TMPro.TextMeshProUGUI debugText;
 
-    Material defaultMaterial;
     MeshInteractor linkedMeshInteractor;
 
     bool isInVR;
@@ -83,19 +83,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         if (UseWireframeMaterialToggle.isOn)
         {
-            defaultMaterial = linkedMeshInteractor.AttachedMaterial;
             linkedMeshInteractor.AttachedMaterial = WireframeMaterial;
         }
         else
         {
-            if (defaultMaterial == null)
-            {
-                Debug.LogWarning("Error: Default material of mesh is not set yet. Make sure you don't start with it enabled");
-            }
-            else
-            {
-                linkedMeshInteractor.AttachedMaterial = defaultMaterial;
-            }
+            linkedMeshInteractor.AttachedMaterial = NonWireframeMaterial;
         }
     }
 

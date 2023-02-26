@@ -2139,9 +2139,6 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2092657174236193423}
   LinkedInputField: {fileID: 3984724735992213326}
-  ReferenceMeshHolder: {fileID: 0}
-  MirrorReferenceMeshHolder: {fileID: 0}
-  ReferenceMesh: {fileID: 0}
   ShowRefernceMeshToggle: {fileID: 4554172486815597193}
   MirrorRefernceMeshToggle: {fileID: 6497640397449328570}
 --- !u!114 &2092657174236193423
@@ -8275,7 +8272,9 @@ MonoBehaviour:
   ShowInteractionLocationToggle: {fileID: 6289804812167971070}
   ShowScalingIndicatorToggle: {fileID: 6289804812167971070}
   interactionDistanceSlider: {fileID: 7085278775309747580}
-  WireframeMaterial: {fileID: 2100000, guid: e91459e1a42354f47b0248aba8b907b5, type: 2}
+  WireframeMaterial: {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
+  NonWireframeMaterial: {fileID: 2100000, guid: 777141dbe50247c40a1a5e779733923f,
+    type: 2}
   LinkedObjConverter: {fileID: 4067441081177420432}
   VROnlyObjects:
   - {fileID: 7328679790400381528}

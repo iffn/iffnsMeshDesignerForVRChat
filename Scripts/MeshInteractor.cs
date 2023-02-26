@@ -1,4 +1,4 @@
-﻿#define debugLog
+﻿//#define debugLog
 
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using UdonSharp;
