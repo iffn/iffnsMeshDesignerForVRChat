@@ -96,7 +96,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4866677365636747488
 Transform:
   m_ObjectHideFlags: 0
@@ -570,6 +570,8 @@ MonoBehaviour:
   HelperTransform: {fileID: 3048551125162599033}
   LinkedMeshRenderer: {fileID: 5488213686824360620}
   SymmetryMeshRenderer: {fileID: 5037387048522153935}
+  ReferenceMesh: {fileID: 7356515457054830374}
+  MirrorReferenceMesh: {fileID: 8047710551852320491}
   LinkedScaler: {fileID: 3502828741474572845}
   interactionDistance: 0
   vertexIndicators: []

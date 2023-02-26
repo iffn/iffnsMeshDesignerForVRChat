@@ -12,9 +12,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Unity assingments")]
         [SerializeField] InputField LinkedInputField;
-        [SerializeField] GameObject ReferenceMeshHolder;
-        [SerializeField] GameObject MirrorReferenceMeshHolder;
-        [SerializeField] MeshFilter ReferenceMesh;
         [SerializeField] Toggle ShowRefernceMeshToggle;
         [SerializeField] Toggle MirrorRefernceMeshToggle;
 
@@ -81,15 +78,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ImportObjAsReferenceMesh()
         {
-            SetMeshFromObjString(ReferenceMesh.sharedMesh, LinkedInputField.text);
+            SetMeshFromObjString(LinkedMeshInteractor.ReferenceMesh.sharedMesh, LinkedInputField.text);
 
             if (!ShowRefernceMeshToggle.isOn) ShowRefernceMeshToggle.isOn = true;
         }
 
         public void UpdateReferenceMeshUI()
         {
-            ReferenceMeshHolder.SetActive(ShowRefernceMeshToggle.isOn);
-            MirrorReferenceMeshHolder.SetActive(MirrorRefernceMeshToggle.isOn);
+            LinkedMeshInteractor.ReferenceMesh.gameObject.SetActive(ShowRefernceMeshToggle.isOn);
+            LinkedMeshInteractor.MirrorReferenceMesh.SetActive(MirrorRefernceMeshToggle.isOn);
         }
 
         void SetMeshFromObjString(Mesh mesh, string objString)

@@ -997,6 +997,11 @@ PrefabInstance:
       propertyPath: MirrorReferenceMeshHolder
       value: 
       objectReference: {fileID: 4777485389786687466}
+    - target: {fileID: 4067441081177420432, guid: 22f03bc205dce31418fbcd1c14d2b752,
+        type: 3}
+      propertyPath: ReferenceMeshFilterForStartup
+      value: 
+      objectReference: {fileID: 5473466091229728295}
     - target: {fileID: 4088390748160289715, guid: 22f03bc205dce31418fbcd1c14d2b752,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1385,11 +1390,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MeshController
       objectReference: {fileID: 0}
-    - target: {fileID: 4377925718625987032, guid: 4587af1411a250b46a19a3e18e45d5eb,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6566595584488635085, guid: 4587af1411a250b46a19a3e18e45d5eb,
         type: 3}
       propertyPath: m_RootOrder
@@ -1445,12 +1445,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6768558471885000896, guid: 4587af1411a250b46a19a3e18e45d5eb,
-        type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: 6768558471885000896, guid: 4587af1411a250b46a19a3e18e45d5eb,
-        type: 3}
     - target: {fileID: 9218831860427038447, guid: 4587af1411a250b46a19a3e18e45d5eb,
         type: 3}
       propertyPath: serializationData.Prefab

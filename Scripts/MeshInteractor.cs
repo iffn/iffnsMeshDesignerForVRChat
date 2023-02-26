@@ -27,6 +27,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Transform HelperTransform;
         [SerializeField] MeshRenderer LinkedMeshRenderer;
         [SerializeField] MeshRenderer SymmetryMeshRenderer;
+        public MeshFilter ReferenceMesh;
+        public GameObject MirrorReferenceMesh;
 
         public Scaler LinkedScaler;
         //public MeshFilter SymmetryMeshFilter;
@@ -109,18 +111,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             setupCalled = true;
 
-            Debug.Log($"Setting up {nameof(MeshInteractor)}");
-
             this.linkedInteractionController = linkedInteractionIndicator;
 
             lastUpdateTime = Time.time;
 
-            Debug.Log($"{nameof(linkedMeshController)} is null before setup: {linkedMeshController == null}\n");
-
             linkedMeshController.Setup();
             
-            Debug.Log($"{nameof(linkedMeshController)} is null after setup: {linkedMeshController == null}\n");
-
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
 
@@ -131,6 +127,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 Debug.LogWarning($"Error: {nameof(linkedMeshController)} in {nameof(MeshInteractor)} somehow not assigned");
             }
+
+            LinkedScaler.gameObject.SetActive(inEditMode);
 
             //Setup mesh
             if (InEditMode)
@@ -143,7 +141,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Vive user detection
             string[] controllers = Input.GetJoystickNames();
 
-            inputDropWorks = false;
+            inputDropWorks = !isInVR;
 
             foreach (string controller in controllers)
             {
