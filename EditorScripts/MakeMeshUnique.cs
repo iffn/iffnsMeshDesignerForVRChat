@@ -35,7 +35,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void MakeCurrentMeshUnique()
         {
-            MeshFilter currentMeshFilter = currentBuilder.transform.GetComponent<MeshFilter>();
+            MeshFilter currentMeshFilter = currentBuilder.LinkedMeshController.MeshFilter;
 
             Mesh currentMesh = currentMeshFilter.sharedMesh;
 

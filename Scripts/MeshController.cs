@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿//#define debugLog
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -6,13 +7,14 @@ using VRC.Udon;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    [RequireComponent(typeof(MeshFilter))]
+    //[RequireComponent(typeof(MeshFilter))]
     public class MeshController : UdonSharpBehaviour
     {
         [Header("Debug info")]
         Vector3[] vertices = new Vector3[0];
         int[] triangles = new int[0];
 
+        bool setupCalled = false;
         float lastUpdateTime = Mathf.NegativeInfinity;
 
         public float LastUpdateTime
@@ -39,11 +41,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         private void Update()
         {
+            if (!setupCalled) return;
             lastUpdateTime = Time.time;
         }
 
         public void Setup()
         {
+            setupCalled = true;
             lastUpdateTime = Time.time;
 
             linkedMeshFilter = transform.GetComponent<MeshFilter>();
@@ -64,6 +68,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             get
             {
                 return triangles;
+            }
+        }
+
+        public MeshFilter MeshFilter
+        {
+            get
+            {
+                return linkedMeshFilter;
             }
         }
 
@@ -194,7 +206,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (!found) continue;
 
+                #if debugLog
                 Debug.Log($"Found triangle {ta},{tb},{tc}");
+                #endif
 
                 int[] oldTriangles = triangles;
 
@@ -335,7 +349,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             int verticesMerged = 0;
 
+            #if debugLog
             Debug.Log($"Checking {vertices.Length} for merging");
+            #endif
 
             //return;
 
@@ -426,7 +442,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Replace keep with discard and count invalid triangles:
             for (int i = 0; i < triangles.Length; i += 3)
             {
+                #if debugLog
                 Debug.Log($"Checking triangle = {i} with values {triangles[i]}, {triangles[i + 1]}, {triangles[i + 2]}");
+                #endif
 
                 int found = 0;
 
@@ -450,7 +468,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 //When triangles are being destroyed
                 if (found > 1)
                 {
+                    #if debugLog
                     Debug.Log($"Triaggle to be removed = {i} with values {triangles[i]}, {triangles[i+1]}, {triangles[i+2]}");
+                    #endif
 
                     trianglesToBeRemoved += 1;
                 }

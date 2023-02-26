@@ -9,8 +9,8 @@ using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    [RequireComponent(typeof(MeshController))]
-    [RequireComponent(typeof(MeshRenderer))]
+    //[RequireComponent(typeof(MeshController))]
+    //[RequireComponent(typeof(MeshRenderer))]
 
     public class MeshInteractor : UdonSharpBehaviour
     {
@@ -18,14 +18,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] bool mirrorActive = true;
         [SerializeField] float mirrorSnap = 0.01f;
         [SerializeField] float maxDesktopInteractionDistance = 1.5f;
+        [SerializeField] Vector3 InteractorOffsetVector = Vector3.down;
 
         [Header("Unity assingments")]
         [SerializeField] MeshController linkedMeshController;
         [SerializeField] VertexIndicator VertexInteractorPrefab;
         [SerializeField] LineRenderer LinkedLineRenderer;
         [SerializeField] Transform HelperTransform;
+        [SerializeField] MeshRenderer LinkedMeshRenderer;
+        [SerializeField] MeshRenderer SymmetryMeshRenderer;
+
         public Scaler LinkedScaler;
-        public MeshFilter SymmetryMeshFilter;
+        //public MeshFilter SymmetryMeshFilter;
+
+        [HideInInspector] public float interactionDistance;
 
         float lastUpdateTime = Mathf.NegativeInfinity;
 
@@ -37,7 +43,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        double updateFPSForDebug;
+        double updateFPSForDebug = 0;
 
         public VertexIndicator[] vertexIndicators = new VertexIndicator[0];
 
@@ -46,8 +52,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public int secondClosestVertex = -1;
 
         InteractorController linkedInteractionController;
-        MeshRenderer linkedMeshRenderer;
-        MeshRenderer symmetryMeshRenderer;
+        
 
         public bool[] vertexIsConnectedToActive;
 
@@ -59,6 +64,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         float currentDesktopPickupDistance = 0.5f;
 
+        public MeshFilter SymmetryMeshFilter
+        {
+            get
+            {
+                return SymmetryMeshRenderer.transform.GetComponent<MeshFilter>();
+            }
+        }
 
         public MeshController LinkedMeshController
         {
@@ -86,25 +98,45 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return correctSetup;
         }
 
+        public bool setupCalled = false;
+
+        public void TestFunction()
+        {
+            Debug.Log($"Test function called");
+        }
+
         public void Setup(InteractorController linkedInteractionIndicator)
         {
+            setupCalled = true;
+
+            Debug.Log($"Setting up {nameof(MeshInteractor)}");
+
             this.linkedInteractionController = linkedInteractionIndicator;
 
             lastUpdateTime = Time.time;
 
-            linkedMeshController.Setup();
+            Debug.Log($"{nameof(linkedMeshController)} is null before setup: {linkedMeshController == null}\n");
 
-            linkedMeshRenderer = transform.GetComponent<MeshRenderer>();
+            linkedMeshController.Setup();
+            
+            Debug.Log($"{nameof(linkedMeshController)} is null after setup: {linkedMeshController == null}\n");
 
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
 
+            //Also do auto constructor functions:
+            vertexIndicators = new VertexIndicator[0];
+
+            if (!linkedMeshController)
+            {
+                Debug.LogWarning($"Error: {nameof(linkedMeshController)} in {nameof(MeshInteractor)} somehow not assigned");
+            }
+
+            //Setup mesh
             if (InEditMode)
             {
                 SetIndicatorsFromMesh();
             }
-
-            if (SymmetryMeshFilter) symmetryMeshRenderer = SymmetryMeshFilter.transform.GetComponent<MeshRenderer>();
 
             CurrentInteractionType = InteractionTypes.Idle;
 
@@ -121,6 +153,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 break;
             }
         }
+
 
         public Vector3 LocalHeadPosition
         {
@@ -147,7 +180,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 secondClosestVertex = -1;
                 activeVertex = -1;
 
-                currentDesktopPickupDistance = (Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position).magnitude;
+                currentDesktopPickupDistance = (localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position).magnitude;
 
                 LinkedLineRenderer.gameObject.SetActive(false);
 
@@ -168,7 +201,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public Vector3 PrimaryHandPosition
+        public Vector3 InteractionPosition
         {
             get
             {
@@ -176,16 +209,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     if (primaryHand == HandType.LEFT)
                     {
-                        return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+
+                        return hand.position + interactionDistance * (hand.rotation * InteractorOffsetVector.normalized);
                     }
                     else
                     {
-                        return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+
+                        return hand.position + interactionDistance * (hand.rotation * InteractorOffsetVector.normalized);
                     }
                 }
                 else
                 {
-                    VRCPlayerApi.TrackingData currentHandData = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+                    VRCPlayerApi.TrackingData currentHandData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
                     currentDesktopPickupDistance = Mathf.Clamp(currentDesktopPickupDistance, 0, PlayerHeight);
 
@@ -200,11 +237,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 if (primaryHand == HandType.LEFT)
                 {
-                    return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation;
+                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation;
                 }
                 else
                 {
-                    return Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation;
+                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation;
                 }
             }
         }
@@ -291,9 +328,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             set
             {
-                if (!SymmetryMeshFilter) return;
+                if (!SymmetryMeshRenderer) return;
 
-                SymmetryMeshFilter.transform.gameObject.SetActive(value);
+                SymmetryMeshRenderer.transform.gameObject.SetActive(value);
             }
         }
 
@@ -301,12 +338,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             get
             {
-                return linkedMeshRenderer.sharedMaterial;
+                return LinkedMeshRenderer.sharedMaterial;
             }
             set
             {
-                linkedMeshRenderer.sharedMaterial = value;
-                if (symmetryMeshRenderer) symmetryMeshRenderer.sharedMaterial = value;
+                LinkedMeshRenderer.sharedMaterial = value;
+                if (SymmetryMeshRenderer) SymmetryMeshRenderer.sharedMaterial = value;
             }
         }
 
@@ -324,6 +361,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void Update()
         {
+            if (!setupCalled) return;
+
             lastUpdateTime = Time.time;
 
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
@@ -444,7 +483,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     if(currentInteractor == null)
                     {
-                        Debug.Log($"Error: {nameof(VertexIndicator)} was not found on instantiated object");
+                        Debug.LogWarning($"Error: {nameof(VertexIndicator)} was not found on instantiated object");
                         GameObject.Destroy(newObject);
                         continue;
                     }
@@ -505,7 +544,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Set indicator position
             Transform currentVertex = vertexIndicators[activeVertex].transform;
 
-            currentVertex.position = PrimaryHandPosition;
+            currentVertex.position = InteractionPosition;
 
             //Snap to mirror
             if (mirrorActive && Mathf.Abs(currentVertex.localPosition.x) < mirrorSnap)
@@ -533,7 +572,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 float closestDistance = Mathf.Infinity;
                 float secondclosestDistance = Mathf.Infinity;
 
-                Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+                Vector3 localHandPosition = transform.InverseTransformPoint(InteractionPosition);
 
                 for (int i = 0; i < vertexIndicators.Length; i++)
                 {
@@ -571,7 +610,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 LinkedLineRenderer.loop = true;
 
                 LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
-                LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(1, InteractionPosition);
                 LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[secondClosestVertex]));
             }
             else
@@ -600,7 +639,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>();
 
-            Vector3 localPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+            Vector3 localPosition = transform.InverseTransformPoint(InteractionPosition);
 
             currentInteractor.Setup(newVertexIndex, transform, localPosition, vertexInteractionDistance);
 
@@ -711,7 +750,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             float closestDistance = Mathf.Infinity;
             float secondclosestDistance = Mathf.Infinity;
 
-            Vector3 localHandPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+            Vector3 localHandPosition = transform.InverseTransformPoint(InteractionPosition);
 
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -751,9 +790,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 LinkedLineRenderer.loop = false;
 
                 LinkedLineRenderer.SetPosition(0, transform.TransformPoint(vertices[closestVertex]));
-                LinkedLineRenderer.SetPosition(1, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(1, InteractionPosition);
                 LinkedLineRenderer.SetPosition(2, transform.TransformPoint(vertices[activeVertex]));
-                LinkedLineRenderer.SetPosition(3, PrimaryHandPosition);
+                LinkedLineRenderer.SetPosition(3, InteractionPosition);
                 LinkedLineRenderer.SetPosition(4, transform.TransformPoint(vertices[secondClosestVertex]));
             }
         }
@@ -801,12 +840,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (closestVertex >= 0 && secondClosestVertex >= 0)
             {
-                LinkedMeshController.AddQuad(activeVertex, closestVertex, secondClosestVertex, transform.InverseTransformPoint(PrimaryHandPosition), LocalHeadPosition);
+                LinkedMeshController.AddQuad(activeVertex, closestVertex, secondClosestVertex, transform.InverseTransformPoint(InteractionPosition), LocalHeadPosition);
                 
                 vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                 activeVertex = -1;
 
                 UpdateMesh(true);
+
+                LinkedLineRenderer.gameObject.SetActive(false);
             }
         }
 
@@ -962,7 +1003,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         int SelectClosestVertexInVR()
         {
-            Vector3 handPosition = transform.InverseTransformPoint(PrimaryHandPosition);
+            Vector3 handPosition = transform.InverseTransformPoint(InteractionPosition);
 
             int closestVertex = -1;
             float closestDistance = vertexInteractionDistance;

@@ -1,4 +1,6 @@
-﻿using UdonSharp;
+﻿#define debugLog
+
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -9,16 +11,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         /*
         ToDo:
-        - Add spawn ability:
-        -- Create desktop interface
-        -- Create VR interface
-        -- Enable editing by default
+        + Add spawn ability:
+        ++ Create desktop interface
+        ++ Create VR interface
+        ++ Enable editing by default
 
         - Implement reset mode:
-        -- Design reset message on interface
-        -- Link reset ability
-        -- Make sure the obj converter is save from resets
-        -- Test reset ability
+        ++ Design reset message on interface
+        ++ Link reset ability
+        ++ Make sure the obj converter is save from resets
+        ++ Test reset ability
 
         - Testing:
         -- Test in Desktop
@@ -29,9 +31,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Unity assingments")]
         [SerializeField] MeshInteractor LinkedMeshInteractor;
         [SerializeField] MeshController LinkedMeshController;
-        [SerializeField] MeshController MeshControllerPrefab;
+        [SerializeField] MeshInteractor MeshControllerPrefab;
         [SerializeField] MeshBuilderInterface LinkedBuilderInterface;
-        [SerializeField] InteractorController LinkeInteractorController;
+        [SerializeField] InteractorController LinkedInteractorController;
+        [SerializeField] GameObject[] VROnlyObjects;
+        [SerializeField] GameObject[] DesktopOnlyObjects;
 
         [SerializeField] GameObject WarningText;
         [SerializeField] GameObject ResetButton;
@@ -44,12 +48,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void SpawnMeshContorller()
         {
+            LinkedInteractorController.SwitchToMoveText();
+
             LinkedMeshInteractor.gameObject.SetActive(true);
             LinkedBuilderInterface.gameObject.SetActive(true);
-
-            LinkeInteractorController.SwitchToMoveText();
-
-            SetupElements();
 
             MoveConttrollerToPlayer();
 
@@ -73,7 +75,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             Transform referenceTransform = LinkedMeshInteractor.transform;
 
             newInteractorObject = GameObject.Instantiate(MeshControllerPrefab.gameObject, referenceTransform.position, referenceTransform.rotation, referenceTransform.parent);
-            
+
+            newInteractorObject.SetActive(true);
+
             GameObject.Destroy(LinkedMeshInteractor.gameObject);
 
             LinkedMeshInteractor = newInteractorObject.GetComponent<MeshInteractor>();
@@ -81,42 +85,81 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             SetupElements();
 
             LinkedBuilderInterface.ToggleEditMesh();
-            LinkeInteractorController.CurrentInteractionType = InteractionTypes.Idle;
+            LinkedInteractorController.CurrentInteractionType = InteractionTypes.Idle;
         }
 
         void SetupElements()
         {
             //Null check
-            if (!LinkedMeshInteractor) return;
+            if (!LinkedMeshInteractor)
+            {
+                Debug.LogWarning($"Error: {nameof(LinkedMeshInteractor)} is somehow null");
+
+                return;
+            }
 
             //Setup
             LinkedMeshController = LinkedMeshInteractor.LinkedMeshController;
 
-            LinkedMeshInteractor.Setup(LinkeInteractorController);
+
+            if (!LinkedMeshInteractor.gameObject.activeSelf)
+            {
+                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} object somehow not active. activating");
+
+                LinkedMeshInteractor.gameObject.SetActive(true);
+            }
+
+            if (!LinkedMeshInteractor.gameObject.activeSelf)
+            {
+                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} object somehow still not active. activating");
+            }
+
+            if (!LinkedMeshInteractor.enabled)
+            {
+                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} somehow not enabled. enabling");
+
+                LinkedMeshInteractor.enabled = true;
+
+                Debug.LogWarning($"enabling done");
+            }
+
+            if (!LinkedMeshInteractor.enabled)
+            {
+                Debug.LogWarning($"{nameof(LinkedMeshInteractor)} somehow still not enabled");
+            }
+
+            Debug.Log($"The {nameof(LinkedMeshInteractor)} setup is now being called");
+            LinkedMeshInteractor.Setup(LinkedInteractorController);
+            
+            if (!LinkedMeshInteractor.setupCalled)
+            {
+                Debug.LogWarning("Setup somehow not called");
+
+                LinkedMeshInteractor.TestFunction();
+
+                LinkedMeshInteractor.setupCalled = true;
+                Debug.Log("Manual setting = " + LinkedMeshInteractor.setupCalled);
+                Debug.Log("Script enabled = " + LinkedMeshInteractor.enabled);
+                LinkedMeshInteractor.setupCalled = false;
+            }
+
+            Debug.Log($"The {nameof(LinkedMeshInteractor)} setup has now been called");
 
             LinkedBuilderInterface.Setup(LinkedMeshInteractor);
 
-            LinkeInteractorController.Setup(LinkedMeshInteractor);
+            LinkedInteractorController.Setup(LinkedMeshInteractor);
         }
-
-        public int state = -1;
 
         void CheckIfStillRunning()
         {
-            state = 0;
-
             if (!spawned) return;
             
-            state++;
-
             if (!LinkedMeshInteractor)
             {
                 LinkedMeshInteractor = newInteractorObject.GetComponent<MeshInteractor>();
 
                 SetupElements();
             }
-
-            state++;
 
             float time = Time.time - 1;
 
@@ -127,8 +170,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 return;
             }
-
-            state++;
 
             WarningText.SetActive(true);
             ResetButton.SetActive(true);
@@ -154,7 +195,22 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             player = Networking.LocalPlayer;
             IsUserInVR = player.IsUserInVR();
 
-            LinkeInteractorController.Setup(LinkedMeshInteractor);
+            LinkedInteractorController.Setup(LinkedMeshInteractor);
+
+            SetupElements();
+
+            LinkedMeshInteractor.gameObject.SetActive(false);
+            LinkedBuilderInterface.gameObject.SetActive(false);
+
+            foreach(GameObject obj in VROnlyObjects)
+            {
+                obj.SetActive(IsUserInVR);
+            }
+
+            foreach (GameObject obj in DesktopOnlyObjects)
+            {
+                obj.SetActive(!IsUserInVR);
+            }
         }
 
         private void Update()
@@ -162,6 +218,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             CheckIfStillRunning();
 
             if(!IsUserInVR) UpdateDesktopInputs();
+
+            //Debug.Log("Main controller still running");
         }
     }
 }

@@ -82,6 +82,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     button.Setup(this);
                 }
 
+                VRUI.gameObject.SetActive(true);
+
                 if(DesktopUI) Destroy(DesktopUI);
             }
             else
@@ -90,6 +92,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     button.Setup(this);
                 }
+
+                DesktopUI.gameObject.SetActive(true);
 
                 if (VRUI) Destroy(VRUI.gameObject);
                 if (LinkedVRHandIndicator) Destroy(LinkedVRHandIndicator.gameObject);
@@ -100,7 +104,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (isInVR)
             {
-                LinkedVRHandIndicator.position = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+                LinkedVRHandIndicator.position = linkedMeshInteractor.InteractionPosition;
 
                 Vector3 handPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
                 Vector3 ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.RightLowerArm);

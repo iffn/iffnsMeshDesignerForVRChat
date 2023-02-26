@@ -16,18 +16,31 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Toggle SymmetryModeToggle;
     [SerializeField] Toggle ShowInteractionLocationToggle;
     [SerializeField] Toggle ShowScalingIndicatorToggle;
+    [SerializeField] Slider interactionDistanceSlider;
     [SerializeField] Material WireframeMaterial;
     [SerializeField] ObjConterter LinkedObjConverter;
+    [SerializeField] GameObject[] VROnlyObjects;
     [SerializeField] TMPro.TextMeshProUGUI debugText;
 
     Material defaultMaterial;
     MeshInteractor linkedMeshInteractor;
 
     bool isInVR;
+    bool setupCalled = false;
 
     public void Setup(MeshInteractor linkedMeshInteractor)
     {
+        setupCalled = true;
+
         isInVR = Networking.LocalPlayer.IsUserInVR();
+
+        if (!isInVR)
+        {
+            foreach(GameObject obj in VROnlyObjects)
+            {
+                obj.SetActive(false);
+            }
+        }
 
         this.linkedMeshInteractor = linkedMeshInteractor;
 
@@ -36,9 +49,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     private void Update()
     {
+        if (!setupCalled) return;
+
         string debugString = "";
 
-        if (linkedMeshInteractor)
+        if (linkedMeshInteractor && linkedMeshInteractor.LinkedMeshController)
         {
             debugString += linkedMeshInteractor.DebugState();
             debugString += "\n";
@@ -46,7 +61,10 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         }
         else
         {
-            debugString = "Setup not completed at " + Time.time;
+            debugString = $"Setup not completed at {Time.time}:\n";
+
+            debugString += $"{nameof(linkedMeshInteractor)} is null: {linkedMeshInteractor == null}\n";
+            if(linkedMeshInteractor) debugString += $"{nameof(linkedMeshInteractor.LinkedMeshController)} is null: {linkedMeshInteractor.LinkedMeshController == null}\n";
         }
 
         debugText.text = debugString;
@@ -119,6 +137,11 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         //ToDo
     }
 
+    public void UpdateInteractionDistance()
+    {
+        linkedMeshInteractor.interactionDistance = interactionDistanceSlider.value;
+    }
+
     public void InderactorSizeX1o25()
     {
         linkedMeshInteractor.VertexInteractionDistance *= 1.25f;
@@ -128,4 +151,5 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     {
         linkedMeshInteractor.VertexInteractionDistance *= 0.8f;
     }
+
 }
