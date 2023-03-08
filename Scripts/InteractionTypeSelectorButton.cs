@@ -2,48 +2,43 @@
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using UnityEngine.UI;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class InteractionTypeSelectorButton : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] InteractionTypes interactionType;
+        [SerializeField] Image LinkedImage;
         [SerializeField] GameObject Highlight;
 
         InteractorController linkedInteractionController;
+        public MeshEditTool LinkedTool { get; private set; }
 
-        public void Setup(InteractorController linkedInteractionController)
+        public void Setup(InteractorController linkedInteractionController, MeshEditTool linkedTool)
         {
             this.linkedInteractionController = linkedInteractionController;
+            this.LinkedTool = linkedTool;
 
             if (!IsValid())
             {
                 Debug.LogWarning($"Error: {nameof(InteractionTypeSelectorButton)} called {gameObject.name} is not correctly set up");
             }
-        }
 
-        public InteractionTypes InteractionType
-        {
-            get
-            {
-                return interactionType;
-            }
+            LinkedImage.sprite = linkedTool.LinkedSprite;
         }
 
         public void Use()
         {
-            Debug.Log($"Setting mode {interactionType} from button {transform.parent.name}");
-
             if (!IsValid()) return;
 
-
-            linkedInteractionController.CurrentInteractionType = InteractionType;
+            linkedInteractionController.CurrentInteractorTool = LinkedTool;
         }
 
         public bool IsValid()
         {
             if (Highlight == null) return false;
+            if (LinkedImage == null) return false;
 
             return true;
         }

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Serialization.OdinSerializer;
 using VRC.Udon.Wrapper.Modules;
 using static VRC.Dynamics.VRCPhysBoneBase;
 
@@ -10,24 +11,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class InteractorController : UdonSharpBehaviour
     {
-        [Header("Unity assingments")]
-        [SerializeField] Transform VRUI;
+        [Header("Unity assingments general")]
+        [SerializeField] MeshEditTool[] EditTools;
+
+        [Header("Unity assingments desktop")]
         [SerializeField] GameObject DesktopUI;
-        [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsDesktop;
-        [SerializeField] InteractionTypeSelectorButton[] LinkedInteractionButtonsVR;
-        [SerializeField] Transform LinkedVRHandIndicator;
-        [SerializeField] GameObject EditButtonsDesktop;
-        [SerializeField] GameObject EditButtonsVR;
-        [SerializeField] GameObject SpawnNoteDesktop;
-        [SerializeField] GameObject MoveNoteDesktop;
-        [SerializeField] GameObject SpawnButtonVR;
-        [SerializeField] GameObject MoveButtonVR;
+        [SerializeField] InteractionTypeSelectorButton ButtonTemplateDesktop;
+        [SerializeField] Transform DesktopUIButtonHolder;
+        [SerializeField] GameObject EditButtonHolderDesktop;
         [SerializeField] Text CurrentToolTextDesktop;
+
+        [Header("Unity assingments VR")]
+        [SerializeField] Transform VRUI;
+        [SerializeField] InteractionTypeSelectorButton ButtonsTemplateVR;
+        [SerializeField] Transform VRUIButtonHolder;
+        [SerializeField] Transform LinkedVRHandIndicator;
+        [SerializeField] GameObject EditButtonHolderVR;
         [SerializeField] Text CurrentToolTextVR;
 
-        Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
+        InteractionTypeSelectorButton[] buttons;
 
-        public InteractionTypes debugInteractorType;
+
+        Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
 
         MeshInteractor linkedMeshInteractor;
 
@@ -37,32 +42,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         VRCPlayerApi localPlayer;
 
-        public void SwitchToMoveText()
-        {
-            if (isInVR)
-            {
-                SpawnButtonVR.SetActive(false);
-                MoveButtonVR.SetActive(true);
-            }
-            else
-            {
-                SpawnNoteDesktop.SetActive(false);
-                MoveNoteDesktop.SetActive(true);
-            }
-        }
-
         public bool InEditMode
         {
             set
             {
                 if (isInVR)
                 {
-                    EditButtonsVR.SetActive(value);
+                    EditButtonHolderVR.SetActive(value);
                     LinkedVRHandIndicator.gameObject.SetActive(value);
                 }
                 else
                 {
-                    EditButtonsDesktop.SetActive(value);
+                    EditButtonHolderDesktop.SetActive(value);
                 }
             }
         }
@@ -78,28 +69,44 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             transform.parent = null;
             transform.localScale = Vector3.one;
 
-            if (Networking.LocalPlayer.IsUserInVR())
+            foreach(MeshEditTool tool in EditTools)
             {
-                foreach(InteractionTypeSelectorButton button in LinkedInteractionButtonsVR)
-                {
-                    button.Setup(this);
-                }
-
-                VRUI.gameObject.SetActive(true);
-
-                if(DesktopUI) Destroy(DesktopUI);
+                tool.Setup(linkedMeshInteractor);
             }
-            else
+
+            if (buttons == null)
             {
-                foreach (InteractionTypeSelectorButton button in LinkedInteractionButtonsDesktop)
+                buttons = new InteractionTypeSelectorButton[EditTools.Length];
+
+                if (Networking.LocalPlayer.IsUserInVR())
                 {
-                    button.Setup(this);
+                    for (int i = 0; i < EditTools.Length; i++)
+                    {
+                        GameObject newButton = GameObject.Instantiate(ButtonsTemplateVR.gameObject, VRUIButtonHolder, false);
+                        InteractionTypeSelectorButton buttonController = newButton.transform.GetComponent<InteractionTypeSelectorButton>();
+                        buttonController.Setup(this, EditTools[i]);
+                        buttons[i] = buttonController;
+                    }
+
+                    VRUI.gameObject.SetActive(true);
+
+                    if (DesktopUI) Destroy(DesktopUI);
                 }
+                else
+                {
+                    for (int i = 0; i < EditTools.Length; i++)
+                    {
+                        GameObject newButton = GameObject.Instantiate(ButtonTemplateDesktop.gameObject, DesktopUIButtonHolder, false);
+                        InteractionTypeSelectorButton buttonController = newButton.transform.GetComponent<InteractionTypeSelectorButton>();
+                        buttonController.Setup(this, EditTools[i]);
+                        buttons[i] = buttonController;
+                    }
 
-                DesktopUI.gameObject.SetActive(true);
+                    DesktopUI.gameObject.SetActive(true);
 
-                if (VRUI) Destroy(VRUI.gameObject);
-                if (LinkedVRHandIndicator) Destroy(LinkedVRHandIndicator.gameObject);
+                    if (VRUI) Destroy(VRUI.gameObject);
+                    if (LinkedVRHandIndicator) Destroy(LinkedVRHandIndicator.gameObject);
+                }
             }
         }
 
@@ -119,14 +126,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 VRUI.SetPositionAndRotation(
                     localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position + playerRotation * (distance * new Vector3(0.5f, 0.3f, 0)),
                     playerRotation * additionalRotation);
-
-                //VRUI.position = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position + distance * 0.1f * Vector3.up;
-                //VRUI.position = (handPosition * 3 + ellbowPosition) * 0.25f + distance * 0.2f * Vector3.up;
-                //VRUI.LookAt(handPosition, Vector3.up);
-
-
-                //VRUI.LookAt(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, Vector3.up);
-
 
                 VRUI.localScale = distance * 0.5f * Vector3.one;
             }
@@ -169,75 +168,69 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 int index = selection - 1;
 
-                if(index >= 0 && index < LinkedInteractionButtonsDesktop.Length)
+                if(index >= 0 && index < EditTools.Length)
                 {
-                    CurrentInteractionType = LinkedInteractionButtonsDesktop[index].InteractionType;
+                    CurrentInteractorTool = EditTools[index];
                 }
             }
         }
 
-        public InteractionTypes CurrentInteractionType
+        public MeshEditTool CurrentInteractorTool
         {
             set
             {
-                if(currentButton) currentButton.Highlighted = false;
-
-                if (isInVR)
+                //Handle current button
+                if (currentButton)
                 {
-                    foreach(InteractionTypeSelectorButton button in LinkedInteractionButtonsVR)
+                    currentButton.LinkedTool.OnDeactivation();
+
+                    if (currentButton.LinkedTool == value)
                     {
-                        if (button.InteractionType != value) continue;
-
-                        if (currentButton == button)
-                        {
-                            currentButton = null;
-                            value = InteractionTypes.Idle;
-                        }
-                        else
-                        {
-                            currentButton = button;
-                            button.Highlighted = true;
-                            break;
-                        }
+                        //Deselect current tool
+                        currentButton = null;
+                        return;
                     }
-
-                    CurrentToolTextVR.text = "Current tool = " + interactionTypeStrings[(int)value];
-                }
-                else
-                {
-                    foreach (InteractionTypeSelectorButton button in LinkedInteractionButtonsDesktop)
+                    else
                     {
-                        if (button.InteractionType != value) continue;
-
-                        if (currentButton == button)
-                        {
-                            currentButton = null;
-                            value = InteractionTypes.Idle;
-                        }
-                        else
-                        {
-                            currentButton = button;
-                            button.Highlighted = true;
-                            break;
-                        }
+                        currentButton.Highlighted = false;
                     }
-
-                    CurrentToolTextDesktop.text = "Current tool = " + interactionTypeStrings[(int)value];
                 }
 
-                linkedMeshInteractor.CurrentInteractionType = value;
+                //Handle null selection
+                if (value == null)
+                {
+                    currentButton = null;
+                    return;
+                }
+
+                //Find new button
+                for (int i = 0; i < EditTools.Length; i++)
+                {
+                    if (EditTools[i] != value) continue;
+
+                    currentButton = buttons[i];
+                    break;
+                }
+
+                //Set new tool
+                if (currentButton)
+                {
+                    currentButton.Highlighted = true;
+
+                    if (isInVR)
+                    {
+                        CurrentToolTextVR.text = "Current tool = " + currentButton.LinkedTool.name;
+                    }
+                    else
+                    {
+                        CurrentToolTextDesktop.text = "Current tool = " + currentButton.LinkedTool.name;
+                    }
+
+                    linkedMeshInteractor.CurrentEditTool = currentButton.LinkedTool;
+                }
+
+                value.OnActivation();
             }
         }
-
-        readonly string[] interactionTypeStrings = new string[] {
-            "MoveAndMerge",
-            "StepAdd",
-            "QuadAdd",
-            "MoveAndScaleObject",
-            "AddTriagnle",
-            "ProximityAdd",
-            "RemoveTriangle",
-            "Idle",
-            "RemoveVertex"};
     }
 }

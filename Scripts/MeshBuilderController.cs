@@ -48,8 +48,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void SpawnMeshContorller()
         {
-            LinkedInteractorController.SwitchToMoveText();
-
             LinkedMeshInteractor.gameObject.SetActive(true);
             LinkedBuilderInterface.gameObject.SetActive(true);
 
@@ -85,7 +83,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             SetupElements();
 
             LinkedBuilderInterface.ToggleEditMesh();
-            LinkedInteractorController.CurrentInteractionType = InteractionTypes.Idle;
+            LinkedInteractorController.CurrentInteractorTool = null;
         }
 
         void SetupElements()
@@ -152,8 +150,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             player = Networking.LocalPlayer;
             IsUserInVR = player.IsUserInVR();
-
-            LinkedInteractorController.Setup(LinkedMeshInteractor);
 
             SetupElements();
 

@@ -87,6 +87,50 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public int[] GetConnectedVertices(int index)
+        {
+            //Create connected array
+            bool[] connected = new bool[vertices.Length];
+
+            for(int i = 0; i<triangles.Length; i += 3)
+            {
+                int a = triangles[i];
+                int b = triangles[i + 1];
+                int c = triangles[i + 2];
+
+                if(a == index || b == index || c == index)
+                {
+                    connected[a] = true;
+                    connected[b] = true;
+                    connected[c] = true;
+                }
+            }
+
+            //Count connected vertices
+            int count = 0;
+
+            for(int i = 0; i<connected.Length; i++)
+            {
+                if (connected[i]) count++;
+            }
+
+            //Create array
+            int[] returnValues = new int[count - 1];
+
+            //Fill array with connected vertices
+            int counter = 0;
+
+            for(int i = 0; i<returnValues.Length; i++)
+            {
+                if (i == index) continue;
+
+                if (connected[i]) returnValues[counter++] = i;
+            }
+
+            //Return value
+            return returnValues;
+        }
+
         void BuildMeshFromData(Vector3[] positions, int[] triangles)
         {
             this.triangles = triangles;
