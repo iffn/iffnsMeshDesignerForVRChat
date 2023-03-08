@@ -15,6 +15,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
     public class MeshInteractor : UdonSharpBehaviour
     {
+        #region InspectorVariables
         [Header("Settings")]
         [SerializeField] bool mirrorActive = true;
         [SerializeField] float mirrorSnap = 0.01f;
@@ -31,121 +32,69 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] MeshRenderer SymmetryMeshRenderer;
         public MeshFilter ReferenceMesh;
         public GameObject MirrorReferenceMesh;
-
-        public bool overUIElement = false;
-
-        MeshEditTool currentEditTool;
-        public MeshEditTool CurrentEditTool
-        {
-            get
-            {
-                return currentEditTool;
-            }
-            set
-            {
-                //Unload
-                if (currentEditTool) currentEditTool.OnDeactivation();
-
-                //Reassign
-                currentEditTool = value;
-
-                //Load
-                if (currentEditTool) currentEditTool.OnActivation();
-            }
-        }
-
-        public bool MirrorActive
-        {
-            get
-            {
-                return mirrorActive;
-            }
-        }
-
         public Scaler LinkedScaler;
-        //public MeshFilter SymmetryMeshFilter;
+        #endregion
 
-        [HideInInspector] public float interactionDistance;
-
-        float lastUpdateTime = Mathf.NegativeInfinity;
-
-        public float LastUpdateTime
-        {
-            get
-            {
-                return lastUpdateTime;
-            }
-        }
-
-        double updateFPSForDebug = 0;
-
+        #region General variables
+        public bool OverUIElement { get; set; } = false; //Property since the Unity Inspector can otherwise assign a wrong variable
         InteractorController linkedInteractionController;
-
         VertexIndicator[] vertexIndicators = new VertexIndicator[0];
-        
-        public void SetVertexIndicatorState(int index, VertexSelectStates state)
-        {
-            if (index >= vertexIndicators.Length) return;
-
-            vertexIndicators[index].SelectState = state;
-        }
-
-        public bool[] vertexIsConnectedToActive;
-
         bool isInVR;
         bool inputDropWorks = false;
         VRCPlayerApi localPlayer;
-
-        float currentDesktopPickupDistance = 0.5f;
-
-        public MeshFilter SymmetryMeshFilter
-        {
-            get
-            {
-                return SymmetryMeshRenderer.transform.GetComponent<MeshFilter>();
-            }
-        }
-
-        public MeshController LinkedMeshController
-        {
-            get
-            {
-                return linkedMeshController;
-            }
-        }
-
-        public bool CheckSetup()
-        {
-            bool correctSetup = true;
-
-            if (VertexInteractorPrefab == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(VertexInteractorPrefab)} not assinged");
-            }
-            if (LinkedLineRenderer == null)
-            {
-                correctSetup = false;
-                Debug.LogWarning($"Error: {nameof(LinkedLineRenderer)} not assinged");
-            }
-
-            return correctSetup;
-        }
-
         public bool setupCalled = false;
+        float currentDesktopPickupDistance = 0.5f;
+        #endregion
 
-        public void TestFunction()
+        #region Debug
+        double updateFPSForDebug = 0;
+        public float LastUpdateTime { get; private set; } = Mathf.NegativeInfinity;
+        public Vector3 LocalInteractionPosition
         {
-            Debug.Log($"Test function called");
+            get
+            {
+                return transform.InverseTransformPoint(InteractionPosition);
+            }
         }
 
+        public Vector3 LocalInteractionPositionWithMirror
+        {
+            get
+            {
+                Vector3 returnValue = LocalInteractionPosition;
+
+                if (mirrorActive && Mathf.Abs(returnValue.x) < vertexInteractionDistance)
+                {
+                    returnValue.x = 0;
+                }
+
+                return returnValue;
+            }
+        }
+        public string DebugState()
+        {
+            string returnString = "";
+
+            returnString += $"Debug output of {nameof(MeshInteractor)} at {Time.time}:\n";
+            returnString += $"{nameof(LastUpdateTime)}: {LastUpdateTime}\n";
+            returnString += $"{nameof(CurrentEditTool)}: {((CurrentEditTool != null) ? CurrentEditTool.name : "No tool selected")}\n";
+            returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
+            returnString += $"Number of interactors: {vertexIndicators.Length}\n";
+            returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
+            returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
+
+            return returnString;
+        }
+        #endregion
+
+        # region Main funcitons
         public void Setup(InteractorController linkedInteractionIndicator)
         {
             setupCalled = true;
 
             this.linkedInteractionController = linkedInteractionIndicator;
 
-            lastUpdateTime = Time.time;
+            LastUpdateTime = Time.time;
 
             linkedMeshController.Setup();
             
@@ -191,7 +140,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     VertexIndicator indicator = newObject.GetComponent<VertexIndicator>();
 
-                    indicator.Setup(i, transform, interactionDistance);
+                    indicator.Setup(i, transform, vertexInteractionDistance);
 
                     vertexIndicators[i] = indicator;
                 }
@@ -200,96 +149,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             SetIndicatorsFromMesh();
         }
 
-
-        public Vector3 LocalHeadPosition
+        void Update()
         {
-            get
-            {
-                return transform.InverseTransformPoint(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
-            }
+            if (!setupCalled) return;
+
+            LastUpdateTime = Time.time;
+
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+
+            stopwatch.Start();
+
+            if (currentEditTool) currentEditTool.UpdateWhenActive();
+
+            stopwatch.Stop();
+
+            updateFPSForDebug = 1 / stopwatch.Elapsed.TotalSeconds;
         }
+        #endregion
 
-        HandType primaryHand = HandType.RIGHT;
-        public HandType PrimaryHand
-        {
-            get
-            {
-                return primaryHand;
-            }
-            set
-            {
-                primaryHand = value;
-            }
-        }
-
-        public Vector3 InteractionPosition
-        {
-            get
-            {
-                if (isInVR)
-                {
-                    if (primaryHand == HandType.LEFT)
-                    {
-                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-
-                        return hand.position + interactionDistance * (hand.rotation * InteractorOffsetVector.normalized);
-                    }
-                    else
-                    {
-                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-
-                        return hand.position + interactionDistance * (hand.rotation * InteractorOffsetVector.normalized);
-                    }
-                }
-                else
-                {
-                    VRCPlayerApi.TrackingData currentHandData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-
-                    currentDesktopPickupDistance = Mathf.Clamp(currentDesktopPickupDistance, 0, PlayerHeight);
-
-                    return currentHandData.position + currentHandData.rotation * (currentDesktopPickupDistance * Vector3.forward);
-                }
-            }
-        }
-
-        public Vector3 LocalInteractionPosition
-        {
-            get
-            {
-                return transform.InverseTransformPoint(InteractionPosition);
-            }
-        }
-
-        public Vector3 LocalInteractionPositionWithMirror
-        {
-            get
-            {
-                Vector3 returnValue = LocalInteractionPosition;
-
-                if (mirrorActive && Mathf.Abs(returnValue.x) < interactionDistance)
-                {
-                    returnValue.x = 0;
-                }
-
-                return returnValue;
-            }
-        }
-
-        public Quaternion GetPrimaryHandRotation
-        {
-            get
-            {
-                if (primaryHand == HandType.LEFT)
-                {
-                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation;
-                }
-                else
-                {
-                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation;
-                }
-            }
-        }
-
+        # region Tools
         bool inEditMode = false;
         public bool InEditMode
         {
@@ -303,7 +181,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (!value)
                 {
-                    foreach(VertexIndicator interactor in vertexIndicators)
+                    foreach (VertexIndicator interactor in vertexIndicators)
                     {
                         interactor.gameObject.SetActive(false);
                     }
@@ -322,6 +200,66 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        MeshEditTool currentEditTool;
+        public MeshEditTool CurrentEditTool
+        {
+            get
+            {
+                return currentEditTool;
+            }
+            set
+            {
+                //Unload
+                if (currentEditTool) currentEditTool.OnDeactivation();
+
+                //Reassign
+                currentEditTool = value;
+
+                //Load
+                if (currentEditTool) currentEditTool.OnActivation();
+            }
+        }
+        #endregion
+
+        # region Information access for tools
+        public MeshController LinkedMeshController
+        {
+            get
+            {
+                return linkedMeshController;
+            }
+        }
+
+        public float PlayerHeight
+        {
+            get
+            {
+                return (localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - localPlayer.GetPosition()).magnitude;
+            }
+        }
+
+        public Quaternion GetPrimaryHandRotation
+        {
+            get
+            {
+                if (primaryHand == HandType.LEFT)
+                {
+                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation;
+                }
+                else
+                {
+                    return localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation;
+                }
+            }
+        }
+
+        public Vector3 LocalHeadPosition
+        {
+            get
+            {
+                return transform.InverseTransformPoint(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
+            }
+        }
         float vertexInteractionDistance = 0.02f;
         public float VertexInteractionDistance
         {
@@ -341,134 +279,48 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 vertexInteractionDistance = value;
             }
         }
-
-        public float PlayerHeight
+        public Vector3 InteractionPosition
         {
             get
             {
-                return (localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position - localPlayer.GetPosition()).magnitude;
+                if (isInVR)
+                {
+                    if (primaryHand == HandType.LEFT)
+                    {
+                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+
+                        return hand.position + vertexInteractionDistance * (hand.rotation * InteractorOffsetVector.normalized);
+                    }
+                    else
+                    {
+                        VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+
+                        return hand.position + vertexInteractionDistance * (hand.rotation * InteractorOffsetVector.normalized);
+                    }
+                }
+                else
+                {
+                    VRCPlayerApi.TrackingData currentHandData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+                    currentDesktopPickupDistance = Mathf.Clamp(currentDesktopPickupDistance, 0, PlayerHeight);
+
+                    return currentHandData.position + currentHandData.rotation * (currentDesktopPickupDistance * Vector3.forward);
+                }
             }
         }
 
-        public string DebugState()
-        {
-            string returnString = "";
-
-            returnString += $"Debug output of {nameof(MeshInteractor)} at {Time.time}:\n";
-            returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
-            returnString += $"{nameof(CurrentEditTool)}: {((CurrentEditTool != null) ? CurrentEditTool.name : "No tool selected")}\n";
-            returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
-            returnString += $"Number of interactors: {vertexIndicators.Length}\n";
-            returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
-            returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
-
-            return returnString;
-        }
-
-        public bool SymmetryMode
-        {
-            set
-            {
-                if (!SymmetryMeshRenderer) return;
-
-                SymmetryMeshRenderer.transform.gameObject.SetActive(value);
-            }
-        }
-
-        public Material AttachedMaterial
+        HandType primaryHand = HandType.RIGHT;
+        public HandType PrimaryHand
         {
             get
             {
-                return LinkedMeshRenderer.sharedMaterial;
+                return primaryHand;
             }
             set
             {
-                LinkedMeshRenderer.sharedMaterial = value;
-                if (SymmetryMeshRenderer) SymmetryMeshRenderer.sharedMaterial = value;
+                primaryHand = value;
             }
         }
-
-        public Vector3[] verticesDebug;
-
-        void Update()
-        {
-            if (!setupCalled) return;
-
-            lastUpdateTime = Time.time;
-
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-
-            stopwatch.Start();
-
-            if(currentEditTool) currentEditTool.UpdateWhenActive();
-
-            stopwatch.Stop();
-
-            updateFPSForDebug = 1 / stopwatch.Elapsed.TotalSeconds;
-        }
-
-        public void SetIndicatorsFromMesh()
-        {
-            if (!InEditMode) return;
-
-            Vector3[] vertices = linkedMeshController.Vertices;
-
-            if(vertices.Length > vertexIndicators.Length)
-            {
-                for(int i = 0; i< vertexIndicators.Length; i++)
-                {
-                    vertexIndicators[i].SetInfo(i, vertices[i]);
-                    vertexIndicators[i].gameObject.SetActive(true);
-                }
-            }
-            else
-            {
-                for(int i = 0; i < vertices.Length; i++)
-                {
-                    vertexIndicators[i].SetInfo(i, vertices[i]);
-                    vertexIndicators[i].gameObject.SetActive(true);
-                }
-
-                for(int i = vertices.Length; i<vertexIndicators.Length; i++)
-                {
-                    vertexIndicators[i].gameObject.SetActive(false);
-                }
-            }
-        }
-
-        public void MoveVertexToLocalPosition(int index, Vector3 localPosition)
-        {
-            linkedMeshController.SetSingleVertexPosition(index, localPosition);
-
-            if(index < vertexIndicators.Length)
-            {
-                vertexIndicators[index].transform.localPosition = localPosition;
-            }
-        }
-
-        public bool ShowLineRenderer
-        {
-            set
-            {
-                LinkedLineRenderer.gameObject.SetActive(value: value);
-            }
-        }
-
-        public void SetLocalLineRendererPositions(Vector3[] positions, bool loop)
-        {
-            LinkedLineRenderer.loop = loop;
-
-            LinkedLineRenderer.positionCount = positions.Length;
-
-            LinkedLineRenderer.SetPositions(positions);
-        }
-
-        public void UpdateMesh(bool updateInteractors)
-        {
-            linkedMeshController.BuildMeshFromData();
-            if (updateInteractors) SetIndicatorsFromMesh();
-        }
-
 
         public int SelectVertex()
         {
@@ -532,46 +384,115 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             return closestVertex;
         }
+        #endregion
 
-        //Common VR input functions
-        void GrabInput(HandType handType)
+        # region Visual functions for tools
+        public bool ShowLineRenderer
         {
-            #if debugLog
-            Debug.Log("Grab input");
-            #endif
-
-            if (handType != primaryHand) return; //Currently only one handed
-
-            if (!currentEditTool) return;
-        }
-
-        void DropInput(HandType handType, bool activeInput)
-        {
-            #if debugLog
-            Debug.Log("Drop input");
-            #endif
-
-            if (handType != primaryHand) return; //Currently only one handed
-        }
-
-        void UseInput(bool value, HandType handType)
-        {
-            #if debugLog
-            Debug.Log("Use input");
-            #endif
-
-            if (handType != primaryHand) return; //Currently only one handed
-
-            if (value)
+            set
             {
-                
+                LinkedLineRenderer.gameObject.SetActive(value: value);
             }
         }
+        public void SetVertexIndicatorState(int index, VertexSelectStates state)
+        {
+            if (index >= vertexIndicators.Length) return;
 
-        //VRChat input functions
+            vertexIndicators[index].SelectState = state;
+        }
+        public void SetLocalLineRendererPositions(Vector3[] positions, bool loop)
+        {
+            LinkedLineRenderer.loop = loop;
+
+            LinkedLineRenderer.positionCount = positions.Length;
+
+            LinkedLineRenderer.SetPositions(positions);
+        }
+        #endregion
+
+        #region Edit functions for tools
+        public void MoveVertexToLocalPosition(int index, Vector3 localPosition)
+        {
+            linkedMeshController.SetSingleVertexPosition(index, localPosition);
+
+            if(index < vertexIndicators.Length)
+            {
+                vertexIndicators[index].transform.localPosition = localPosition;
+            }
+        }
+        #endregion
+
+        #region Managing functions
+        public void UpdateMesh(bool updateInteractors)
+        {
+            linkedMeshController.BuildMeshFromData();
+            if (updateInteractors) SetIndicatorsFromMesh();
+        }
+        public void SetIndicatorsFromMesh()
+        {
+            if (!InEditMode) return;
+
+            Vector3[] vertices = linkedMeshController.Vertices;
+
+            if(vertices.Length > vertexIndicators.Length)
+            {
+                for(int i = 0; i< vertexIndicators.Length; i++)
+                {
+                    vertexIndicators[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                for(int i = 0; i < vertices.Length; i++)
+                {
+                    vertexIndicators[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].gameObject.SetActive(true);
+                }
+
+                for(int i = vertices.Length; i<vertexIndicators.Length; i++)
+                {
+                    vertexIndicators[i].gameObject.SetActive(false);
+                }
+            }
+        }
+        #endregion
+
+        #region Else
+        public MeshFilter SymmetryMeshFilter
+        {
+            get
+            {
+                return SymmetryMeshRenderer.transform.GetComponent<MeshFilter>();
+            }
+        }
+        public bool SymmetryMode
+        {
+            set
+            {
+                if (!SymmetryMeshRenderer) return;
+
+                SymmetryMeshRenderer.transform.gameObject.SetActive(value);
+            }
+        }
+        public Material AttachedMaterial
+        {
+            get
+            {
+                return LinkedMeshRenderer.sharedMaterial;
+            }
+            set
+            {
+                LinkedMeshRenderer.sharedMaterial = value;
+                if (SymmetryMeshRenderer) SymmetryMeshRenderer.sharedMaterial = value;
+            }
+        }
+        #endregion
+
+        #region VRChat input functions
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-            if (overUIElement) return;
+            if (OverUIElement) return;
 
             if (!currentEditTool) return;
 
@@ -592,7 +513,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (overUIElement) return;
+            if (OverUIElement) return;
 
             if (!currentEditTool) return;
 
@@ -640,7 +561,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             inputDropWorks = true;
 
-            if (overUIElement) return;
+            if (OverUIElement) return;
 
             if (!currentEditTool) return;
 
@@ -662,5 +583,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 currentEditTool.OnDropUse();
             }
         }
+        #endregion
     }
 }

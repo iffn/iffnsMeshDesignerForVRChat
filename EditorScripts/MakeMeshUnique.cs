@@ -29,7 +29,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     MakeCurrentMeshUnique();
                 }
-
             }
         }
 

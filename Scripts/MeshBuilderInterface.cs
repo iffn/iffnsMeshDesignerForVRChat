@@ -134,7 +134,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
     public void UpdateInteractionDistance()
     {
-        linkedMeshInteractor.interactionDistance = interactionDistanceSlider.value;
+        linkedMeshInteractor.VertexInteractionDistance = interactionDistanceSlider.value;
     }
 
     public void InderactorSizeX1o25()
