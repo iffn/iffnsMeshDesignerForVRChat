@@ -30,7 +30,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedMeshInteractor = linkedMeshInteractor;
             LinkedMeshController = linkedMeshInteractor.LinkedMeshController;
             isInVR = Networking.LocalPlayer.IsUserInVR();
-            LinkedMeshInteractor.VertexIndicators = linkedMeshInteractor.VertexIndicators;
         }
 
         public abstract void UpdateWhenActive();

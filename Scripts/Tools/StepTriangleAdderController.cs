@@ -97,26 +97,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             closestVertex = vertex;
 
-            LinkedMeshInteractor.VertexIndicators[closestVertex].SelectState = VertexSelectStates.Selected;
+            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            LinkedMeshInteractor.VertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Normal);
             closestVertex = -1;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            LinkedMeshInteractor.VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Selected;
+            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            LinkedMeshInteractor.VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Normal;
+            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Normal);
             secondClosestVertex = -1;
         }
     }

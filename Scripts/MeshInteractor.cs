@@ -78,10 +78,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         double updateFPSForDebug = 0;
 
-        public VertexIndicator[] VertexIndicators = new VertexIndicator[0];
-
         InteractorController linkedInteractionController;
+
+        VertexIndicator[] vertexIndicators = new VertexIndicator[0];
         
+        public void SetVertexIndicatorState(int index, VertexSelectStates state)
+        {
+            if (index >= vertexIndicators.Length) return;
+
+            vertexIndicators[index].SelectState = state;
+        }
 
         public bool[] vertexIsConnectedToActive;
 
@@ -146,7 +152,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             isInVR = localPlayer.IsUserInVR();
 
             //Also do auto constructor functions:
-            VertexIndicators = new VertexIndicator[0];
+            vertexIndicators = new VertexIndicator[0];
 
             if (!linkedMeshController)
             {
@@ -305,13 +311,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 Vector3 scale = value * Vector3.one;
 
-                if (VertexIndicators == null)
+                if (vertexIndicators == null)
                 {
                     Debug.LogWarning("Somehow null");
                     return;
                 }
 
-                foreach (VertexIndicator vertex in VertexIndicators)
+                foreach (VertexIndicator vertex in vertexIndicators)
                 {
                     vertex.transform.localScale = scale;
                 }
@@ -336,7 +342,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
             returnString += $"{nameof(CurrentEditTool)}: {((CurrentEditTool != null) ? CurrentEditTool.name : "No tool selected")}\n";
             returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
-            returnString += $"Number of interactors: {VertexIndicators.Length}\n";
+            returnString += $"Number of interactors: {vertexIndicators.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
 
@@ -368,12 +374,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ClearVertexInteractorData()
         {
-            for (int i = 0; i < VertexIndicators.Length; i++)
+            for (int i = 0; i < vertexIndicators.Length; i++)
             {
-                Destroy(VertexIndicators[i].gameObject);
+                Destroy(vertexIndicators[i].gameObject);
             }
 
-            VertexIndicators = new VertexIndicator[0];
+            vertexIndicators = new VertexIndicator[0];
         }
 
         public Vector3[] verticesDebug;
@@ -401,7 +407,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3[] vertices = linkedMeshController.Vertices;
 
-            if (VertexIndicators.Length == vertices.Length)
+            if (vertexIndicators.Length == vertices.Length)
             {
                 #if debugLog
                 Debug.Log("Just updating positions");
@@ -409,7 +415,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    VertexIndicators[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].SetInfo(i, vertices[i]);
                 }
             }
             else
@@ -422,7 +428,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 Vector3[] positions = vertices;
 
-                VertexIndicators = new VertexIndicator[positions.Length];
+                vertexIndicators = new VertexIndicator[positions.Length];
 
                 for (int i = 0; i < positions.Length; i++)
                 {
@@ -439,14 +445,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
 
-                    VertexIndicators[i] = currentInteractor;
+                    vertexIndicators[i] = currentInteractor;
                 }
             }
         }
 
         public void MoveVertexToLocalPosition(int index, Vector3 localPosition)
         {
-            Transform currentVertex = VertexIndicators[index].transform;
+            Transform currentVertex = vertexIndicators[index].transform;
 
             currentVertex.localPosition = localPosition;
 

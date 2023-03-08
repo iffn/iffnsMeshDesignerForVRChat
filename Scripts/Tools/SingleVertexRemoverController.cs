@@ -64,20 +64,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex == -1)
                 {
                     //Select vertex
-                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.ReadyToDelete);
                     activeVertex = interactedVertex;
                 }
                 else if(interactedVertex != activeVertex)
                 {
                     //Reselect vertex
-                    LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
                     activeVertex = interactedVertex;
-                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.ReadyToDelete);
                 }
                 else
                 {
                     //Remove vertex
-                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.Normal;
+                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.Normal);
                     LinkedMeshController.RemoveVertexClean(activeVertex);
                     LinkedMeshInteractor.UpdateMesh(true);
                 }
@@ -87,10 +87,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex >= 0)
                 {
                     //Deselect vertex
-                    if(activeVertex < LinkedMeshInteractor.VertexIndicators.Length)
-                    {
-                        LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
-                    }
+                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
 
                     activeVertex = -1;
                 }

@@ -68,7 +68,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-            if (activeVertex >= 0) LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+            if (activeVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
         }
 
         public override void UpdateWhenActive()
@@ -121,7 +121,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void Deselect()
         {
-            if (activeVertex >= 0) LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+            if (activeVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
 
             LinkedMeshInteractor.ShowLineRenderer = false;
 
@@ -141,7 +141,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     //Select current
                     activeVertex = interactedVertex;
                     activeVertexPosition = LinkedMeshController.Vertices[activeVertex];
-                    LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Selected;
+                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Selected);
                     LinkedMeshInteractor.ShowLineRenderer = true;
 
                     connectedVertices = LinkedMeshController.GetConnectedVertices(interactedVertex);
