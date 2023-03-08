@@ -34,11 +34,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             transform.localPosition = localPosition;
         }
 
-        public void Setup(int index, Transform parent, Vector3 localPosition, float scale)
+        public void Setup(int index, Transform parent, float scale)
         {
             this.Index = index;
             transform.parent = parent;
-            transform.localPosition = localPosition;
             gameObject.SetActive(true);
             transform.localScale = scale * Vector3.one;
 

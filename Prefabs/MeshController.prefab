@@ -563,6 +563,7 @@ MonoBehaviour:
   mirrorSnap: 0.01
   maxDesktopInteractionDistance: 1.5
   InteractorOffsetVector: {x: 0, y: -1, z: 0}
+  maxIndicators: 100
   linkedMeshController: {fileID: 9218831860427038447}
   VertexInteractorPrefab: {fileID: -4740536899850265013, guid: 924d7fb2c8a2ea64cbaf1b92da182246,
     type: 3}
@@ -575,7 +576,6 @@ MonoBehaviour:
   overUIElement: 0
   LinkedScaler: {fileID: 3502828741474572845}
   interactionDistance: 0
-  vertexIndicators: []
   vertexIsConnectedToActive: 
   setupCalled: 0
   verticesDebug: []

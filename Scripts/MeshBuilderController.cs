@@ -68,7 +68,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             WarningText.SetActive(false);
             ResetButton.SetActive(false);
 
-            LinkedMeshInteractor.ClearVertexInteractorData();
+            //ToDo: Remake
 
             Transform referenceTransform = LinkedMeshInteractor.transform;
 

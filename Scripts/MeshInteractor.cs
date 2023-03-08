@@ -20,6 +20,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] float mirrorSnap = 0.01f;
         [SerializeField] float maxDesktopInteractionDistance = 1.5f;
         [SerializeField] Vector3 InteractorOffsetVector = Vector3.down;
+        [SerializeField] int maxIndicators = 100;
 
         [Header("Unity assingments")]
         [SerializeField] MeshController linkedMeshController;
@@ -151,9 +152,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
 
-            //Also do auto constructor functions:
-            vertexIndicators = new VertexIndicator[0];
-
             if (!linkedMeshController)
             {
                 Debug.LogWarning($"Error: {nameof(linkedMeshController)} in {nameof(MeshInteractor)} somehow not assigned");
@@ -179,6 +177,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 inputDropWorks = true;
                 break;
             }
+
+            //Setup indicators
+            if(vertexIndicators == null || vertexIndicators.Length == 0)
+            {
+                vertexIndicators = new VertexIndicator[maxIndicators];
+
+                for (int i = 0; i < maxIndicators; i++)
+                {
+                    GameObject newObject = Instantiate(VertexInteractorPrefab.gameObject);
+
+                    newObject.SetActive(false);
+
+                    VertexIndicator indicator = newObject.GetComponent<VertexIndicator>();
+
+                    indicator.Setup(i, transform, interactionDistance);
+
+                    vertexIndicators[i] = indicator;
+                }
+            }
+
+            SetIndicatorsFromMesh();
         }
 
 
@@ -284,7 +303,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 if (!value)
                 {
-                    ClearVertexInteractorData();
+                    foreach(VertexIndicator interactor in vertexIndicators)
+                    {
+                        interactor.gameObject.SetActive(false);
+                    }
                 }
                 else
                 {
@@ -310,12 +332,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             set
             {
                 Vector3 scale = value * Vector3.one;
-
-                if (vertexIndicators == null)
-                {
-                    Debug.LogWarning("Somehow null");
-                    return;
-                }
 
                 foreach (VertexIndicator vertex in vertexIndicators)
                 {
@@ -372,16 +388,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public void ClearVertexInteractorData()
-        {
-            for (int i = 0; i < vertexIndicators.Length; i++)
-            {
-                Destroy(vertexIndicators[i].gameObject);
-            }
-
-            vertexIndicators = new VertexIndicator[0];
-        }
-
         public Vector3[] verticesDebug;
 
         void Update()
@@ -407,56 +413,37 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3[] vertices = linkedMeshController.Vertices;
 
-            if (vertexIndicators.Length == vertices.Length)
+            if(vertices.Length > vertexIndicators.Length)
             {
-                #if debugLog
-                Debug.Log("Just updating positions");
-                #endif
-
-                for (int i = 0; i < vertices.Length; i++)
+                for(int i = 0; i< vertexIndicators.Length; i++)
                 {
                     vertexIndicators[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].gameObject.SetActive(true);
                 }
             }
             else
             {
-                #if debugLog
-                Debug.Log("Reassigning interactors");
-                #endif
-
-                ClearVertexInteractorData();
-
-                Vector3[] positions = vertices;
-
-                vertexIndicators = new VertexIndicator[positions.Length];
-
-                for (int i = 0; i < positions.Length; i++)
+                for(int i = 0; i < vertices.Length; i++)
                 {
-                    GameObject newObject = GameObject.Instantiate(VertexInteractorPrefab.gameObject);
+                    vertexIndicators[i].SetInfo(i, vertices[i]);
+                    vertexIndicators[i].gameObject.SetActive(true);
+                }
 
-                    VertexIndicator currentInteractor = newObject.GetComponent<VertexIndicator>(); //TryGetComponent not exposed in U# (...)
-
-                    if(currentInteractor == null)
-                    {
-                        Debug.LogWarning($"Error: {nameof(VertexIndicator)} was not found on instantiated object");
-                        GameObject.Destroy(newObject);
-                        continue;
-                    }
-
-                    currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
-
-                    vertexIndicators[i] = currentInteractor;
+                for(int i = vertices.Length; i<vertexIndicators.Length; i++)
+                {
+                    vertexIndicators[i].gameObject.SetActive(false);
                 }
             }
         }
 
         public void MoveVertexToLocalPosition(int index, Vector3 localPosition)
         {
-            Transform currentVertex = vertexIndicators[index].transform;
+            linkedMeshController.SetSingleVertexPosition(index, localPosition);
 
-            currentVertex.localPosition = localPosition;
-
-            linkedMeshController.SetSingleVertexPosition(index, currentVertex.localPosition);
+            if(index < vertexIndicators.Length)
+            {
+                vertexIndicators[index].transform.localPosition = localPosition;
+            }
         }
 
         public bool ShowLineRenderer
