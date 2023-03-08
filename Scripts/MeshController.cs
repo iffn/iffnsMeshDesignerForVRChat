@@ -120,7 +120,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Fill array with connected vertices
             int counter = 0;
 
-            for(int i = 0; i<returnValues.Length; i++)
+            for(int i = 0; i< connected.Length; i++)
             {
                 if (i == index) continue;
 
