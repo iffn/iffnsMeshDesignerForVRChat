@@ -22,6 +22,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] ObjConterter LinkedObjConverter;
     [SerializeField] GameObject[] VROnlyObjects;
     [SerializeField] TMPro.TextMeshProUGUI debugText;
+    [SerializeField] InteractorController LinkedInteractorController;
 
     MeshInteractor linkedMeshInteractor;
 
@@ -66,6 +67,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             debugString += $"{nameof(linkedMeshInteractor)} is null: {linkedMeshInteractor == null}\n";
             if(linkedMeshInteractor) debugString += $"{nameof(linkedMeshInteractor.LinkedMeshController)} is null: {linkedMeshInteractor.LinkedMeshController == null}\n";
         }
+
+        debugString += LinkedInteractorController.MultiLineDebugState();
 
         debugText.text = debugString;
     }

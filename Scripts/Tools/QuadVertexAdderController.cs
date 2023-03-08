@@ -34,6 +34,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         int[] connectedVertices;
         Vector3[] connectedVertexPositions;
 
+        public override string MultiLineDebugState()
+        {
+            string returnString = base.MultiLineDebugState();
+
+            returnString += $"{nameof(activeVertex)} = {activeVertex}\n";
+            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
+            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
+            returnString += $"{nameof(activeVertexPosition)} = {activeVertexPosition}\n";
+            returnString += $"{nameof(localHandPosition)} = {localHandPosition}\n";
+
+            if(connectedVertices != null) returnString += $"{nameof(connectedVertices)}.length = {connectedVertices.Length}\n";
+            else returnString += $"{nameof(connectedVertices)} = null\n";
+
+            if (connectedVertexPositions != null) returnString += $"{nameof(connectedVertexPositions)}.length = {connectedVertexPositions.Length}\n";
+            else returnString += $"{nameof(connectedVertexPositions)} = null\n";
+
+            return returnString;
+        }
+
         public override void Setup(MeshInteractor linkedMeshInteractor)
         {
             base.Setup(linkedMeshInteractor);
@@ -49,7 +68,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-
+            if (activeVertex >= 0) LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
         }
 
         public override void UpdateWhenActive()

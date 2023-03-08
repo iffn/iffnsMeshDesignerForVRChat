@@ -39,6 +39,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public abstract void OnDeactivation();
 
         //public abstract void InteractWithVertex(int vertex);
+        
+        public virtual string MultiLineDebugState()
+        {
+            string returnString = $"Debug of {ToolName} at {Time.time}:\n";
+
+            returnString += $"{nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
+
+            return returnString;
+        }
 
         public virtual void OnPickupUse()
         {

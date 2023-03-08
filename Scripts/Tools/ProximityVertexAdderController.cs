@@ -27,6 +27,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         int secondClosestVertex = -1;
         Vector3 localHandPosition;
 
+        public override string MultiLineDebugState()
+        {
+            string returnString = base.MultiLineDebugState();
+
+            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
+            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
+            returnString += $"{nameof(localHandPosition)} = {localHandPosition}\n";
+
+            return returnString;
+        }
+
         public override void Setup(MeshInteractor linkedMeshInteractor)
         {
             base.Setup(linkedMeshInteractor);

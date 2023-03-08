@@ -25,6 +25,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         int activeVertex = -1;
 
+        public override string MultiLineDebugState()
+        {
+            string returnString = base.MultiLineDebugState();
+
+            returnString += $"{nameof(activeVertex)} = {activeVertex}\n";
+
+            return returnString;
+        }
+
         public override void Setup(MeshInteractor linkedMeshInteractor)
         {
             base.Setup(linkedMeshInteractor);

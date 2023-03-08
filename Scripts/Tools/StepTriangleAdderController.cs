@@ -26,6 +26,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         int closestVertex = -1;
         int secondClosestVertex = -1;
 
+        public override string MultiLineDebugState()
+        {
+            string returnString = base.MultiLineDebugState();
+
+            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
+            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
+
+            return returnString;
+        }
+
         public override void Setup(MeshInteractor linkedMeshInteractor)
         {
             base.Setup(linkedMeshInteractor);

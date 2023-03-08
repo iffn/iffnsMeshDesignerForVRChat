@@ -58,6 +58,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public string MultiLineDebugState()
+        {
+            string returnString = $"Debug of {nameof(InteractorController)} at {Time.time}:\n";
+
+            if(currentButton == null)
+            {
+                returnString += $"{nameof(currentButton)} = null\n";
+            }
+            else if(currentButton.LinkedTool == null)
+            {
+                returnString += $"{nameof(currentButton)}.{nameof(currentButton.LinkedTool)} = null\n";
+            }
+            else
+            {
+                returnString += currentButton.LinkedTool.MultiLineDebugState() + "\n";
+            }
+
+            return returnString;
+        }
+
         public void Setup(MeshInteractor linkedMeshInteractor)
         {
             localPlayer = Networking.LocalPlayer;

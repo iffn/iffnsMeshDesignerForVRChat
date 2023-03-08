@@ -775,6 +775,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8326172405819189238, guid: 22f03bc205dce31418fbcd1c14d2b752,
         type: 3}
+    - target: {fileID: 8326172405819189238, guid: 22f03bc205dce31418fbcd1c14d2b752,
+        type: 3}
+      propertyPath: LinkedInteractorController
+      value: 
+      objectReference: {fileID: 2867743448037638171}
     - target: {fileID: 8538511208247850543, guid: 22f03bc205dce31418fbcd1c14d2b752,
         type: 3}
       propertyPath: serializationData.Prefab
