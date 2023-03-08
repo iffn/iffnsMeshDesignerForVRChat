@@ -187,6 +187,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     if (currentButton.LinkedTool == value)
                     {
                         //Deselect current tool
+                        currentButton.Highlighted = false;
                         currentButton = null;
                         return;
                     }
