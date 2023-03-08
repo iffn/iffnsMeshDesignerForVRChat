@@ -55,20 +55,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex == -1)
                 {
                     //Select vertex
-                    VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
                     activeVertex = interactedVertex;
                 }
                 else if(interactedVertex != activeVertex)
                 {
                     //Reselect vertex
-                    VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                    LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                     activeVertex = interactedVertex;
-                    VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
+                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.ReadyToDelete;
                 }
                 else
                 {
                     //Remove vertex
-                    VertexIndicators[interactedVertex].SelectState = VertexSelectStates.Normal;
+                    LinkedMeshInteractor.VertexIndicators[interactedVertex].SelectState = VertexSelectStates.Normal;
                     LinkedMeshController.RemoveVertexClean(activeVertex);
                     LinkedMeshInteractor.UpdateMesh(true);
                 }
@@ -78,9 +78,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex >= 0)
                 {
                     //Deselect vertex
-                    if(activeVertex < LinkedMeshInteractor.vertexIndicators.Length)
+                    if(activeVertex < LinkedMeshInteractor.VertexIndicators.Length)
                     {
-                        VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+                        LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
                     }
 
                     activeVertex = -1;

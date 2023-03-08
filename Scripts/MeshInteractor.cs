@@ -78,7 +78,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         double updateFPSForDebug = 0;
 
-        public VertexIndicator[] vertexIndicators = new VertexIndicator[0];
+        public VertexIndicator[] VertexIndicators = new VertexIndicator[0];
 
         InteractorController linkedInteractionController;
         
@@ -146,7 +146,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             isInVR = localPlayer.IsUserInVR();
 
             //Also do auto constructor functions:
-            vertexIndicators = new VertexIndicator[0];
+            VertexIndicators = new VertexIndicator[0];
 
             if (!linkedMeshController)
             {
@@ -305,13 +305,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 Vector3 scale = value * Vector3.one;
 
-                if (vertexIndicators == null)
+                if (VertexIndicators == null)
                 {
                     Debug.LogWarning("Somehow null");
                     return;
                 }
 
-                foreach (VertexIndicator vertex in vertexIndicators)
+                foreach (VertexIndicator vertex in VertexIndicators)
                 {
                     vertex.transform.localScale = scale;
                 }
@@ -336,7 +336,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
             returnString += $"{nameof(CurrentEditTool)}: {((CurrentEditTool != null) ? CurrentEditTool.name : "No tool selected")}\n";
             returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
-            returnString += $"Number of interactors: {vertexIndicators.Length}\n";
+            returnString += $"Number of interactors: {VertexIndicators.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
 
@@ -368,12 +368,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ClearVertexInteractorData()
         {
-            for (int i = 0; i < vertexIndicators.Length; i++)
+            for (int i = 0; i < VertexIndicators.Length; i++)
             {
-                Destroy(vertexIndicators[i].gameObject);
+                Destroy(VertexIndicators[i].gameObject);
             }
 
-            vertexIndicators = new VertexIndicator[0];
+            VertexIndicators = new VertexIndicator[0];
         }
 
         public Vector3[] verticesDebug;
@@ -401,7 +401,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3[] vertices = linkedMeshController.Vertices;
 
-            if (vertexIndicators.Length == vertices.Length)
+            if (VertexIndicators.Length == vertices.Length)
             {
                 #if debugLog
                 Debug.Log("Just updating positions");
@@ -409,7 +409,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    vertexIndicators[i].SetInfo(i, vertices[i]);
+                    VertexIndicators[i].SetInfo(i, vertices[i]);
                 }
             }
             else
@@ -422,7 +422,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 Vector3[] positions = vertices;
 
-                vertexIndicators = new VertexIndicator[positions.Length];
+                VertexIndicators = new VertexIndicator[positions.Length];
 
                 for (int i = 0; i < positions.Length; i++)
                 {
@@ -439,14 +439,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     currentInteractor.Setup(i, transform, positions[i], vertexInteractionDistance);
 
-                    vertexIndicators[i] = currentInteractor;
+                    VertexIndicators[i] = currentInteractor;
                 }
             }
         }
 
         public void MoveVertexToLocalPosition(int index, Vector3 localPosition)
         {
-            Transform currentVertex = vertexIndicators[index].transform;
+            Transform currentVertex = VertexIndicators[index].transform;
 
             currentVertex.localPosition = localPosition;
 

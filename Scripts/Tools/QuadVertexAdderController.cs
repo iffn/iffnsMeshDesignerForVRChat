@@ -102,7 +102,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void Deselect()
         {
-            if (activeVertex >= 0) LinkedMeshInteractor.vertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
+            if (activeVertex >= 0) LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Normal;
 
             LinkedMeshInteractor.ShowLineRenderer = false;
 
@@ -122,7 +122,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     //Select current
                     activeVertex = interactedVertex;
                     activeVertexPosition = LinkedMeshController.Vertices[activeVertex];
-                    LinkedMeshInteractor.vertexIndicators[activeVertex].SelectState = VertexSelectStates.Selected;
+                    LinkedMeshInteractor.VertexIndicators[activeVertex].SelectState = VertexSelectStates.Selected;
                     LinkedMeshInteractor.ShowLineRenderer = true;
 
                     connectedVertices = LinkedMeshController.GetConnectedVertices(interactedVertex);

@@ -110,13 +110,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             closestVertex = vertex;
             closestVertexPosition = LinkedMeshController.Vertices[vertex];
-            VertexIndicators[closestVertex].SelectState = VertexSelectStates.Selected;
+            LinkedMeshInteractor.VertexIndicators[closestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            VertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
+            LinkedMeshInteractor.VertexIndicators[closestVertex].SelectState = VertexSelectStates.Normal;
             closestVertex = -1;
         }
 
@@ -124,13 +124,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             secondClosestVertex = vertex;
             secondClosestVertexPosition = LinkedMeshController.Vertices[vertex];
-            VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Selected;
+            LinkedMeshInteractor.VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Selected;
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Normal;
+            LinkedMeshInteractor.VertexIndicators[secondClosestVertex].SelectState = VertexSelectStates.Normal;
             secondClosestVertex = -1;
         }
     }

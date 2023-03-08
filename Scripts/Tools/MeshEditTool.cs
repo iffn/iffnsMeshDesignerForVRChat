@@ -22,8 +22,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         public bool isInVR { get; private set; }
-        public VertexIndicator[] VertexIndicators { get; private set; }
-
         public MeshInteractor LinkedMeshInteractor { get; private set; }
         public MeshController LinkedMeshController { get; private set; }
 
@@ -32,7 +30,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedMeshInteractor = linkedMeshInteractor;
             LinkedMeshController = linkedMeshInteractor.LinkedMeshController;
             isInVR = Networking.LocalPlayer.IsUserInVR();
-            VertexIndicators = linkedMeshInteractor.vertexIndicators;
+            LinkedMeshInteractor.VertexIndicators = linkedMeshInteractor.VertexIndicators;
         }
 
         public abstract void UpdateWhenActive();

@@ -1082,13 +1082,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: vertexIndicators
+      Data: VertexIndicators
     - Name: $v
       Entry: 7
       Data: 65|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: vertexIndicators
+      Data: VertexIndicators
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 66|System.RuntimeType, mscorlib
