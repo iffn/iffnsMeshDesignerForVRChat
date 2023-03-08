@@ -69,6 +69,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnDeactivation()
         {
             if (activeVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
+            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()

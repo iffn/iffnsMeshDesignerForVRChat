@@ -59,7 +59,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-
+            DeselectClosestVertex();
+            DeselectSecondClosestVertex();
+            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()

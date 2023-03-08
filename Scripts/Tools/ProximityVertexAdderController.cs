@@ -52,7 +52,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
+            if(closestVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Normal);
+            if(secondClosestVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Normal);
 
+            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()

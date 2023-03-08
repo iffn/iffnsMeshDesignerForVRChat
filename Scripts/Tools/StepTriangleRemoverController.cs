@@ -50,7 +50,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-
+            DeselectClosestVertex();
+            DeselectSecondClosestVertex();
         }
 
         public override void UpdateWhenActive()
