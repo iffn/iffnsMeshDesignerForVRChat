@@ -18,7 +18,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #region InspectorVariables
         [Header("Settings")]
         [SerializeField] bool mirrorActive = true;
-        [SerializeField] float mirrorSnap = 0.01f;
         [SerializeField] float maxDesktopInteractionDistance = 1.5f;
         [SerializeField] Vector3 InteractorOffsetVector = Vector3.down;
         [SerializeField] int maxIndicators = 100;
@@ -36,6 +35,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #endregion
 
         #region General variables
+        MeshSyncController linkedSyncController;
         public bool OverUIElement { get; set; } = false; //Property since the Unity Inspector can otherwise assign a wrong variable
         InteractorController linkedInteractionController;
         VertexIndicator[] vertexIndicators = new VertexIndicator[0];
@@ -88,11 +88,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #endregion
 
         # region Main funcitons
-        public void Setup(InteractorController linkedInteractionIndicator)
+        public void Setup(InteractorController linkedInteractionController, MeshSyncController linkedSyncController)
         {
             setupCalled = true;
 
-            this.linkedInteractionController = linkedInteractionIndicator;
+            this.linkedInteractionController = linkedInteractionController;
+            this.linkedSyncController = linkedSyncController;
 
             LastUpdateTime = Time.time;
 
@@ -427,6 +428,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             linkedMeshController.BuildMeshFromData();
             if (updateInteractors) SetIndicatorsFromMesh();
+            if (linkedSyncController) linkedSyncController.Sync();
         }
         public void SetIndicatorsFromMesh()
         {
@@ -509,10 +511,41 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     currentEditTool.OnDropUse();
                 }
             }
+            else
+            {
+                if (currentEditTool.CallUseInsteadOfPickup)
+                {
+                    if (value)
+                    {
+                        Debug.Log("Calling OnUseDown");
+                        currentEditTool.OnUseDown();
+                    }
+                    else
+                    {
+                        Debug.Log("Calling OnUseUp");
+                        currentEditTool.OnUseUp();
+                    }
+                }
+                else
+                {
+                    if (value)
+                    {
+                        Debug.Log("Calling OnPickupUse");
+                        currentEditTool.OnPickupUse();
+                    }
+                    else
+                    {
+                        Debug.Log("Calling OnDropUse");
+                        currentEditTool.OnDropUse();
+                    }
+                }
+            }
         }
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
+            //Warning: Currently called twice, at least in desktop mode: https://vrchat.canny.io/vrchat-udon-closed-alpha-bugs/p/1275-inputuse-is-called-twice-per-mouse-click
+
             if (OverUIElement) return;
 
             if (!currentEditTool) return;
@@ -523,36 +556,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 if (value)
                 {
+                    Debug.Log("Calling OnUseDown");
                     currentEditTool.OnUseDown();
                 }
                 else
                 {
+                    Debug.Log("Calling OnUseUp");
                     currentEditTool.OnUseUp();
-                }
-            }
-            else
-            {
-                if (currentEditTool.CallUseInsteadOfPickup)
-                {
-                    if (value)
-                    {
-                        currentEditTool.OnUseDown();
-                    }
-                    else
-                    {
-                        currentEditTool.OnUseUp();
-                    }
-                }
-                else
-                {
-                    if (value)
-                    {
-                        currentEditTool.OnPickupUse();
-                    }
-                    else
-                    {
-                        currentEditTool.OnDropUse();
-                    }
                 }
             }
         }
@@ -571,15 +581,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 if (currentEditTool.CallUseInsteadOfPickup)
                 {
+                    Debug.Log("Calling OnPickupUse");
                     currentEditTool.OnPickupUse();
                 }
                 else
                 {
+                    Debug.Log("Calling OnDropUse");
                     currentEditTool.OnDropUse();
                 }
             }
             else
             {
+                Debug.Log("Calling OnDropUse");
                 currentEditTool.OnDropUse();
             }
         }

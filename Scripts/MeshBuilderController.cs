@@ -29,6 +29,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         */
 
         [Header("Unity assingments")]
+        [SerializeField] MeshSyncController LinkedSyncController;
         [SerializeField] MeshInteractor LinkedMeshInteractor;
         [SerializeField] MeshController LinkedMeshController;
         [SerializeField] MeshInteractor MeshControllerPrefab;
@@ -98,12 +99,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             //Setup
             LinkedMeshController = LinkedMeshInteractor.LinkedMeshController;
-            
-            LinkedMeshInteractor.Setup(LinkedInteractorController);
 
-            LinkedBuilderInterface.Setup(LinkedMeshInteractor);
+
+            LinkedMeshInteractor.Setup(LinkedInteractorController, LinkedSyncController);
+
+            LinkedBuilderInterface.Setup(LinkedMeshInteractor, LinkedSyncController);
 
             LinkedInteractorController.Setup(LinkedMeshInteractor);
+
+            LinkedSyncController.Setup(LinkedMeshController, LinkedBuilderInterface);
         }
 
         void CheckIfStillRunning()
@@ -152,9 +156,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             IsUserInVR = player.IsUserInVR();
 
             SetupElements();
-
-            LinkedMeshInteractor.gameObject.SetActive(false);
-            LinkedBuilderInterface.gameObject.SetActive(false);
 
             foreach(GameObject obj in VROnlyObjects)
             {

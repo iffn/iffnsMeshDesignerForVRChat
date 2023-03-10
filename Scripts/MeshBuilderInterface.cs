@@ -21,16 +21,23 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Material NonWireframeMaterial;
     [SerializeField] ObjConterter LinkedObjConverter;
     [SerializeField] GameObject[] VROnlyObjects;
+    [SerializeField] GameObject RequestOwnershipButton;
     [SerializeField] TMPro.TextMeshProUGUI debugText;
     [SerializeField] InteractorController LinkedInteractorController;
 
     MeshInteractor linkedMeshInteractor;
+    MeshSyncController linkedSyncController;
 
     bool isInVR;
     bool setupCalled = false;
 
-    public void Setup(MeshInteractor linkedMeshInteractor)
+    public void Setup(MeshInteractor linkedMeshInteractor, MeshSyncController linkedSyncController)
     {
+        this.linkedMeshInteractor = linkedMeshInteractor;
+        this.linkedSyncController = linkedSyncController;
+
+        RequestOwnershipButton.SetActive(linkedSyncController);
+
         setupCalled = true;
 
         isInVR = Networking.LocalPlayer.IsUserInVR();
@@ -43,7 +50,6 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             }
         }
 
-        this.linkedMeshInteractor = linkedMeshInteractor;
 
         LinkedObjConverter.Setup(this.linkedMeshInteractor);
     }
@@ -71,6 +77,19 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         debugString += LinkedInteractorController.MultiLineDebugState();
 
         debugText.text = debugString;
+    }
+
+    public bool Ownership
+    {
+        set
+        {
+            RequestOwnershipButton.SetActive(!value);
+
+            if (!value)
+            {
+                InEditMode = false;
+            }
+        }
     }
 
     public bool InEditMode
@@ -105,8 +124,12 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         linkedMeshInteractor.UpdateMesh(true);
     }
 
+    bool skipEvent = false;
+
     public void ToggleEditMesh()
     {
+        if (skipEvent) return;
+
         if(linkedMeshInteractor == null)
         {
             Debug.LogWarning("Error: LinkedMeshBuilder is null");
@@ -119,7 +142,23 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             return;
         }
 
-        linkedMeshInteractor.InEditMode = EditMeshToggle.isOn;
+        if (EditMeshToggle.isOn)
+        {
+            if (!linkedSyncController || linkedSyncController.IsOwner)
+            {
+                linkedMeshInteractor.InEditMode = true;
+            }
+            else
+            {
+                skipEvent = true;
+                EditMeshToggle.isOn = false;
+                skipEvent = false;
+            }
+        }
+        else
+        {
+            linkedMeshInteractor.InEditMode = false;
+        }
     }
 
     public void ToggleSymmetryMode()
@@ -147,4 +186,14 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         linkedMeshInteractor.VertexInteractionDistance *= 0.8f;
     }
 
+    public void RequestOwnership()
+    {
+        if (!linkedSyncController)
+        {
+            RequestOwnershipButton.gameObject.SetActive(false);
+            return;
+        }
+
+        linkedSyncController.RequestOwnership();
+    }
 }

@@ -87,6 +87,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public void SetData(Vector3[] vertices, int[] triangles)
+        {
+            this.vertices = vertices;
+            this.triangles = triangles;
+
+            BuildMeshFromData();
+        }
+
         public int[] GetConnectedVertices(int index)
         {
             //Create connected array
