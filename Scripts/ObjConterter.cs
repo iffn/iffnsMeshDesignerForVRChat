@@ -15,13 +15,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Toggle ShowRefernceMeshToggle;
         [SerializeField] Toggle MirrorRefernceMeshToggle;
 
-        MeshInteractor LinkedMeshInteractor;
+        MeshInteractor linkedMeshInteractor;
+        MeshSyncController linkedSyncController;
 
         readonly char newLine = '\n';
 
-        public void Setup(MeshInteractor linkedMeshInteractor)
+        public void Setup(MeshInteractor linkedMeshInteractor, MeshSyncController linkedSyncController)
         {
-            LinkedMeshInteractor = linkedMeshInteractor;
+            this.linkedMeshInteractor = linkedMeshInteractor;
+            this.linkedSyncController = linkedSyncController;
         }
 
         private void Start()
@@ -36,19 +38,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ImportObj(string objString)
         {
+            if (linkedSyncController && !linkedSyncController.IsOwner) return;
+
             //Debug.Log("Import with limit set to " + LinkedInputField.characterLimit);
 
-            SetMeshFromObjString(LinkedMeshInteractor.LinkedMeshController.SharedMesh, objString);
+            SetMeshFromObjString(linkedMeshInteractor.LinkedMeshController.SharedMesh, objString);
 
-            LinkedMeshInteractor.LinkedMeshController.UpdateMeshInfoFromMesh();
+            linkedMeshInteractor.LinkedMeshController.UpdateMeshInfoFromMesh();
 
-            LinkedMeshInteractor.SetIndicatorsFromMesh();
+            linkedMeshInteractor.UpdateMesh(linkedMeshInteractor.InEditMode);
         }
 
         public void ExportObj()
         {
             Debug.Log("Export");
-            LinkedInputField.text = GetObjStringFromMesh(LinkedMeshInteractor.LinkedMeshController.SharedMesh);
+            LinkedInputField.text = GetObjStringFromMesh(linkedMeshInteractor.LinkedMeshController.SharedMesh);
         }
 
         string GetObjStringFromMesh(Mesh mesh)
@@ -78,15 +82,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ImportObjAsReferenceMesh()
         {
-            SetMeshFromObjString(LinkedMeshInteractor.ReferenceMesh.sharedMesh, LinkedInputField.text);
+            SetMeshFromObjString(linkedMeshInteractor.ReferenceMesh.sharedMesh, LinkedInputField.text);
 
             if (!ShowRefernceMeshToggle.isOn) ShowRefernceMeshToggle.isOn = true;
         }
 
         public void UpdateReferenceMeshUI()
         {
-            LinkedMeshInteractor.ReferenceMesh.gameObject.SetActive(ShowRefernceMeshToggle.isOn);
-            LinkedMeshInteractor.MirrorReferenceMesh.SetActive(MirrorRefernceMeshToggle.isOn);
+            linkedMeshInteractor.ReferenceMesh.gameObject.SetActive(ShowRefernceMeshToggle.isOn);
+            linkedMeshInteractor.MirrorReferenceMesh.SetActive(MirrorRefernceMeshToggle.isOn);
         }
 
         void SetMeshFromObjString(Mesh mesh, string objString)

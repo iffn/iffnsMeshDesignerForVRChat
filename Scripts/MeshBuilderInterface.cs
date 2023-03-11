@@ -51,7 +51,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         }
 
 
-        LinkedObjConverter.Setup(this.linkedMeshInteractor);
+        LinkedObjConverter.Setup(this.linkedMeshInteractor, linkedSyncController);
     }
 
     private void Update()
@@ -60,21 +60,16 @@ public class MeshBuilderInterface : UdonSharpBehaviour
 
         string debugString = "";
 
-        if (linkedMeshInteractor && linkedMeshInteractor.LinkedMeshController)
-        {
-            debugString += linkedMeshInteractor.DebugState();
-            debugString += "\n";
-            debugString += linkedMeshInteractor.LinkedMeshController.DebugState();
-        }
-        else
-        {
-            debugString = $"Setup not completed at {Time.time}:\n";
+        if (linkedMeshInteractor) debugString += linkedMeshInteractor.DebugState() + "\n";
+        else debugString += $"{nameof(linkedMeshInteractor)} = null\n";
 
-            debugString += $"{nameof(linkedMeshInteractor)} is null: {linkedMeshInteractor == null}\n";
-            if(linkedMeshInteractor) debugString += $"{nameof(linkedMeshInteractor.LinkedMeshController)} is null: {linkedMeshInteractor.LinkedMeshController == null}\n";
-        }
+        if (linkedMeshInteractor && linkedMeshInteractor.LinkedMeshController) debugString += linkedMeshInteractor.LinkedMeshController.DebugState() + "\n";
+        else debugString += $"{nameof(linkedMeshInteractor.LinkedMeshController)} = null\n";
 
-        debugString += LinkedInteractorController.MultiLineDebugState();
+        if (linkedSyncController) debugString += linkedSyncController.DebugState() + "\n";
+        else debugString += $"{nameof(linkedSyncController)} = null\n";
+
+        debugString += $"{LinkedInteractorController.MultiLineDebugState()}\n";
 
         debugText.text = debugString;
     }

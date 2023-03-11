@@ -1,7 +1,10 @@
-﻿using UdonSharp;
+﻿//#define enableLimitControls
+
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
@@ -15,6 +18,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //Runtime variables
         MeshController linkedMeshController;
         MeshBuilderInterface linkedInterface;
+
+        int syncLimitPerSecondVRChat = 11000; //Source (Not sure if bit or byte, but it seems to work well when using a syncLimitThreshold of 0.4: https://docs.vrchat.com/docs/network-details
+
+        float syncLimitThreshold = 0.4f;
 
         public void Setup(MeshController linkedMeshController, MeshBuilderInterface linkedInterface)
         {
@@ -30,14 +37,78 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        bool queueSync = false;
+
+        float lastSync = 0;
+        float nextSync = Mathf.Infinity;
+
+        SerializationResult lastPostSerializationResult;
+
+        public string DebugState()
+        {
+            string returnString = "";
+
+            returnString += $"Debug output of {nameof(MeshSyncController)} at {Time.time}:\n";
+            returnString += $"Is owner: {Networking.IsOwner(gameObject)}\n";
+            returnString += $"{nameof(lastPostSerializationResult)}:\n";
+            returnString += $"{nameof(lastPostSerializationResult.success)}: {lastPostSerializationResult.success}\n";
+            returnString += $"{nameof(lastPostSerializationResult.byteCount)}: {lastPostSerializationResult.byteCount}\n";
+            returnString += $"{nameof(syncLimitThreshold)}: {syncLimitThreshold}\n";
+            returnString += $"{nameof(MinTimeBetweenSync)}: {MinTimeBetweenSync}\n";
+
+            return returnString;
+        }
+
+        float MinTimeBetweenSync
+        {
+            get
+            {
+                return lastPostSerializationResult.byteCount / (syncLimitPerSecondVRChat * syncLimitThreshold);
+            }
+        }
+
+        private void Update()
+        {
+            #if enableLimitControls
+            if(Input.GetKeyDown(KeyCode.KeypadPlus)) syncLimitThreshold *= 1.25f; 
+            if(Input.GetKeyDown(KeyCode.KeypadMinus)) syncLimitThreshold *= 0.8f; 
+            #endif
+
+            if (!queueSync) return;
+
+            if(Time.time > nextSync)
+            {
+                queueSync = false;
+                RequestSerialization();
+            }
+        }
+
         public void Sync()
         {
             if (!IsOwner) return;
 
+            if(lastSync + MinTimeBetweenSync < Time.time)
+            {
+                RequestSerialization();
+            }
+            else
+            {
+                queueSync = true;
+                nextSync = lastSync + MinTimeBetweenSync;
+            }
+        }
+
+        public override void OnPreSerialization()
+        {
             vertices = linkedMeshController.Vertices;
             triangles = linkedMeshController.Triangles;
 
-            RequestSerialization();
+            lastSync = Time.time;
+        }
+
+        public override void OnPostSerialization(SerializationResult result)
+        {
+            lastPostSerializationResult = result;
         }
 
         public void RequestOwnership()
