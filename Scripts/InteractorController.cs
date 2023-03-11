@@ -128,6 +128,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     if (LinkedVRHandIndicator) Destroy(LinkedVRHandIndicator.gameObject);
                 }
             }
+
+            InEditMode = linkedMeshInteractor.InEditMode;
         }
 
         private void Update()

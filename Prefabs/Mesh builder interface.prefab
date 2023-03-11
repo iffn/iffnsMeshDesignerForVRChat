@@ -2582,7 +2582,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: UpdateInteractionDistance
+          m_StringArgument: UpdateInteractionOffset
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &894091375815894888
@@ -8405,7 +8405,7 @@ MonoBehaviour:
   SymmetryModeToggle: {fileID: 1235934719612860765}
   ShowInteractionLocationToggle: {fileID: 6289804812167971070}
   ShowScalingIndicatorToggle: {fileID: 6289804812167971070}
-  interactionDistanceSlider: {fileID: 7085278775309747580}
+  interactionOffsetSlider: {fileID: 7085278775309747580}
   WireframeMaterial: {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
   NonWireframeMaterial: {fileID: 2100000, guid: 777141dbe50247c40a1a5e779733923f,
     type: 2}

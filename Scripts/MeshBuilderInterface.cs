@@ -16,7 +16,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
     [SerializeField] Toggle SymmetryModeToggle;
     [SerializeField] Toggle ShowInteractionLocationToggle;
     [SerializeField] Toggle ShowScalingIndicatorToggle;
-    [SerializeField] Slider interactionDistanceSlider;
+    [SerializeField] Slider interactionOffsetSlider;
     [SerializeField] Material WireframeMaterial;
     [SerializeField] Material NonWireframeMaterial;
     [SerializeField] ObjConterter LinkedObjConverter;
@@ -166,9 +166,9 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         //ToDo
     }
 
-    public void UpdateInteractionDistance()
+    public void UpdateInteractionOffset()
     {
-        linkedMeshInteractor.VertexInteractionDistance = interactionDistanceSlider.value;
+        linkedMeshInteractor.vertexInteractionOffset = interactionOffsetSlider.value;
     }
 
     public void InderactorSizeX1o25()

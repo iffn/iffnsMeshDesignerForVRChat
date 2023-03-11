@@ -81,6 +81,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(inputDropWorks)}: {inputDropWorks}\n";
             returnString += $"Number of interactors: {vertexIndicators.Length}\n";
             returnString += $"{nameof(primaryHand)}: {primaryHand}\n";
+            returnString += $"{nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n";
+            if(isInVR) returnString += $"{nameof(vertexInteractionOffset)} (VR Only): {vertexInteractionOffset}\n";
             returnString += $"{nameof(updateFPSForDebug)}: {updateFPSForDebug:0}\n";
 
             return returnString;
@@ -261,6 +263,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 return transform.InverseTransformPoint(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position);
             }
         }
+
         float vertexInteractionDistance = 0.02f;
         public float VertexInteractionDistance
         {
@@ -280,6 +283,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 vertexInteractionDistance = value;
             }
         }
+
+        public float vertexInteractionOffset = 0.05f;
+
         public Vector3 InteractionPosition
         {
             get
@@ -290,13 +296,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     {
                         VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
 
-                        return hand.position + vertexInteractionDistance * (hand.rotation * InteractorOffsetVector.normalized);
+                        return hand.position + vertexInteractionOffset * (hand.rotation * InteractorOffsetVector.normalized);
                     }
                     else
                     {
                         VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
 
-                        return hand.position + vertexInteractionDistance * (hand.rotation * InteractorOffsetVector.normalized);
+                        return hand.position + vertexInteractionOffset * (hand.rotation * InteractorOffsetVector.normalized);
                     }
                 }
                 else
