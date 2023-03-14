@@ -119,12 +119,8 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         linkedMeshInteractor.UpdateMesh(true);
     }
 
-    bool skipEvent = false;
-
     public void ToggleEditMesh()
     {
-        if (skipEvent) return;
-
         if(linkedMeshInteractor == null)
         {
             Debug.LogWarning("Error: LinkedMeshBuilder is null");
@@ -145,9 +141,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
             }
             else
             {
-                skipEvent = true;
-                EditMeshToggle.isOn = false;
-                skipEvent = false;
+                EditMeshToggle.SetIsOnWithoutNotify(false);// = false;
             }
         }
         else
