@@ -36,16 +36,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return returnString;
         }
 
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
-        }
-
         public override void OnActivation()
         {
             closestVertex = -1;
             secondClosestVertex = -1;
-            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
@@ -61,7 +55,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnUseDown()
         {
-            int interactedVertex = LinkedMeshInteractor.SelectVertex();
+            int interactedVertex = SelectVertex();
 
             if (interactedVertex != -1)
             {
@@ -87,8 +81,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    LinkedMeshController.TryRemoveTriangle(closestVertex, secondClosestVertex, interactedVertex);
-                    LinkedMeshInteractor.UpdateMesh(true);
+                    LinkedInteractionProvider.RemoveTriangle(closestVertex, secondClosestVertex, interactedVertex, true);
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
@@ -97,27 +90,42 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
-            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Selected);
+            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Normal);
+            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
             closestVertex = -1;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Selected);
+            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Normal);
+            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
             secondClosestVertex = -1;
+        }
+
+        public override void OnPickupUse()
+        {
+            
+        }
+
+        public override void OnDropUse()
+        {
+            
+        }
+
+        public override void OnUseUp()
+        {
+            
         }
     }
 }

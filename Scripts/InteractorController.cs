@@ -11,6 +11,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class InteractorController : UdonSharpBehaviour
     {
+        //Note: Obsolete with new architecture
+
         [Header("Unity assingments general")]
         [SerializeField] MeshEditTool[] EditTools;
 
@@ -91,7 +93,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             foreach(MeshEditTool tool in EditTools)
             {
-                tool.Setup(linkedMeshInteractor);
+                //tool.Setup(linkedMeshInteractor);
             }
 
             if (buttons == null)

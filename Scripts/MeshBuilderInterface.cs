@@ -4,11 +4,12 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 using UnityEngine.UI;
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using iffnsStuff.iffnsVRCStuff.MeshBuilder;
 
 public class MeshBuilderInterface : UdonSharpBehaviour
 {
+    //Note: Obsolete with new architecture
+
     //Unity setup
     [Header("Unity assingments")]
     [SerializeField] Toggle UseWireframeMaterialToggle;

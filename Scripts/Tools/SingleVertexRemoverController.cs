@@ -34,15 +34,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return returnString;
         }
 
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
-        }
-
         public override void OnActivation()
         {
             activeVertex= -1;
-            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
@@ -57,29 +51,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnUseDown()
         {
-            int interactedVertex = LinkedMeshInteractor.SelectVertex();
+            int interactedVertex = SelectVertex();
 
             if (interactedVertex != -1)
             {
                 if(activeVertex == -1)
                 {
                     //Select vertex
-                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.ReadyToDelete);
+                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
                     activeVertex = interactedVertex;
                 }
                 else if(interactedVertex != activeVertex)
                 {
                     //Reselect vertex
-                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
+                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
                     activeVertex = interactedVertex;
-                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.ReadyToDelete);
+                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
                 }
                 else
                 {
                     //Remove vertex
-                    LinkedMeshInteractor.SetVertexIndicatorState(interactedVertex, VertexSelectStates.Normal);
-                    LinkedMeshController.RemoveVertexClean(activeVertex);
-                    LinkedMeshInteractor.UpdateMesh(true);
+                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.Normal);
+                    LinkedInteractionProvider.RemoveVertex(activeVertex);
                 }
             }
             else
@@ -87,12 +80,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex >= 0)
                 {
                     //Deselect vertex
-                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
+                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
 
                     activeVertex = -1;
                 }
                 
             }
+        }
+
+        public override void OnPickupUse()
+        {
+            
+        }
+
+        public override void OnDropUse()
+        {
+            
+        }
+
+        public override void OnUseUp()
+        {
+            
         }
     }
 }

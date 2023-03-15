@@ -36,36 +36,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return returnString;
         }
 
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
-        }
-
         public override void OnActivation()
         {
             activeVertex = -1;
-            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
         {
-
+            activeVertex = -1;
         }
 
         public override void UpdateWhenActive()
         {
             if (!CallUseInsteadOfPickup) return;
 
-            Vector3 localPosition = LinkedMeshInteractor.LocalInteractionPositionWithMirror;
+            Vector3 localPosition = InteractionPositionWithMirrorLineSnap;
 
-            LinkedMeshInteractor.MoveVertexToLocalPosition(activeVertex, localPosition);
-
-            LinkedMeshInteractor.UpdateMesh(false);
+            LinkedInteractionProvider.MoveVertexToPosition(activeVertex, localPosition, true);
         }
 
         public override void OnPickupUse()
         {
-            activeVertex = LinkedMeshInteractor.SelectVertex();
+            activeVertex = SelectVertex();
         }
 
         public override void OnDropUse()
@@ -75,7 +67,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnUseDown()
         {
-            int interactedVertex = LinkedMeshInteractor.SelectVertex();
+            int interactedVertex = SelectVertex();
 
             if (interactedVertex == activeVertex)
             {
@@ -85,12 +77,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             else
             {
                 //Select different one = Merge
-                LinkedMeshController.MergeVertices(interactedVertex, activeVertex, true);
-
-                LinkedMeshInteractor.UpdateMesh(true);
+                LinkedInteractionProvider.MergeVertices(interactedVertex, activeVertex, true);
 
                 activeVertex = -1;
             }
+        }
+
+        public override void OnUseUp()
+        {
+            
         }
     }
 }

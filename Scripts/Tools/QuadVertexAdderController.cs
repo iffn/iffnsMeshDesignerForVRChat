@@ -29,8 +29,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         Vector3 activeVertexPosition = Vector3.zero;
 
-        Vector3 localHandPosition;
-
         int[] connectedVertices;
         Vector3[] connectedVertexPositions;
 
@@ -42,7 +40,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
             returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
             returnString += $"{nameof(activeVertexPosition)} = {activeVertexPosition}\n";
-            returnString += $"{nameof(localHandPosition)} = {localHandPosition}\n";
 
             if(connectedVertices != null) returnString += $"{nameof(connectedVertices)}.length = {connectedVertices.Length}\n";
             else returnString += $"{nameof(connectedVertices)} = null\n";
@@ -53,23 +50,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return returnString;
         }
 
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
-        }
-
         public override void OnActivation()
         {
             activeVertex = -1;
             closestVertex= -1;
             secondClosestVertex = -1;
-            LinkedMeshInteractor.ShowLineRenderer = false;
+            LinkedInteractionProvider.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
         {
-            if (activeVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
-            LinkedMeshInteractor.ShowLineRenderer = false;
+            if (activeVertex >= 0) LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+            LinkedInteractionProvider.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
@@ -82,7 +74,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             float closestDistance = Mathf.Infinity;
             float secondclosestDistance = Mathf.Infinity;
 
-            localHandPosition = LinkedMeshInteractor.LocalInteractionPositionWithMirror;
+            Vector3 localHandPosition = InteractionPositionWithMirrorLineSnap;
 
             for (int i = 0; i < connectedVertices.Length; i++)
             {
@@ -113,18 +105,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            localHandPosition = LinkedMeshInteractor.LocalInteractionPositionWithMirror;
-
-            LinkedMeshInteractor.SetLocalLineRendererPositions(
+            LinkedInteractionProvider.SetLineRendererPositions(
                 new Vector3[] { connectedVertexPositions[closestVertex], localHandPosition, activeVertexPosition, localHandPosition, connectedVertexPositions[secondClosestVertex] }
                 , false);
         }
 
         void Deselect()
         {
-            if (activeVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Normal);
+            if (activeVertex >= 0) LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
 
-            LinkedMeshInteractor.ShowLineRenderer = false;
+            LinkedInteractionProvider.ShowLineRenderer = false;
 
             activeVertex = -1;
             closestVertex = -1;
@@ -133,7 +123,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnUseDown()
         {
-            int interactedVertex = LinkedMeshInteractor.SelectVertex();
+            int interactedVertex = SelectVertex();
 
             if (interactedVertex != -1)
             {
@@ -141,17 +131,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     //Select current
                     activeVertex = interactedVertex;
-                    activeVertexPosition = LinkedMeshController.Vertices[activeVertex];
-                    LinkedMeshInteractor.SetVertexIndicatorState(activeVertex, VertexSelectStates.Selected);
-                    LinkedMeshInteractor.ShowLineRenderer = true;
+                    activeVertexPosition = GetLocalVertexPositionFromIndex(activeVertex);
+                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Selected);
+                    LinkedInteractionProvider.ShowLineRenderer = true;
 
-                    connectedVertices = LinkedMeshController.GetConnectedVertices(interactedVertex);
+                    connectedVertices = GetConnectedVertices(activeVertex);
                     connectedVertexPositions = new Vector3[connectedVertices.Length];
 
-                    for(int i = 0; i <connectedVertices.Length; i++)
-                    {
-                        connectedVertexPositions[i] = LinkedMeshController.Vertices[connectedVertices[i]];
-                    }
+                    connectedVertexPositions = GetPositionsFromIndexes(connectedVertices);
 
                 }
                 else if (activeVertex == interactedVertex)
@@ -163,21 +150,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     //Merge with vertex
 
-                    Vector3 localHeadPosition = LinkedMeshInteractor.LocalHeadPosition;
+                    Vector3 headPosition = HeadPosition;
 
-                    if(interactedVertex != connectedVertices[closestVertex])
+                    if (interactedVertex != connectedVertices[closestVertex])
                     {
-                        LinkedMeshController.AddPlayerFacingTriangle(activeVertex, connectedVertices[closestVertex], interactedVertex, localHeadPosition);
+                        LinkedInteractionProvider.AddPointFacingTriangle(activeVertex, interactedVertex, closestVertex, headPosition, false);
                     }
 
                     if(interactedVertex != connectedVertices[secondClosestVertex])
                     {
-                        LinkedMeshController.AddPlayerFacingTriangle(activeVertex, connectedVertices[secondClosestVertex], interactedVertex, localHeadPosition);
+                        LinkedInteractionProvider.AddPointFacingTriangle(activeVertex, interactedVertex, secondClosestVertex, headPosition, false);
                     }
 
-                    Deselect();
+                    LinkedInteractionProvider.UpdateMeshFromData();
 
-                    LinkedMeshInteractor.UpdateMesh(false);
+                    Deselect();
                 }
             }
             else
@@ -185,15 +172,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (closestVertex >= 0 && secondClosestVertex >= 0)
                 {
                     //Add new vertex
-                    LinkedMeshController.AddVertex(localHandPosition, connectedVertices[closestVertex], activeVertex, LinkedMeshInteractor.LocalHeadPosition);
-                    LinkedMeshController.AddPlayerFacingTriangle(LinkedMeshController.Vertices.Length - 1, connectedVertices[secondClosestVertex], activeVertex, LinkedMeshInteractor.LocalHeadPosition);
+                    LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { activeVertex, closestVertex, secondClosestVertex }, true);
                 }
-                
-                LinkedMeshInteractor.UpdateMesh(true);
 
                 Deselect();
             }
+        }
 
+        public override void OnPickupUse()
+        {
+            
+        }
+
+        public override void OnDropUse()
+        {
+            
+        }
+
+        public override void OnUseUp()
+        {
             
         }
     }

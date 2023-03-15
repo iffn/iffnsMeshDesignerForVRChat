@@ -25,7 +25,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 Debug.LogWarning($"Error: {nameof(InteractionTypeSelectorButton)} called {gameObject.name} is not correctly set up");
             }
 
-            LinkedImage.sprite = linkedTool.LinkedSprite;
+            LinkedImage.sprite = linkedTool.Icon;
         }
 
         public void Use()

@@ -28,6 +28,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public float Radius
+        {
+            set
+            {
+                transform.localScale = value * Vector3.one;
+            }
+        }
+
         public void SetInfo(int index, Vector3 localPosition)
         {
             this.index = index;

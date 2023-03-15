@@ -30,8 +30,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         Vector3 closestVertexPosition = Vector3.zero;
         Vector3 secondClosestVertexPosition = Vector3.zero;
 
-        Vector3 localHandPosition;
-
         public override string MultiLineDebugState()
         {
             string returnString = base.MultiLineDebugState();
@@ -40,44 +38,34 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
             returnString += $"{nameof(closestVertexPosition)} = {closestVertexPosition}\n";
             returnString += $"{nameof(secondClosestVertexPosition)} = {secondClosestVertexPosition}\n";
-            returnString += $"{nameof(localHandPosition)} = {localHandPosition}\n";
 
             return returnString;
-        }
-
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
         }
 
         public override void OnActivation()
         {
             closestVertex = -1;
             secondClosestVertex = -1;
-            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
         {
             DeselectClosestVertex();
             DeselectSecondClosestVertex();
-            LinkedMeshInteractor.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
         {
             if (closestVertex == -1 || secondClosestVertex == -1) return;
 
-            localHandPosition = LinkedMeshInteractor.LocalInteractionPositionWithMirror;
-
-            LinkedMeshInteractor.SetLocalLineRendererPositions(
-                new Vector3[] { localHandPosition, closestVertexPosition, secondClosestVertexPosition }
+            LinkedInteractionProvider.SetLineRendererPositions(
+                new Vector3[] { InteractionPositionWithMirrorLineSnap, closestVertexPosition, secondClosestVertexPosition }
                 , true);
         }
 
         public override void OnUseDown()
         {
-            int interactedVertex = LinkedMeshInteractor.SelectVertex();
+            int interactedVertex = SelectVertex();
 
             if (interactedVertex != -1)
             {
@@ -100,8 +88,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 else
                 {
                     //Add triangle instead of new vertex
-                    LinkedMeshController.AddPlayerFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, LinkedMeshInteractor.LocalHeadPosition);
-                    LinkedMeshInteractor.UpdateMesh(true);
+                    LinkedInteractionProvider.AddPointFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, HeadPosition, true);
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
@@ -111,42 +98,56 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (closestVertex == -1 || secondClosestVertex == -1) return;
 
                 //Add new vertex
-                LinkedMeshController.AddVertex(localHandPosition, closestVertex, secondClosestVertex, LinkedMeshInteractor.LocalHeadPosition);
-                LinkedMeshInteractor.UpdateMesh(true);
+                LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { closestVertex, secondClosestVertex }, true);
 
                 DeselectClosestVertex();
                 DeselectSecondClosestVertex();
             }
 
-            LinkedMeshInteractor.ShowLineRenderer = (closestVertex >= 0 && secondClosestVertex >= 0);
+            LinkedInteractionProvider.ShowLineRenderer = (closestVertex >= 0 && secondClosestVertex >= 0);
         }
 
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
-            closestVertexPosition = LinkedMeshController.Vertices[vertex];
-            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Selected);
+            closestVertexPosition = GetLocalVertexPositionFromIndex(vertex);
+            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Normal);
+            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
             closestVertex = -1;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            secondClosestVertexPosition = LinkedMeshController.Vertices[vertex];
-            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Selected);
+            secondClosestVertexPosition = GetLocalVertexPositionFromIndex(vertex);
+            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Normal);
+            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
             secondClosestVertex = -1;
+        }
+
+        public override void OnPickupUse()
+        {
+            
+        }
+
+        public override void OnDropUse()
+        {
+            
+        }
+
+        public override void OnUseUp()
+        {
+            
         }
     }
 }

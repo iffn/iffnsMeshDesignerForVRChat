@@ -7,38 +7,73 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public abstract class MeshEditTool : UdonSharpBehaviour
     {
-        [SerializeField] Sprite Sprite;
+        [SerializeField] Sprite icon;
 
-        public abstract bool CallUseInsteadOfPickup { get; }
+        //Runtime variables
+        MeshEditor linkedMeshEditor;
+        ToolController linkedToolController;
+        protected MeshInteractionProvider LinkedInteractionProvider { get; private set; }
 
-        public abstract string ToolName { get; }
+        public void Setup(ToolController linkedToolController, MeshEditor linkedMeshInteractor, MeshInteractionProvider interactionProvider)
+        {
+            this.linkedToolController = linkedToolController;
+            this.linkedMeshEditor = linkedMeshInteractor;
+            this.LinkedInteractionProvider = interactionProvider;
+        }
 
-        public Sprite LinkedSprite
+        public Sprite Icon
         {
             get
             {
-                return Sprite;
+                return icon;
             }
         }
 
-        public bool isInVR { get; private set; }
-        public MeshInteractor LinkedMeshInteractor { get; private set; }
-        public MeshController LinkedMeshController { get; private set; }
-
-        public virtual void Setup(MeshInteractor linkedMeshInteractor)
+        //Mesh information access
+        protected Vector3 HeadPosition
         {
-            LinkedMeshInteractor = linkedMeshInteractor;
-            LinkedMeshController = linkedMeshInteractor.LinkedMeshController;
-            isInVR = Networking.LocalPlayer.IsUserInVR();
+            get
+            {
+                return linkedToolController.LocalHeadPosition;
+            }
         }
 
-        public abstract void UpdateWhenActive();
+        protected Vector3 InteractionPositionWithoutMirrorLineSnap
+        {
+            get
+            {
+                return linkedToolController.LocalInteractionPositionWithoutMirrorLineSnap;
+            }
+        }
 
-        public abstract void OnActivation();
-        public abstract void OnDeactivation();
+        protected Vector3 InteractionPositionWithMirrorLineSnap
+        {
+            get
+            {
+                return linkedToolController.LocalInteractionPositionWithMirrorLineSnap;
+            }
+        }
 
-        //public abstract void InteractWithVertex(int vertex);
-        
+        protected int SelectVertex()
+        {
+            return linkedToolController.SelectVertex();
+        }
+
+        protected Vector3 GetLocalVertexPositionFromIndex(int index)
+        {
+            return linkedMeshEditor.GetLocalVertexPositionFromIndex(index);
+        }
+
+        protected int[] GetClosestVertices(Vector3 position, int count)
+        {
+            return linkedMeshEditor.GetClosestVertices(position, count);
+        }
+
+        protected int[] GetConnectedVertices(int index)
+        {
+            return linkedMeshEditor.GetConnectedVertices(index);
+        }
+
         public virtual string MultiLineDebugState()
         {
             string returnString = $"Debug of {ToolName} at {Time.time}:\n";
@@ -48,25 +83,31 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return returnString;
         }
 
-        public virtual void OnPickupUse()
+        protected Vector3[] GetPositionsFromIndexes(int[] vertices)
         {
+            Vector3[] positions = new Vector3[vertices.Length];
 
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                positions[i] = GetLocalVertexPositionFromIndex(vertices[i]);
+            }
+
+            return positions;
         }
 
-        public virtual void OnDropUse()
-        {
+        //For override
+        public abstract string ToolName { get; }
 
-        }
+        public abstract bool CallUseInsteadOfPickup { get; }
 
-        public virtual void OnUseDown()
-        {
+        public abstract void OnActivation();
+        public abstract void OnDeactivation();
+        public abstract void UpdateWhenActive();
 
-        }
-
-        public virtual void OnUseUp()
-        {
-
-        }
+        public abstract void OnPickupUse();
+        public abstract void OnDropUse();
+        public abstract void OnUseDown();
+        public abstract void OnUseUp();
     }
 
     public enum TriggerFunction

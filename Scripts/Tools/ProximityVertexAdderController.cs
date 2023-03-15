@@ -23,90 +23,61 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        int closestVertex = -1;
-        int secondClosestVertex = -1;
-        Vector3 localHandPosition;
+        int[] vertices = new int[0];
 
         public override string MultiLineDebugState()
         {
             string returnString = base.MultiLineDebugState();
 
-            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
-            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
-            returnString += $"{nameof(localHandPosition)} = {localHandPosition}\n";
+            returnString += $"Vertex index length = {vertices.Length}\n";
 
             return returnString;
         }
 
-        public override void Setup(MeshInteractor linkedMeshInteractor)
-        {
-            base.Setup(linkedMeshInteractor);
-        }
-
         public override void OnActivation()
         {
-            closestVertex = -1;
-            secondClosestVertex = -1;
-            LinkedMeshInteractor.ShowLineRenderer = true;
+            vertices = new int[0];
+            LinkedInteractionProvider.ShowLineRenderer = true;
         }
 
         public override void OnDeactivation()
         {
-            if(closestVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(closestVertex, VertexSelectStates.Normal);
-            if(secondClosestVertex >= 0) LinkedMeshInteractor.SetVertexIndicatorState(secondClosestVertex, VertexSelectStates.Normal);
+            
 
-            LinkedMeshInteractor.ShowLineRenderer = false;
+            LinkedInteractionProvider.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
         {
-            Vector3[] vertices = LinkedMeshController.Vertices;
+            vertices = GetClosestVertices(InteractionPositionWithMirrorLineSnap, 2);
 
-            closestVertex = -1;
-            secondClosestVertex = -1;
+            if (vertices.Length != 2) return;
 
-            float closestDistance = Mathf.Infinity;
-            float secondclosestDistance = Mathf.Infinity;
-
-            localHandPosition = LinkedMeshInteractor.LocalInteractionPositionWithMirror;
-
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Vector3 currentPosition = vertices[i];
-
-                float distance = (localHandPosition - currentPosition).magnitude;
-
-                //Override second
-                if (distance < secondclosestDistance)
-                {
-                    secondclosestDistance = distance;
-                    secondClosestVertex = i;
-                }
-
-                //Swap
-                if (secondclosestDistance < closestDistance)
-                {
-                    float tempD = secondclosestDistance;
-                    int tempV = secondClosestVertex;
-
-                    secondclosestDistance = closestDistance;
-                    secondClosestVertex = closestVertex;
-
-                    closestDistance = tempD;
-                    closestVertex = tempV;
-                }
-            }
-
-            LinkedMeshInteractor.SetLocalLineRendererPositions(new Vector3[] { localHandPosition, vertices[closestVertex], vertices[secondClosestVertex] }, true);
+            LinkedInteractionProvider.SetLineRendererPositions(GetPositionsFromIndexes(vertices), true);
         }
 
         public override void OnUseDown()
         {
-            if (closestVertex == -1) return;
-            if (secondClosestVertex == -1) return;
+            if(vertices.Length != 2) return;
 
-            LinkedMeshController.AddVertex(localHandPosition, closestVertex, secondClosestVertex, LinkedMeshInteractor.LocalHeadPosition);
-            LinkedMeshInteractor.UpdateMesh(true);
+            LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, vertices, true);
+
+            vertices = new int[0];
+        }
+
+        public override void OnPickupUse()
+        {
+            
+        }
+
+        public override void OnDropUse()
+        {
+            
+        }
+
+        public override void OnUseUp()
+        {
+            
         }
     }
 }
