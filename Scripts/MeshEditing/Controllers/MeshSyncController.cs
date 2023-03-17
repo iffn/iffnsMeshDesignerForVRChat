@@ -119,7 +119,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //VRChat events
         public override void OnDeserialization()
         {
-            linkedMeshController.SetData(vertices, triangles);
+            linkedMeshController.SetData(vertices, triangles, this);
         }
 
         public override void OnOwnershipTransferred(VRCPlayerApi player)

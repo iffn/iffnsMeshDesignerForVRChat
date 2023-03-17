@@ -10,17 +10,53 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Unity assingments")]
         [SerializeField] Scaler LinkedScaler;
-        [SerializeField] Toggle LockMovementAndRotationtOption;
-        [SerializeField] Toggle LockRotationOnlyOption;
-        [SerializeField] Toggle AllowHeadingRotationOption;
-        [SerializeField] Toggle AllowFullRotationOption;
-        [SerializeField] Toggle ShowSymmetryMeshToggle;
+        [SerializeField] GameObject ScalerTitleVR;
+        [SerializeField] GameObject ScalerTitleDesktop;
 
-        
+        [SerializeField] ScalerLockStateOption[] ScalerLockStateOptions;
 
-        void UpdateFromUI()
+        ScalerLockStateOption currentLockStateController;
+
+        void Setup()
         {
+            //Set display text
+            if (Networking.LocalPlayer.IsUserInVR())
+            {
+                ScalerTitleVR.SetActive(true);
+                ScalerTitleDesktop.SetActive(false);
+            }
+            else
+            {
+                ScalerTitleVR.SetActive(false);
+                ScalerTitleDesktop.SetActive(true);
+            }
 
+            //Set default value
+            if (currentLockStateController) currentLockStateController.SetToggleState(false);
+            
+            foreach(ScalerLockStateOption option in ScalerLockStateOptions)
+            {
+                option.Setup(this);
+            }
+
+            currentLockStateController = ScalerLockStateOptions[1];
+            currentLockStateController.SetToggleState(true);
+            LinkedScaler.currentLockState = currentLockStateController.LockState;
+        }
+
+        //VRChat UI calls
+        public void SetLockState(ScalerLockStateOption calledLockStateController)
+        {
+            if (currentLockStateController) currentLockStateController.SetToggleState(false);
+
+            LinkedScaler.currentLockState = calledLockStateController.LockState;
+
+            currentLockStateController = calledLockStateController;
+        }
+
+        public void ResetViewScale()
+        {
+            LinkedScaler.ResetScale();
         }
     }
 }

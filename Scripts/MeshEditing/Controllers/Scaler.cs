@@ -19,6 +19,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         Vector3 originalLocalPosition;
         Vector3 originalLocalScale;
 
+        public ScalerLockStates currentLockState = ScalerLockStates.LockRotationOnly;
+
         public void ResetScale()
         {
             if (isScaling)
@@ -102,13 +104,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
     }
 
-    enum ScalerLockStates
+    public enum ScalerLockStates
     {
         LockMovementAndRotationt,
         LockRotationOnly,
         AllowHeadingRotation,
-        AllowFullRotation,
-        ShowSymmetryMesh
+        AllowFullRotation
     }
 }
 

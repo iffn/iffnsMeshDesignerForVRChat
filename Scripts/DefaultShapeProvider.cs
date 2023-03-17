@@ -1,38 +1,21 @@
-﻿
-using iffnsStuff.iffnsVRCStuff.MeshBuilder;
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class DefaultShapeProvider : UdonSharpBehaviour
+namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    [SerializeField] MeshConverterController LinkedMeshConverterController;
-
-    [SerializeField, TextArea(1, 10)] string Quad;
-    [SerializeField, TextArea(1, 10)] string CubeUnmerged;
-    [SerializeField, TextArea(1, 10)] string CubeMerged;
-    [SerializeField, TextArea(1, 10)] string BreakTest;
-
-    public void ImportQuad()
+    public class DefaultShapeProvider : UdonSharpBehaviour
     {
-        LinkedMeshConverterController.ImportObj(Quad);
-    }
+        [SerializeField] MeshConverterController LinkedMeshConverterController;
 
-    public void ImportCubeUnmerged()
-    {
-        LinkedMeshConverterController.ImportObj(CubeUnmerged);
-    }
+        [SerializeField, TextArea(1, 10)] string ImportText;
 
-    public void ImportCubeMerged()
-    {
-        LinkedMeshConverterController.ImportObj(CubeMerged);
-    }
-
-    public void ImportBreakTest()
-    {
-        LinkedMeshConverterController.ImportObj(BreakTest);
+        public void Import()
+        {
+            LinkedMeshConverterController.ImportObj(ImportText);
+        }
     }
 }

@@ -10,12 +10,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     //[RequireComponent(typeof(MeshFilter))]
     public class MeshController : UdonSharpBehaviour
     {
-        [Header("Debug info")]
+        [Header("Unity assignments")]
+        [SerializeField] MeshEditor LinkedMeshEditor;
+        [SerializeField] MeshSyncController LinkedSyncController;
+
         Vector3[] vertices = new Vector3[0];
         int[] triangles = new int[0];
 
         bool setupCalled = false;
         float lastUpdateTime = Mathf.NegativeInfinity;
+
+
 
         public float LastUpdateTime
         {
@@ -87,12 +92,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public void SetData(Vector3[] vertices, int[] triangles)
+        public void SetData(Vector3[] vertices, int[] triangles, UdonSharpBehaviour sender)
         {
             this.vertices = vertices;
             this.triangles = triangles;
 
             BuildMeshFromData();
+
+            //Inform listeners
+            if (sender != LinkedMeshEditor) LinkedMeshEditor.UpdateFromMesh();
+            if (sender != LinkedSyncController) LinkedSyncController.Sync();
         }
 
         public int[] GetConnectedVertices(int index)

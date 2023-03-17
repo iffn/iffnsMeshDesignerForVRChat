@@ -299,7 +299,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void UpdateMeshFromDataInteraction()
         {
-            LinkedMeshController.SetData(vertices, triangles);
+            LinkedMeshController.SetData(vertices, triangles, this);
         }
 
         public void MergeOverlappingVertices(float threshold)
