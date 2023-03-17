@@ -107,7 +107,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             LinkedInteractorController.Setup(LinkedMeshInteractor);
 
-            LinkedSyncController.Setup(LinkedMeshController, LinkedBuilderInterface);
+            //LinkedSyncController.Setup(LinkedMeshController, LinkedBuilderInterface);
         }
 
         void CheckIfStillRunning()

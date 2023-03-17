@@ -52,7 +52,7 @@ public class MeshBuilderInterface : UdonSharpBehaviour
         }
 
 
-        LinkedObjConverter.Setup(this.linkedMeshInteractor, linkedSyncController);
+        //LinkedObjConverter.Setup();
     }
 
     private void Update()

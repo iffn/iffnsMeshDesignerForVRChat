@@ -12,13 +12,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //Runtime variables
         MeshEditor linkedMeshEditor;
         ToolController linkedToolController;
-        protected MeshInteractionProvider LinkedInteractionProvider { get; private set; }
+        protected MeshInteractionInterface LinkedInteractionInterface { get; private set; }
 
-        public void Setup(ToolController linkedToolController, MeshEditor linkedMeshInteractor, MeshInteractionProvider interactionProvider)
+        public void Setup(ToolController linkedToolController, MeshEditor linkedMeshEditor, MeshInteractionInterface interactionInterface)
         {
             this.linkedToolController = linkedToolController;
-            this.linkedMeshEditor = linkedMeshInteractor;
-            this.LinkedInteractionProvider = interactionProvider;
+            this.linkedMeshEditor = linkedMeshEditor;
+            this.LinkedInteractionInterface = interactionInterface;
         }
 
         public Sprite Icon

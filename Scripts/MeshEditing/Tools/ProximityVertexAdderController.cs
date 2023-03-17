@@ -37,14 +37,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnActivation()
         {
             vertices = new int[0];
-            LinkedInteractionProvider.ShowLineRenderer = true;
+            LinkedInteractionInterface.ShowLineRenderer = true;
         }
 
         public override void OnDeactivation()
         {
             
 
-            LinkedInteractionProvider.ShowLineRenderer = false;
+            LinkedInteractionInterface.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
@@ -53,14 +53,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (vertices.Length != 2) return;
 
-            LinkedInteractionProvider.SetLineRendererPositions(GetPositionsFromIndexes(vertices), true);
+            LinkedInteractionInterface.SetLineRendererPositions(GetPositionsFromIndexes(vertices), true);
         }
 
         public override void OnUseDown()
         {
             if(vertices.Length != 2) return;
 
-            LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, vertices, true);
+            LinkedInteractionInterface.AddVertex(InteractionPositionWithMirrorLineSnap, vertices, true);
 
             vertices = new int[0];
         }

@@ -55,13 +55,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             activeVertex = -1;
             closestVertex= -1;
             secondClosestVertex = -1;
-            LinkedInteractionProvider.ShowLineRenderer = false;
+            LinkedInteractionInterface.ShowLineRenderer = false;
         }
 
         public override void OnDeactivation()
         {
-            if (activeVertex >= 0) LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
-            LinkedInteractionProvider.ShowLineRenderer = false;
+            if (activeVertex >= 0) LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+            LinkedInteractionInterface.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
@@ -105,16 +105,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
 
-            LinkedInteractionProvider.SetLineRendererPositions(
+            LinkedInteractionInterface.SetLineRendererPositions(
                 new Vector3[] { connectedVertexPositions[closestVertex], localHandPosition, activeVertexPosition, localHandPosition, connectedVertexPositions[secondClosestVertex] }
                 , false);
         }
 
         void Deselect()
         {
-            if (activeVertex >= 0) LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+            if (activeVertex >= 0) LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
 
-            LinkedInteractionProvider.ShowLineRenderer = false;
+            LinkedInteractionInterface.ShowLineRenderer = false;
 
             activeVertex = -1;
             closestVertex = -1;
@@ -132,8 +132,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     //Select current
                     activeVertex = interactedVertex;
                     activeVertexPosition = GetLocalVertexPositionFromIndex(activeVertex);
-                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Selected);
-                    LinkedInteractionProvider.ShowLineRenderer = true;
+                    LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Selected);
+                    LinkedInteractionInterface.ShowLineRenderer = true;
 
                     connectedVertices = GetConnectedVertices(activeVertex);
                     connectedVertexPositions = new Vector3[connectedVertices.Length];
@@ -154,15 +154,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     if (interactedVertex != connectedVertices[closestVertex])
                     {
-                        LinkedInteractionProvider.AddPointFacingTriangle(activeVertex, interactedVertex, closestVertex, headPosition, false);
+                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, closestVertex, headPosition, false);
                     }
 
                     if(interactedVertex != connectedVertices[secondClosestVertex])
                     {
-                        LinkedInteractionProvider.AddPointFacingTriangle(activeVertex, interactedVertex, secondClosestVertex, headPosition, false);
+                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, secondClosestVertex, headPosition, false);
                     }
 
-                    LinkedInteractionProvider.UpdateMeshFromData();
+                    LinkedInteractionInterface.UpdateMeshFromData();
 
                     Deselect();
                 }
@@ -172,7 +172,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (closestVertex >= 0 && secondClosestVertex >= 0)
                 {
                     //Add new vertex
-                    LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { activeVertex, closestVertex, secondClosestVertex }, true);
+                    LinkedInteractionInterface.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { activeVertex, closestVertex, secondClosestVertex }, true);
                 }
 
                 Deselect();

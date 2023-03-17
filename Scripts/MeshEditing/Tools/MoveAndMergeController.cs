@@ -52,7 +52,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3 localPosition = InteractionPositionWithMirrorLineSnap;
 
-            LinkedInteractionProvider.MoveVertexToPosition(activeVertex, localPosition, true);
+            LinkedInteractionInterface.MoveVertexToPosition(activeVertex, localPosition, true);
         }
 
         public override void OnPickupUse()
@@ -77,7 +77,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             else
             {
                 //Select different one = Merge
-                LinkedInteractionProvider.MergeVertices(interactedVertex, activeVertex, true);
+                LinkedInteractionInterface.MergeVertices(interactedVertex, activeVertex, true);
 
                 activeVertex = -1;
             }

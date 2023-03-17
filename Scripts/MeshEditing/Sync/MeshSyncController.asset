@@ -242,7 +242,7 @@ MonoBehaviour:
       Data: 15|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: MeshBuilderInterface, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.SyncSettings, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

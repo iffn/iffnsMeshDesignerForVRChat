@@ -58,7 +58,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (closestVertex == -1 || secondClosestVertex == -1) return;
 
-            LinkedInteractionProvider.SetLineRendererPositions(
+            LinkedInteractionInterface.SetLineRendererPositions(
                 new Vector3[] { InteractionPositionWithMirrorLineSnap, closestVertexPosition, secondClosestVertexPosition }
                 , true);
         }
@@ -88,7 +88,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 else
                 {
                     //Add triangle instead of new vertex
-                    LinkedInteractionProvider.AddPointFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, HeadPosition, true);
+                    LinkedInteractionInterface.AddPointFacingTriangle(closestVertex, secondClosestVertex, interactedVertex, HeadPosition, true);
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
@@ -98,26 +98,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (closestVertex == -1 || secondClosestVertex == -1) return;
 
                 //Add new vertex
-                LinkedInteractionProvider.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { closestVertex, secondClosestVertex }, true);
+                LinkedInteractionInterface.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { closestVertex, secondClosestVertex }, true);
 
                 DeselectClosestVertex();
                 DeselectSecondClosestVertex();
             }
 
-            LinkedInteractionProvider.ShowLineRenderer = (closestVertex >= 0 && secondClosestVertex >= 0);
+            LinkedInteractionInterface.ShowLineRenderer = (closestVertex >= 0 && secondClosestVertex >= 0);
         }
 
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
             closestVertexPosition = GetLocalVertexPositionFromIndex(vertex);
-            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
+            LinkedInteractionInterface.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
+            LinkedInteractionInterface.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
             closestVertex = -1;
         }
 
@@ -125,13 +125,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             secondClosestVertex = vertex;
             secondClosestVertexPosition = GetLocalVertexPositionFromIndex(vertex);
-            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
+            LinkedInteractionInterface.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
+            LinkedInteractionInterface.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
             secondClosestVertex = -1;
         }
 

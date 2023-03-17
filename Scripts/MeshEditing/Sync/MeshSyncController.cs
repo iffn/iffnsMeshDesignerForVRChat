@@ -17,13 +17,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         //Runtime variables
         MeshController linkedMeshController;
-        MeshBuilderInterface linkedInterface;
+        SyncSettings linkedInterface;
 
         int syncLimitPerSecondVRChat = 11000; //Source (Not sure if bit or byte, but it seems to work well when using a syncLimitThreshold of 0.4: https://docs.vrchat.com/docs/network-details
 
         float syncLimitThreshold = 0.4f;
 
-        public void Setup(MeshController linkedMeshController, MeshBuilderInterface linkedInterface)
+        public void Setup(MeshController linkedMeshController, SyncSettings linkedInterface)
         {
             this.linkedMeshController = linkedMeshController;
             this.linkedInterface = linkedInterface;
@@ -126,7 +126,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             //Current bug with VRChat: Will not fire when player leaves https://vrchat.canny.io/udon-networking-update/p/1258-onownershiptransferred-does-not-fire-at-onplayerleft-if-last-owner-is-passi
             
-            linkedInterface.Ownership = player.isLocal;
+            linkedInterface.Owner = player;
         }
     }
 }

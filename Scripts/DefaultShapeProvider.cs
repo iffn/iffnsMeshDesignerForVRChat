@@ -9,7 +9,7 @@ using VRC.Udon;
 
 public class DefaultShapeProvider : UdonSharpBehaviour
 {
-    [SerializeField] ObjConterter LinkedObjConverter;
+    [SerializeField] MeshConverterController LinkedMeshConverterController;
 
     [SerializeField, TextArea(1, 10)] string Quad;
     [SerializeField, TextArea(1, 10)] string CubeUnmerged;
@@ -18,21 +18,21 @@ public class DefaultShapeProvider : UdonSharpBehaviour
 
     public void ImportQuad()
     {
-        LinkedObjConverter.ImportObj(Quad);
+        LinkedMeshConverterController.ImportObj(Quad);
     }
 
     public void ImportCubeUnmerged()
     {
-        LinkedObjConverter.ImportObj(CubeUnmerged);
+        LinkedMeshConverterController.ImportObj(CubeUnmerged);
     }
 
     public void ImportCubeMerged()
     {
-        LinkedObjConverter.ImportObj(CubeMerged);
+        LinkedMeshConverterController.ImportObj(CubeMerged);
     }
 
     public void ImportBreakTest()
     {
-        LinkedObjConverter.ImportObj(BreakTest);
+        LinkedMeshConverterController.ImportObj(BreakTest);
     }
 }

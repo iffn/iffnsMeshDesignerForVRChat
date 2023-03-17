@@ -81,7 +81,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
                 else
                 {
-                    LinkedInteractionProvider.RemoveTriangle(closestVertex, secondClosestVertex, interactedVertex, true);
+                    LinkedInteractionInterface.RemoveTriangle(closestVertex, secondClosestVertex, interactedVertex, true);
                     DeselectClosestVertex();
                     DeselectSecondClosestVertex();
                 }
@@ -90,26 +90,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         void SelectClosesVertex(int vertex)
         {
             closestVertex = vertex;
-            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
+            LinkedInteractionInterface.SetVertexSelectState(closestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectClosestVertex()
         {
             if (closestVertex < 0) return;
-            LinkedInteractionProvider.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
+            LinkedInteractionInterface.SetVertexSelectState(closestVertex, VertexSelectStates.Normal);
             closestVertex = -1;
         }
 
         void SelectSecondClosesVertex(int vertex)
         {
             secondClosestVertex = vertex;
-            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
+            LinkedInteractionInterface.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Selected);
         }
 
         void DeselectSecondClosestVertex()
         {
             if (secondClosestVertex < 0) return;
-            LinkedInteractionProvider.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
+            LinkedInteractionInterface.SetVertexSelectState(secondClosestVertex, VertexSelectStates.Normal);
             secondClosestVertex = -1;
         }
 

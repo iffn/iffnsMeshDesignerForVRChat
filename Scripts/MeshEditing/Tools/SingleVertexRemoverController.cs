@@ -58,21 +58,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex == -1)
                 {
                     //Select vertex
-                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
+                    LinkedInteractionInterface.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
                     activeVertex = interactedVertex;
                 }
                 else if(interactedVertex != activeVertex)
                 {
                     //Reselect vertex
-                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+                    LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
                     activeVertex = interactedVertex;
-                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
+                    LinkedInteractionInterface.SetVertexSelectState(interactedVertex, VertexSelectStates.ReadyToDelete);
                 }
                 else
                 {
                     //Remove vertex
-                    LinkedInteractionProvider.SetVertexSelectState(interactedVertex, VertexSelectStates.Normal);
-                    LinkedInteractionProvider.RemoveVertex(activeVertex);
+                    LinkedInteractionInterface.SetVertexSelectState(interactedVertex, VertexSelectStates.Normal);
+                    LinkedInteractionInterface.RemoveVertex(activeVertex);
                 }
             }
             else
@@ -80,7 +80,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(activeVertex >= 0)
                 {
                     //Deselect vertex
-                    LinkedInteractionProvider.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+                    LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
 
                     activeVertex = -1;
                 }

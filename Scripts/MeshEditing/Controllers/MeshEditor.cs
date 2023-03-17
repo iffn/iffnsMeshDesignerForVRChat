@@ -222,14 +222,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         //View
-        public void SetVertexSelectStates(int index, VertexSelectStates state)
+        public void SetVertexSelectStatesInteraction(int index, VertexSelectStates state)
         {
             if (index >= vertexIndicators.Length) return;
 
             vertexIndicators[index].SelectState = state;
         }
 
-        public void ResetInteractorStates()
+        public void ResetInteractorStatesInteraction()
         {
             foreach (VertexIndicator interactor in vertexIndicators)
             {
@@ -238,28 +238,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         //Edit
-        public void MoveVertexToPosition(int vertex, Vector3 position, bool updateMesh)
+        public void MoveVertexToPositionInteraction(int vertex, Vector3 position, bool updateMesh)
         {
             vertices[vertex] = position;
  
-            if (updateMesh) UpdateMeshFromData();
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void MergeVertices(int keep, int discard, bool updateMesh)
+        public void MergeVerticesInteraction(int keep, int discard, bool updateMesh)
         {
-            MergeVerticesEdit(keep, discard, true);
+            MergeVertices(keep, discard, true);
 
-            if (updateMesh) UpdateMeshFromData();
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void RemoveVertex(int vertex)
+        public void RemoveVertexInteraction(int vertex)
         {
             RemoveVertexWithoutCleaning(vertex, true);
 
             RemoveUnconnectedVertices();
         }
 
-        public void AddVertex(Vector3 position, int[] connectedVertices, bool updateMesh)
+        public void AddVertexInteraction(Vector3 position, int[] connectedVertices, bool updateMesh)
         {
             if(connectedVertices == null || connectedVertices.Length < 2) return;
 
@@ -277,27 +277,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             for(int i = 0; i<connectedVertices.Length - 2; i++)
             {
-                AddPointFacingTriangleEdit(vertices.Length - 1, connectedVertices[i], connectedVertices[i + 1], localFacingPoint);
+                AddPointFacingTriangle(vertices.Length - 1, connectedVertices[i], connectedVertices[i + 1], localFacingPoint);
             }
 
-            if (updateMesh) UpdateMeshFromData();
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void AddPointFacingTriangle(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool updateMesh)
+        public void AddPointFacingTriangleInteraction(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool updateMesh)
         {
-             AddPointFacingTriangleEdit(vertexA, vertexB, vertexC, facingPosition);
+             AddPointFacingTriangle(vertexA, vertexB, vertexC, facingPosition);
 
-            if (updateMesh) UpdateMeshFromData();
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void RemoveTriangle(int vertexA, int vertexB, int vertexC, bool updateMesh)
+        public void RemoveTriangleInteraction(int vertexA, int vertexB, int vertexC, bool updateMesh)
         {
 
 
-            if (updateMesh) UpdateMeshFromData();
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void UpdateMeshFromData()
+        public void UpdateMeshFromDataInteraction()
         {
             LinkedMeshController.SetData(vertices, triangles);
         }
@@ -325,7 +325,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     {
                         //Debug.Log($"Merging vertex {firstVertex} with {secondVertex} at distance {distance}" );
 
-                        MergeVerticesEdit(firstVertex, secondVertex, false);
+                        MergeVertices(firstVertex, secondVertex, false);
                         secondVertex--;
                         verticesMerged++;
                     }
@@ -334,12 +334,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Debug.Log($"{verticesMerged} vertices merged");
 
-            UpdateMeshFromData();
+            UpdateMeshFromDataInteraction();
         }
         #endregion
 
         #region Mesh editing
-        public void AddPointFacingTriangleEdit(int a, int b, int c, Vector3 localFacingPosition)
+        public void AddPointFacingTriangle(int a, int b, int c, Vector3 localFacingPosition)
         {
             Vector3 vecA = vertices[a];
             Vector3 vecB = vertices[b];
@@ -530,7 +530,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        void MergeVerticesEdit(int keep, int discard, bool removeInvalid)
+        void MergeVertices(int keep, int discard, bool removeInvalid)
         {
             //Remove vertex:
             Vector3[] oldVertexPositons = this.vertices;
