@@ -15,7 +15,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void Import()
         {
-            LinkedMeshConverterController.ImportObj(ImportText);
+            LinkedMeshConverterController.ImportObjForDefaultMeshLoader(ImportText);
         }
     }
 }

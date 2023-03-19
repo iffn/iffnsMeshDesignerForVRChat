@@ -9,9 +9,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class SyncSettings : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] MeshSyncController LinkedSyncController;
         [SerializeField] TMPro.TextMeshProUGUI CurrentOwnerText;
         [SerializeField] GameObject RequestOwnershipButton;
+        
+        MeshSyncController linkedSyncController;
+
+        public void Setup(MeshSyncController linkedSyncController)
+        {
+            this.linkedSyncController = linkedSyncController;
+        }
 
         public VRCPlayerApi Owner
         {
@@ -23,9 +29,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        //VRChat UI Events
         public void RequestOwnership()
         {
-            LinkedSyncController.RequestOwnership();
+            linkedSyncController.RequestOwnership();
         }
     }
 }

@@ -12,12 +12,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Image LinkedImage;
         [SerializeField] GameObject Highlight;
 
-        InteractorController linkedInteractionController;
+        ToolController linkedToolController;
         public MeshEditTool LinkedTool { get; private set; }
 
-        public void Setup(InteractorController linkedInteractionController, MeshEditTool linkedTool)
+        public void Setup(ToolController linkedToolController, MeshEditTool linkedTool)
         {
-            this.linkedInteractionController = linkedInteractionController;
+            this.linkedToolController = linkedToolController;
             this.LinkedTool = linkedTool;
 
             if (!IsValid())
@@ -32,7 +32,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!IsValid()) return;
 
-            linkedInteractionController.CurrentInteractorTool = LinkedTool;
+            linkedToolController.CurrentInteractorTool = LinkedTool;
         }
 
         public bool IsValid()

@@ -17,16 +17,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Other Unity assingments")]
         [SerializeField] ObjConterter LinkedObjConverter;
         [SerializeField] BaseMeshConverter[] LinkedImporters;
-        [SerializeField] MeshController LinkedMeshController;
-        [SerializeField] MeshEditor LinkedMeshEditor;
         [SerializeField] GameObject ReferenceMeshHolder;
         [SerializeField] GameObject MirrorReferenceMeshHolder;
         [SerializeField] Mesh ReferenceMesh;
 
+        MeshController linkedMeshController;
+        MeshEditor linkedMeshEditor;
+
         bool skipUpdate = false;
 
-        void Setup()
+        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor)
         {
+            this.linkedMeshController = linkedMeshController;
+            this.linkedMeshEditor = linkedMeshEditor;
+
             //Unable to set input field options at this time
             /*
             LinkedControllerSelectorDropdown.ClearOptions();
@@ -42,13 +46,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             */
         }
 
-        public void ImportObj(string objText)
+        public void ImportObjForDefaultMeshLoader(string objText) //For default mesh loader
         {
             bool worked = LinkedObjConverter.ImportMeshIfValidAndSaveData(objText);
 
             if (!worked) return;
 
-            LinkedMeshController.SetData(LinkedObjConverter.VerticesFromLastImport, LinkedObjConverter.TrianglesFromLastImport, this);
+            linkedMeshController.SetData(LinkedObjConverter.VerticesFromLastImport, LinkedObjConverter.TrianglesFromLastImport, this);
         }
 
         BaseMeshConverter CurrentConverter
@@ -67,7 +71,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ExportData()
         {
-            string exportText = CurrentConverter.ExportMesh(LinkedMeshController.Vertices, LinkedMeshController.Triangles);
+            string exportText = CurrentConverter.ExportMesh(linkedMeshController.Vertices, linkedMeshController.Triangles);
 
             skipUpdate = true;
             LinkedInputField.text = exportText;
@@ -84,12 +88,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (!worked) return;
 
-            LinkedMeshController.SetData(currentConverter.VerticesFromLastImport, currentConverter.TrianglesFromLastImport, this);
+            linkedMeshController.SetData(currentConverter.VerticesFromLastImport, currentConverter.TrianglesFromLastImport, this);
         }
 
         public void MergeOverlappingVertices()
         {
-            LinkedMeshEditor.MergeOverlappingVertices(0.001f);
+            linkedMeshEditor.MergeOverlappingVertices(0.001f);
         }
 
         public void ImportDataForReference()

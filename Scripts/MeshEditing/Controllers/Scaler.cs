@@ -101,12 +101,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             transform.parent = scaleObject;
             indicator.SetActive(false);
+
+            MeshCollider mymesh = transform.GetComponent<MeshCollider>();
+
+            mymesh.sharedMesh = null;
         }
     }
 
     public enum ScalerLockStates
     {
-        LockMovementAndRotationt,
+        LockMovementAndRotation,
         LockRotationOnly,
         AllowHeadingRotation,
         AllowFullRotation

@@ -26,6 +26,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public void SetToggleState(bool value)
+        {
+            LinkedToggle.SetIsOnWithoutNotify(value);
+        }
+
+        //VRChat UI Call
         public void UpdateToggleState()
         {
             if (!LinkedToggle.isOn)
@@ -36,11 +42,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
 
             linkedSyncedDisplaySettings.SetLockState(this);
-        }
-
-        public void SetToggleState(bool value)
-        {
-            LinkedToggle.SetIsOnWithoutNotify(value);
         }
     }
 }

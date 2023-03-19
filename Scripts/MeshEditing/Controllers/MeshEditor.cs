@@ -8,20 +8,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class MeshEditor : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] MeshController LinkedMeshController;
-        [SerializeField] ToolController LinkedToolController;
         [SerializeField] Transform HelperTransform;
 
         //Runtime variables
+        MeshController linkedMeshController;
+        ToolController linkedToolController;
+
         VertexIndicator[] vertexIndicators = new VertexIndicator[0];
         Vector3[] vertices = new Vector3[0];
         int[] triangles = new int[0];
+        
+        public void Setup(MeshController linkedMeshController, ToolController linkedToolController)
+        {
+            this.linkedMeshController = linkedMeshController;
+            this.linkedToolController = linkedToolController;
+        }
 
         Vector3 LocalTriangleFacingPointWhenGenrating
         {
             get
             {
-                return LinkedToolController.LocalHeadPosition;
+                return linkedToolController.LocalHeadPosition;
             }
         }
 
@@ -30,8 +37,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!inEditMode) return;
 
-            vertices = LinkedMeshController.Vertices;
-            triangles = LinkedMeshController.Triangles;
+            vertices = linkedMeshController.Vertices;
+            triangles = linkedMeshController.Triangles;
 
             UpdateVertexIndicators();
         }
@@ -299,7 +306,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void UpdateMeshFromDataInteraction()
         {
-            LinkedMeshController.SetData(vertices, triangles, this);
+            linkedMeshController.SetData(vertices, triangles, this);
         }
 
         public void MergeOverlappingVertices(float threshold)

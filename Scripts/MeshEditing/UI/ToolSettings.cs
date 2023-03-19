@@ -6,7 +6,7 @@ using VRC.Udon;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
-    public class ToolSettings : CanvasElement
+    public class ToolSettings : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
         [SerializeField] ToolController LinkedToolController;

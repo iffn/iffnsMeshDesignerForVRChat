@@ -9,16 +9,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class SyncedDisplaySettings : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] Scaler LinkedScaler;
         [SerializeField] GameObject ScalerTitleVR;
         [SerializeField] GameObject ScalerTitleDesktop;
 
         [SerializeField] ScalerLockStateOption[] ScalerLockStateOptions;
 
+        Scaler linkedScaler;
         ScalerLockStateOption currentLockStateController;
 
-        void Setup()
+        public void Setup(Scaler linkedScaler)
         {
+            this.linkedScaler = linkedScaler;
+
             //Set display text
             if (Networking.LocalPlayer.IsUserInVR())
             {
@@ -41,22 +43,22 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             currentLockStateController = ScalerLockStateOptions[1];
             currentLockStateController.SetToggleState(true);
-            LinkedScaler.currentLockState = currentLockStateController.LockState;
+            linkedScaler.currentLockState = currentLockStateController.LockState;
         }
 
-        //VRChat UI calls
         public void SetLockState(ScalerLockStateOption calledLockStateController)
         {
             if (currentLockStateController) currentLockStateController.SetToggleState(false);
 
-            LinkedScaler.currentLockState = calledLockStateController.LockState;
+            linkedScaler.currentLockState = calledLockStateController.LockState;
 
             currentLockStateController = calledLockStateController;
         }
 
+        //VRChat UI calls
         public void ResetViewScale()
         {
-            LinkedScaler.ResetScale();
+            linkedScaler.ResetScale();
         }
     }
 }

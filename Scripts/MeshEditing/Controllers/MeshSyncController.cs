@@ -19,6 +19,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         MeshController linkedMeshController;
         SyncSettings linkedInterface;
 
+        bool queueSync = false;
+
+        float lastSync = 0;
+        float nextSync = Mathf.Infinity;
+
+        SerializationResult lastPostSerializationResult;
+
         int syncLimitPerSecondVRChat = 11000; //Source (Not sure if bit or byte, but it seems to work well when using a syncLimitThreshold of 0.4: https://docs.vrchat.com/docs/network-details
 
         float syncLimitThreshold = 0.4f;
@@ -37,12 +44,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        bool queueSync = false;
-
-        float lastSync = 0;
-        float nextSync = Mathf.Infinity;
-
-        SerializationResult lastPostSerializationResult;
+        
 
         public string DebugState()
         {

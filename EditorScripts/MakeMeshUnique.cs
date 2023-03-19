@@ -14,16 +14,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             GetWindow(typeof(MakeMeshUnique));
         }
 
-        MeshInteractor currentBuilder;
+        MeshFilter currentMeshFilter;
 
         void OnGUI()
         {
-            currentBuilder = EditorGUILayout.ObjectField(
-               obj: currentBuilder,
-               objType: typeof(MeshInteractor),
-               true) as MeshInteractor;
+            currentMeshFilter = EditorGUILayout.ObjectField(
+               obj: currentMeshFilter,
+               objType: typeof(MeshFilter),
+               true) as MeshFilter;
 
-            if (currentBuilder != null)
+            if (currentMeshFilter != null)
             {
                 if (GUILayout.Button("Make current mesh unique"))
                 {
@@ -34,8 +34,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void MakeCurrentMeshUnique()
         {
-            MeshFilter currentMeshFilter = currentBuilder.LinkedMeshController.MeshFilter;
-
             Mesh currentMesh = currentMeshFilter.sharedMesh;
 
             Mesh newMesh = new Mesh
@@ -57,11 +55,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             currentMeshFilter.mesh = null;
             currentMeshFilter.mesh = newMesh;
-
-            if (currentBuilder.SymmetryMeshFilter != null)
-            {
-                currentBuilder.SymmetryMeshFilter.mesh = newMesh;
-            }
         }
     }
 }
