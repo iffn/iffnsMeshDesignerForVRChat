@@ -11,8 +11,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         //Inspector variables
         [Header("Unity assingments")]
-        [SerializeField] MeshEditor LinkedMeshEditor;
         [SerializeField] LineRenderer LinkedLineRenderer;
+        
+        MeshEditor linkedMeshEditor;
+
+        public void Setup(MeshEditor linkedMeshEditor)
+        {
+            this.linkedMeshEditor = linkedMeshEditor;
+        }
 
         //View
         public bool ShowLineRenderer
@@ -34,48 +40,48 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void SetVertexSelectState(int index, VertexSelectStates state)
         {
-            LinkedMeshEditor.SetVertexSelectStatesInteraction(index, state);
+            linkedMeshEditor.SetVertexSelectStatesInteraction(index, state);
         }
 
         public void ResetInteractorStates()
         {
-            LinkedMeshEditor.ResetInteractorStatesInteraction();
+            linkedMeshEditor.ResetInteractorStatesInteraction();
         }
 
         //Edit
         public void MoveVertexToPosition(int vertex, Vector3 position, bool updateMesh)
         {
-            LinkedMeshEditor.MoveVertexToPositionInteraction(vertex, position, updateMesh);
+            linkedMeshEditor.MoveVertexToPositionInteraction(vertex, position, updateMesh);
         }
 
         public void RemoveVertex(int vertex)
         {
-            LinkedMeshEditor.RemoveVertexInteraction(vertex);
+            linkedMeshEditor.RemoveVertexInteraction(vertex);
         }
 
         public void MergeVertices(int keep, int discard, bool updateMesh)
         {
-            LinkedMeshEditor.MergeVerticesInteraction(keep, discard, updateMesh);
+            linkedMeshEditor.MergeVerticesInteraction(keep, discard, updateMesh);
         }
 
         public void AddVertex(Vector3 position, int[] connectedVertices, bool updateMesh)
         {
-            LinkedMeshEditor.AddVertexInteraction(position, connectedVertices, updateMesh);
+            linkedMeshEditor.AddVertexInteraction(position, connectedVertices, updateMesh);
         }
 
         public void AddPointFacingTriangle(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool updateMesh)
         {
-            LinkedMeshEditor.AddPointFacingTriangleInteraction(vertexA, vertexB, vertexC, facingPosition, updateMesh);
+            linkedMeshEditor.AddPointFacingTriangleInteraction(vertexA, vertexB, vertexC, facingPosition, updateMesh);
         }
 
         public void RemoveTriangle(int vertexA, int vertexB, int vertexC, bool updateMesh)
         {
-            LinkedMeshEditor.RemoveTriangleInteraction(vertexA, vertexB, vertexC, updateMesh);
+            linkedMeshEditor.RemoveTriangleInteraction(vertexA, vertexB, vertexC, updateMesh);
         }
 
         public void UpdateMeshFromData()
         {
-            LinkedMeshEditor.UpdateMeshFromDataInteraction();
+            linkedMeshEditor.UpdateMeshFromDataInteraction();
         }
     }
 }

@@ -179,19 +179,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: linkedInteractionController
+      Data: linkedToolController
     - Name: $v
       Entry: 7
       Data: 11|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: linkedInteractionController
+      Data: linkedToolController
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 12|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.InteractorController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ToolController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

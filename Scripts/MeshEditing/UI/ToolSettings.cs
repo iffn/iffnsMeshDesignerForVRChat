@@ -9,12 +9,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class ToolSettings : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] ToolController LinkedToolController;
 
         [SerializeField] Toggle UseRightHand;
         [SerializeField] Toggle InEditModeToggle;
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
+
+        ToolController linkedToolController;
+
+        public void Setup(ToolController linkedToolController)
+        {
+            this.linkedToolController = linkedToolController;
+        }
 
         public bool InEditMode
         {
@@ -32,26 +38,26 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (UseRightHand.isOn)
             {
-                LinkedToolController.PrimaryHand = VRC.Udon.Common.HandType.RIGHT;
+                linkedToolController.PrimaryHand = VRC.Udon.Common.HandType.RIGHT;
             }
             else
             {
-                LinkedToolController.PrimaryHand = VRC.Udon.Common.HandType.LEFT;
+                linkedToolController.PrimaryHand = VRC.Udon.Common.HandType.LEFT;
             }
 
-            LinkedToolController.vertexInteractionOffset = VertexInteractionOffsetSlider.value;
+            linkedToolController.vertexInteractionOffset = VertexInteractionOffsetSlider.value;
 
             //ToDo: Wireframe material toggle
         }
 
         public void InderactorSizeX1o25()
         {
-            LinkedToolController.VertexInteractionDistance *= 1.25f;
+            linkedToolController.VertexInteractionDistance *= 1.25f;
         }
 
         public void InderactorSizeX0o8()
         {
-            LinkedToolController.VertexInteractionDistance *= 0.8f;
+            linkedToolController.VertexInteractionDistance *= 0.8f;
         }
     }
 }

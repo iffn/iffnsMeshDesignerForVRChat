@@ -17,19 +17,22 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Other Unity assingments")]
         [SerializeField] ObjConterter LinkedObjConverter;
         [SerializeField] BaseMeshConverter[] LinkedImporters;
-        [SerializeField] GameObject ReferenceMeshHolder;
-        [SerializeField] GameObject MirrorReferenceMeshHolder;
-        [SerializeField] Mesh ReferenceMesh;
-
+        
         MeshController linkedMeshController;
         MeshEditor linkedMeshEditor;
+        Mesh referenceMesh;
+        GameObject referenceMeshHolder;
+        GameObject mirrorReferenceMeshHolder;
 
         bool skipUpdate = false;
 
-        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor)
+        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject mirrorReferenceHolder)
         {
             this.linkedMeshController = linkedMeshController;
             this.linkedMeshEditor = linkedMeshEditor;
+            this.referenceMesh = referenceMesh;
+            this.referenceMeshHolder = referenceMeshHolder;
+            this.mirrorReferenceMeshHolder = mirrorReferenceHolder;
 
             //Unable to set input field options at this time
             /*
@@ -104,20 +107,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (!worked) return;
 
-            ReferenceMesh.triangles = new int[0];
+            referenceMesh.triangles = new int[0];
 
-            ReferenceMesh.vertices = currentConverter.VerticesFromLastImport;
-            ReferenceMesh.triangles = currentConverter.TrianglesFromLastImport;
+            referenceMesh.vertices = currentConverter.VerticesFromLastImport;
+            referenceMesh.triangles = currentConverter.TrianglesFromLastImport;
 
-            ReferenceMesh.RecalculateNormals();
-            ReferenceMesh.RecalculateTangents();
-            ReferenceMesh.RecalculateBounds();
+            referenceMesh.RecalculateNormals();
+            referenceMesh.RecalculateTangents();
+            referenceMesh.RecalculateBounds();
         }
 
         public void ToggleUpdate()
         {
-            ReferenceMeshHolder.SetActive(ShowReferenceMeshTroggle.isOn);
-            MirrorReferenceMeshHolder.SetActive(MirrorReferenceMeshTroggle.isOn);
+            referenceMeshHolder.SetActive(ShowReferenceMeshTroggle.isOn);
+            mirrorReferenceMeshHolder.SetActive(MirrorReferenceMeshTroggle.isOn);
         }
 
         public void DropdownUpdate()
