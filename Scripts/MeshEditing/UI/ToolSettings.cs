@@ -14,6 +14,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Toggle InEditModeToggle;
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
+        [SerializeField] TMPro.TextMeshProUGUI DebugState;
 
         ToolController linkedToolController;
 
@@ -34,8 +35,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        void WriteDebugText()
+        {
+            string debugText = $"Debug at {Time.time}\n";
+
+            debugText += "\n";
+
+            if (linkedToolController) debugText += linkedToolController.MultiLineDebugState();
+
+            DebugState.text = debugText;
+        }
+
+        private void Update()
+        {
+            WriteDebugText();
+        }
+
+        //VRChat UI events
         public void UpdateFromUI()
         {
+            linkedToolController.InEditMode = InEditModeToggle.isOn;
+
             if (UseRightHand.isOn)
             {
                 linkedToolController.PrimaryHand = VRC.Udon.Common.HandType.RIGHT;

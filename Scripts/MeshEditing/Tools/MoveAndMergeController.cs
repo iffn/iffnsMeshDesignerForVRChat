@@ -31,7 +31,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             string returnString = base.MultiLineDebugState();
 
-            returnString += $"{nameof(activeVertex)} = {activeVertex}\n";
+            returnString += $"• {nameof(activeVertex)} = {activeVertex}\n";
 
             return returnString;
         }

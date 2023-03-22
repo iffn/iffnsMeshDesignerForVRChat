@@ -9,57 +9,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Unity assingments")]
         [SerializeField] Transform HelperTransform;
+        [SerializeField] VertexIndicator VertexIndicatorTemplate;
 
         //Runtime variables
         MeshController linkedMeshController;
         ToolController linkedToolController;
 
-        VertexIndicator[] vertexIndicators = new VertexIndicator[0];
         Vector3[] vertices = new Vector3[0];
         int[] triangles = new int[0];
-        
-        public void Setup(MeshController linkedMeshController, ToolController linkedToolController)
-        {
-            this.linkedMeshController = linkedMeshController;
-            this.linkedToolController = linkedToolController;
-        }
 
-        Vector3 LocalTriangleFacingPointWhenGenrating
+        VertexIndicator[] vertexIndicators = new VertexIndicator[100];
+        public VertexIndicator[] VertexIndicatorsForResetting
         {
             get
             {
-                return linkedToolController.LocalHeadPosition;
+                return vertexIndicators;
             }
         }
 
-
-        public void UpdateFromMesh()
-        {
-            if (!inEditMode) return;
-
-            vertices = linkedMeshController.Vertices;
-            triangles = linkedMeshController.Triangles;
-
-            UpdateVertexIndicators();
-        }
-
-        void UpdateVertexIndicators()
-        {
-
-        }
-
-
-        //Settings
-        public float VertexIndicatorRadius
-        {
-            set
-            {
-                foreach(VertexIndicator indicator in vertexIndicators)
-                {
-                    indicator.Radius = value;
-                }
-            }
-        }
         bool inEditMode;
         public bool InEditMode
         {
@@ -70,6 +37,118 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             set
             {
                 inEditMode = value;
+
+                if (value)
+                {
+                    UpdateFromMesh();
+
+                    UpdateVertexIndicatorsInEditMode();
+                }
+                else
+                {
+                    foreach (VertexIndicator indicator in vertexIndicators)
+                    {
+                        indicator.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        public string MultiLineDebugState()
+        {
+            string returnString = $"Debug of {nameof(MeshEditor)} at {Time.time}:\n";
+
+            returnString += $"• {nameof(inEditMode)}: {inEditMode}\n";
+            returnString += $"• {nameof(vertices)}.length: {vertices.Length}\n";
+            returnString += $"• {nameof(triangles)}.length: {triangles.Length}\n";
+
+            return returnString;
+        }
+
+        public void Setup(MeshController linkedMeshController, ToolController linkedToolController, Transform meshTransform)
+        {
+            this.linkedMeshController = linkedMeshController;
+            this.linkedToolController = linkedToolController;
+
+            for(int i = 0; i < vertexIndicators.Length; i++)
+            {
+                GameObject newObject = GameObject.Instantiate(VertexIndicatorTemplate.gameObject);
+
+                newObject.SetActive(false);
+
+                VertexIndicator indicator = newObject.transform.GetComponent<VertexIndicator>();
+
+                indicator.Setup(i, meshTransform, linkedToolController.VertexInteractionDistance);
+
+                vertexIndicators[i] = indicator;
+            }
+        }
+
+        public void Setup(MeshController linkedMeshController, ToolController linkedToolController, Transform meshTransform, VertexIndicator[] vertexIndicators)
+        {
+            this.linkedMeshController = linkedMeshController;
+            this.linkedToolController = linkedToolController;
+
+            this.vertexIndicators = vertexIndicators;
+
+            foreach(VertexIndicator indicator in vertexIndicators)
+            {
+                indicator.transform.parent = meshTransform;
+            }
+        }
+
+        Vector3 LocalTriangleFacingPointWhenGenrating
+        {
+            get
+            {
+                return linkedToolController.LocalHeadPosition;
+            }
+        }
+
+        public void UpdateFromMesh()
+        {
+            if (!inEditMode) return;
+
+            vertices = linkedMeshController.Vertices;
+            triangles = linkedMeshController.Triangles;
+
+            UpdateVertexIndicatorsInEditMode();
+        }
+
+        void UpdateVertexIndicatorsInEditMode()
+        {
+            if(vertices.Length >= vertexIndicators.Length)
+            {
+                for(int i = 0; i<vertexIndicators.Length; i++)
+                {
+                    vertexIndicators[i].transform.localPosition = vertices[i];
+                    vertexIndicators[i].gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertexIndicators[i].transform.localPosition = vertices[i];
+                    vertexIndicators[i].gameObject.SetActive(true);
+                }
+
+                for (int i = vertices.Length; i < vertexIndicators.Length; i++)
+                {
+                    vertexIndicators[i].gameObject.SetActive(false);
+                }
+            }
+        }
+
+        //Settings
+        public float VertexIndicatorRadius
+        {
+            set
+            {
+                foreach(VertexIndicator indicator in vertexIndicators)
+                {
+                    indicator.Radius = value;
+                }
             }
         }
 
@@ -299,7 +378,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void RemoveTriangleInteraction(int vertexA, int vertexB, int vertexC, bool updateMesh)
         {
-
+            TryRemoveTriangle(vertexA, vertexB, vertexC);
 
             if (updateMesh) UpdateMeshFromDataInteraction();
         }
@@ -676,7 +755,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
             }
         }
-
         #endregion
     }
 }

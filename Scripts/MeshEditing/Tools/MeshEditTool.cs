@@ -78,7 +78,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             string returnString = $"Debug of {ToolName} at {Time.time}:\n";
 
-            returnString += $"{nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
+            returnString += $"• {nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
 
             return returnString;
         }

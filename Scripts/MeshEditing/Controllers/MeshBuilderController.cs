@@ -30,12 +30,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] SyncedDisplaySettings LinkedSyncedDisplaySettings;
         [SerializeField] MeshConverterController LinkedMeshConverterController;
 
-
         private void Start()
         {
             //Controllers
-            LinkedToolController.Setup(LinkedMeshEditor, MeshTransform);
-            LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController);
+            LinkedToolController.Setup(LinkedToolSettings, LinkedMeshEditor, LinkedMeshInteractionInterface, MeshTransform);
+            LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController, MeshTransform);
             LinkedMeshInteractionInterface.Setup(LinkedMeshEditor);
             LinkedMeshController.Setup(LinkedMeshEditor, LinkedMeshSyncController, MainMeshFilter.mesh);
             LinkedMeshSyncController.Setup(LinkedMeshController, LinkedSyncSettings);

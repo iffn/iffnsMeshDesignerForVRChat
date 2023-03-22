@@ -7,6 +7,7 @@ using VRC.Udon;
 using VRC.Udon.Common;
 using UnityEngine.UI;
 using UnityEditor.EditorTools;
+using Newtonsoft.Json.Linq;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
@@ -24,7 +25,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         [Header("Unity assingments VR")]
         [SerializeField] Transform VRUI;
-        [SerializeField] InteractionTypeSelectorButton ButtonsTemplateVR;
+        [SerializeField] InteractionTypeSelectorButton ButtonTemplateVR;
         [SerializeField] Transform VRUIButtonHolder;
         [SerializeField] Transform LinkedVRHandIndicator;
         [SerializeField] GameObject EditButtonHolderVR;
@@ -33,18 +34,96 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //Runtime variables
         InteractionTypeSelectorButton currentButton;
         readonly Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
-        InteractionTypeSelectorButton[] buttons;
+        InteractionTypeSelectorButton[] buttons = new InteractionTypeSelectorButton[0];
         readonly Vector3 InteractorOffsetVector = Vector3.down;
         MeshEditTool currentEditTool;
         MeshEditor linkedMeshEditor;
+        ToolSettings linkedToolSettings;
         VRCPlayerApi localPlayer;
         bool isInVR;
         public bool OverUIElement = false;
         bool useAndGrabAreTheSame;
         Transform meshTransform;
+        float lastUpdateTime;
 
-        public void Setup(MeshEditor linkedMeshEditor, Transform meshTransform)
+        //Settings
+        public HandType PrimaryHand = HandType.RIGHT;
+        public float vertexInteractionOffset = 0.05f;
+
+        float vertexInteractionDistance = 0.02f;
+        public float VertexInteractionDistance
         {
+            get
+            {
+                return vertexInteractionDistance;
+            }
+            set
+            {
+                vertexInteractionDistance = value;
+                linkedMeshEditor.VertexIndicatorRadius = value;
+            }
+        }
+
+        bool inEditMode;
+        public bool InEditMode
+        {
+            get
+            {
+                return inEditMode;
+            }
+            set
+            {
+                inEditMode = value;
+
+                if (isInVR)
+                {
+                    VRUI.gameObject.SetActive(value);
+                    LinkedVRHandIndicator.gameObject.SetActive(value);
+                }
+                else
+                {
+                    DesktopUI.SetActive(value);
+                }
+
+                linkedMeshEditor.InEditMode = value;
+
+                //linkedToolSettings.InEditMode = value; //For call from ownership transfer
+            }
+        }
+
+        public string MultiLineDebugState()
+        {
+            string returnString = "";
+
+            returnString += $"Debug output of {nameof(ToolController)} at {Time.time}:\n";
+            returnString += $"• {nameof(lastUpdateTime)}: {lastUpdateTime}\n";
+            returnString += $"• {nameof(buttons)}.length: {buttons.Length}\n";
+            returnString += $"• {nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n";
+            returnString += $"• {nameof(OverUIElement)}: {OverUIElement}\n";
+            returnString += $"• {nameof(useAndGrabAreTheSame)}: {useAndGrabAreTheSame}\n";
+            if(isInVR) returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
+            returnString += $"• {nameof(inEditMode)}: {inEditMode}\n";
+            returnString += $"• {nameof(currentEditTool)}: {(currentEditTool ? currentEditTool.name : "null")}\n";
+            returnString += $"• {nameof(currentButton)}.{nameof(currentButton.LinkedTool)}.{nameof(currentButton.LinkedTool.name)}: {(currentButton ? currentButton.LinkedTool.name : "null")}\n";
+            
+            returnString += "\n";
+            
+            if (currentEditTool)
+            {
+                returnString += currentEditTool.MultiLineDebugState();
+
+                returnString += "\n";
+            }
+
+            returnString += linkedMeshEditor.MultiLineDebugState();
+
+            return returnString;
+        }
+
+        public void Setup(ToolSettings linkedToolSettings, MeshEditor linkedMeshEditor, MeshInteractionInterface linkedInteractionInterface, Transform meshTransform)
+        {
+            lastUpdateTime = Time.time;
+
             this.linkedMeshEditor = linkedMeshEditor;
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
@@ -62,30 +141,57 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 useAndGrabAreTheSame = true;
                 break;
             }
+
+            //Setup tools
+            foreach(MeshEditTool tool in EditTools)
+            {
+                tool.Setup(this, linkedMeshEditor, linkedInteractionInterface);
+            }
+
+            //Setup UI
+
+            buttons = new InteractionTypeSelectorButton[EditTools.Length];
+            Transform holder = (isInVR ? EditButtonHolderVR : EditButtonHolderDesktop).transform;
+            GameObject template = (isInVR ? ButtonTemplateVR : ButtonTemplateDesktop).gameObject;
+
+            for (int i = 0; i<EditTools.Length; i++)
+            {
+                GameObject newButtonObject = GameObject.Instantiate(template);
+
+                newButtonObject.transform.SetParent(holder);
+
+                InteractionTypeSelectorButton button = newButtonObject.transform.GetComponent<InteractionTypeSelectorButton>();
+
+                button.Setup(this, EditTools[i]);
+
+                buttons[i] = button;
+            }
+
+            if (isInVR)
+            {
+                VRUI.gameObject.SetActive(InEditMode);
+                LinkedVRHandIndicator.gameObject.SetActive(InEditMode);
+                
+                GameObject.Destroy(DesktopUI);
+            }
+            else
+            {
+                DesktopUI.SetActive(InEditMode);
+
+                GameObject.Destroy(VRUI.gameObject);
+                GameObject.Destroy(LinkedVRHandIndicator.gameObject);
+            }
         }
 
-        //Settings
-        public HandType PrimaryHand = HandType.RIGHT;
-        public float vertexInteractionOffset = 0.05f;
-        public HandType primaryHand = HandType.RIGHT;
-
-        float vertexInteractionDistance;
-        public float VertexInteractionDistance
-        {
-            get
-            {
-                return vertexInteractionDistance;
-            }
-            set
-            {
-                vertexInteractionDistance = value;
-                linkedMeshEditor.VertexIndicatorRadius = value;
-            }
-        }
+        
 
         //UI
         private void Update()
         {
+            lastUpdateTime = Time.time;
+
+            if (!inEditMode) return;
+
             if (isInVR)
             {
                 LinkedVRHandIndicator.position = InteractionPosition;
@@ -321,7 +427,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (!currentEditTool) return;
 
-            if (args.handType != primaryHand) return; //Currently only one handed
+            if (args.handType != PrimaryHand) return; //Currently only one handed
 
             if (!useAndGrabAreTheSame)
             {
@@ -387,7 +493,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (!currentEditTool) return;
 
-            if (args.handType != primaryHand) return; //Currently only one handed
+            if (args.handType != PrimaryHand) return; //Currently only one handed
 
             if (!useAndGrabAreTheSame)
             {
@@ -416,7 +522,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (!currentEditTool) return;
 
-            if (args.handType != primaryHand) return; //Currently only one handed
+            if (args.handType != PrimaryHand) return; //Currently only one handed
 
             if (value)
             {
