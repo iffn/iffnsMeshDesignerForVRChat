@@ -23508,6 +23508,12 @@ MonoBehaviour:
   DesktopUIButtonHolder: {fileID: 6540606160488970428}
   EditButtonHolderDesktop: {fileID: 6540606160488970429}
   CurrentToolTextDesktop: {fileID: 6540606161346506941}
+  DistanceMaterialNormal: {fileID: 2100000, guid: 2c1b7fc3c3a1017449aaeab01fc23ccc,
+    type: 2}
+  DistanceMaterialSelected: {fileID: 2100000, guid: b900d08c8b49ffe4589de1fbeee271aa,
+    type: 2}
+  DistanceMaterialReadyToRemove: {fileID: 2100000, guid: 42c786f61f51e0d45afbbb00c1632aca,
+    type: 2}
   VRUI: {fileID: 6540606160445807152}
   ButtonTemplateVR: {fileID: 3316812552370744879, guid: 2c05796a083512944b8bc10a23862f4e,
     type: 3}

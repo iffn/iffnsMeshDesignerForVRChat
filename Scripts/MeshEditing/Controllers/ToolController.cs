@@ -22,6 +22,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Transform DesktopUIButtonHolder;
         [SerializeField] GameObject EditButtonHolderDesktop;
         [SerializeField] Text CurrentToolTextDesktop;
+        [SerializeField] Material DistanceMaterialNormal;
+        [SerializeField] Material DistanceMaterialSelected;
+        [SerializeField] Material DistanceMaterialReadyToRemove;
 
         [Header("Unity assingments VR")]
         [SerializeField] Transform VRUI;
@@ -32,6 +35,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Text CurrentToolTextVR;
 
         //Runtime variables
+        readonly string distancePropertyName = "_BaseDistance";
         InteractionTypeSelectorButton currentButton;
         readonly Quaternion additionalRotation = Quaternion.Euler(0, 20, 0);
         InteractionTypeSelectorButton[] buttons = new InteractionTypeSelectorButton[0];
@@ -45,6 +49,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         bool useAndGrabAreTheSame;
         Transform meshTransform;
         float lastUpdateTime;
+        float pickupDistance = 1;
 
         //Settings
         public HandType PrimaryHand = HandType.RIGHT;
@@ -252,6 +257,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     CurrentInteractorTool = EditTools[index];
                 }
             }
+
+            if (!isInVR)
+            {
+                pickupDistance = PlayerHeight * 0.5f;
+
+                DistanceMaterialNormal.SetFloat(distancePropertyName, pickupDistance);
+                DistanceMaterialSelected.SetFloat(distancePropertyName, pickupDistance);
+                DistanceMaterialReadyToRemove.SetFloat(distancePropertyName, pickupDistance);
+            }
+
+            
         }
 
         public MeshEditTool CurrentInteractorTool
@@ -380,9 +396,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     VRCPlayerApi.TrackingData currentHandData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
-                    float currentDesktopPickupDistance = PlayerHeight * 0.5f;
-
-                    return currentHandData.position + currentHandData.rotation * (currentDesktopPickupDistance * Vector3.forward);
+                    return currentHandData.position + currentHandData.rotation * (pickupDistance * Vector3.forward);
                 }
             }
         }

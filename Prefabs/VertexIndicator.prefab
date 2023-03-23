@@ -103,9 +103,15 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2193996211493599368}
-  defaultColor: {fileID: 2100000, guid: f63c44673378d104da44d72a9e869482, type: 2}
-  interactColor: {fileID: 2100000, guid: bc450cf7320d7174db4c34dde78ce7d8, type: 2}
-  removeColor: {fileID: 2100000, guid: ba7e5c60c8c877049831a50c4c3e28ae, type: 2}
+  defaultMaterialDesktop: {fileID: 2100000, guid: 2c1b7fc3c3a1017449aaeab01fc23ccc,
+    type: 2}
+  interactMaterialDesktop: {fileID: 2100000, guid: b900d08c8b49ffe4589de1fbeee271aa,
+    type: 2}
+  removeMaterialDesktop: {fileID: 2100000, guid: 42c786f61f51e0d45afbbb00c1632aca,
+    type: 2}
+  defaultMaterialVR: {fileID: 2100000, guid: f63c44673378d104da44d72a9e869482, type: 2}
+  interactMaterialVR: {fileID: 2100000, guid: bc450cf7320d7174db4c34dde78ce7d8, type: 2}
+  removeMaterialVR: {fileID: 2100000, guid: ba7e5c60c8c877049831a50c4c3e28ae, type: 2}
 --- !u!114 &2193996211493599368
 MonoBehaviour:
   m_ObjectHideFlags: 0
