@@ -23,13 +23,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        int[] vertices = new int[0];
+        int[] vertices = new int[2];
 
         public override string MultiLineDebugState()
         {
             string returnString = base.MultiLineDebugState();
 
-            returnString += $"Vertex index length = {vertices.Length}\n";
+            returnString += $"• Connected vertices = ";
+
+            foreach(int vertex in vertices)
+            {
+                returnString += vertex + ", ";
+            }
+
+            returnString = returnString.Substring(0, returnString.Length - 2);
+
+            returnString += "\n";
+
+            returnString += $"• Vertex index length = {vertices.Length}\n";
 
             return returnString;
         }
@@ -49,11 +60,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void UpdateWhenActive()
         {
-            vertices = GetClosestVertices(InteractionPositionWithMirrorLineSnap, 2);
+            Vector3 interactionPosition = InteractionPositionWithMirrorLineSnap;
+
+            vertices = GetClosestVertices(interactionPosition, 2);
 
             if (vertices.Length != 2) return;
 
-            LinkedInteractionInterface.SetLineRendererPositions(GetPositionsFromIndexes(vertices), true);
+            Vector3[] foundPositons = GetPositionsFromIndexes(vertices);
+            Vector3[] positions = new Vector3[foundPositons.Length + 1];
+
+            for(int i = 0; i < foundPositons.Length; i++)
+            {
+                positions[i] = foundPositons[i];
+            }
+
+            positions[positions.Length - 1] = interactionPosition;
+
+            LinkedInteractionInterface.SetLineRendererPositions(positions, true);
         }
 
         public override void OnUseDown()

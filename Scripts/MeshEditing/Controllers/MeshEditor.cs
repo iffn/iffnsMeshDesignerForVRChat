@@ -225,6 +225,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else
             {
+                count = vertices.Length;
+
                 returnValue = new int[vertices.Length];
                 distances = new float[vertices.Length];
             }
@@ -240,7 +242,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 float distance = (position - vertices[i]).sqrMagnitude;
 
-                if (distance > returnValue[lastIndex]) continue;
+                if (distance > distances[lastIndex]) continue;
 
                 returnValue[lastIndex] = i;
                 distances[lastIndex] = distance;
@@ -327,7 +329,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void MoveVertexToPositionInteraction(int vertex, Vector3 position, bool updateMesh)
         {
             vertices[vertex] = position;
- 
+
+            //if(vertex <= vertexIndicators.Length) vertexIndicators[vertex].transform.localPosition = position;
+
             if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
@@ -361,7 +365,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3 localFacingPoint = LocalTriangleFacingPointWhenGenrating;
 
-            for(int i = 0; i<connectedVertices.Length - 2; i++)
+            for(int i = 0; i<connectedVertices.Length - 1; i++)
             {
                 AddPointFacingTriangle(vertices.Length - 1, connectedVertices[i], connectedVertices[i + 1], localFacingPoint);
             }
@@ -386,6 +390,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void UpdateMeshFromDataInteraction()
         {
             linkedMeshController.SetData(vertices, triangles, this);
+
+            UpdateVertexIndicatorsInEditMode();
         }
 
         public void MergeOverlappingVertices(float threshold)
@@ -427,6 +433,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #region Mesh editing
         public void AddPointFacingTriangle(int a, int b, int c, Vector3 localFacingPosition)
         {
+            Debug.Log($"Adding triagnle {a}, {b}, {c}");
+
             Vector3 vecA = vertices[a];
             Vector3 vecB = vertices[b];
             Vector3 vecC = vertices[c];

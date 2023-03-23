@@ -52,22 +52,29 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3 localPosition = InteractionPositionWithMirrorLineSnap;
 
+
             LinkedInteractionInterface.MoveVertexToPosition(activeVertex, localPosition, true);
         }
 
         public override void OnPickupUse()
         {
             activeVertex = SelectVertex();
+
+            Debug.Log("Selected vertex" + activeVertex);
         }
 
         public override void OnDropUse()
         {
             activeVertex = -1;
+
+            Debug.Log("Dropping vertex");
         }
 
         public override void OnUseDown()
         {
             int interactedVertex = SelectVertex();
+
+            Debug.Log("Interacting with vertex " + interactedVertex);
 
             if (interactedVertex == activeVertex)
             {

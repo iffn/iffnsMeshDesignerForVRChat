@@ -49,7 +49,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         bool useAndGrabAreTheSame;
         Transform meshTransform;
         float lastUpdateTime;
-        float pickupDistance = 1;
+        float desktopPickupDistance = 1;
+        float desktopPickupDistanceMultiplier = 1;
 
         //Settings
         public HandType PrimaryHand = HandType.RIGHT;
@@ -106,6 +107,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             returnString += $"• {nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n";
             returnString += $"• {nameof(OverUIElement)}: {OverUIElement}\n";
             returnString += $"• {nameof(useAndGrabAreTheSame)}: {useAndGrabAreTheSame}\n";
+            returnString += $"• {nameof(desktopPickupDistance)}: {desktopPickupDistance}\n";
             if(isInVR) returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
             returnString += $"• {nameof(inEditMode)}: {inEditMode}\n";
             returnString += $"• {nameof(currentEditTool)}: {(currentEditTool ? currentEditTool.name : "null")}\n";
@@ -256,15 +258,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     CurrentInteractorTool = EditTools[index];
                 }
+
+                float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+
+                desktopPickupDistanceMultiplier *= (1 + scrollInput);
+            }
+
+            if (currentEditTool)
+            {
+                currentEditTool.UpdateWhenActive();
             }
 
             if (!isInVR)
             {
-                pickupDistance = PlayerHeight * 0.5f;
+                desktopPickupDistance = PlayerHeight * 0.5f * desktopPickupDistanceMultiplier - vertexInteractionDistance;
 
-                DistanceMaterialNormal.SetFloat(distancePropertyName, pickupDistance);
-                DistanceMaterialSelected.SetFloat(distancePropertyName, pickupDistance);
-                DistanceMaterialReadyToRemove.SetFloat(distancePropertyName, pickupDistance);
+                DistanceMaterialNormal.SetFloat(distancePropertyName, desktopPickupDistance);
+                DistanceMaterialSelected.SetFloat(distancePropertyName, desktopPickupDistance);
+                DistanceMaterialReadyToRemove.SetFloat(distancePropertyName, desktopPickupDistance);
             }
 
             
@@ -396,7 +407,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     VRCPlayerApi.TrackingData currentHandData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
-                    return currentHandData.position + currentHandData.rotation * (pickupDistance * Vector3.forward);
+                    return currentHandData.position + currentHandData.rotation * (desktopPickupDistance * Vector3.forward);
                 }
             }
         }

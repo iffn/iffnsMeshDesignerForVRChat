@@ -123,7 +123,7 @@ Shader "IndicatorDistance"
 }
 /*ASEBEGIN
 Version=18935
-184;524;1182;391;2959.594;602.1418;1;True;False
+79;185;1510;715;2879.655;312.2459;1.547749;True;False
 Node;AmplifyShaderEditor.WorldPosInputsNode;54;-2599.672,-394.8448;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.WorldSpaceCameraPos;55;-2657.231,-230.994;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.RangedFloatNode;58;-2298.701,-493.5934;Inherit;False;Property;_BaseDistance;BaseDistance;1;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
@@ -139,8 +139,8 @@ Node;AmplifyShaderEditor.RangedFloatNode;42;-965.0471,-135.8805;Inherit;False;Co
 Node;AmplifyShaderEditor.ATan2OpNode;24;-766.0305,-48.26067;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;40;-759.1459,-225.67;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleSubtractOpNode;37;-554.1886,-144.4223;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;7;-1188.111,214.9172;Inherit;False;Constant;_Float0;Float 0;0;0;Create;True;0;0;0;False;0;False;0.7;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.AbsOpNode;34;-355.8783,-143.401;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;7;-1188.111,214.9172;Inherit;False;Constant;_Float0;Float 0;0;0;Create;True;0;0;0;False;0;False;0.7;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleSubtractOpNode;38;-170.9817,-239.7017;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.CustomExpressionNode;6;-856.6826,102.1734;Inherit;False; return sign(x-n)@;1;Create;2;True;x;FLOAT;0;In;;Inherit;False;True;n;FLOAT;0;In;;Inherit;False;SignMapWithXFromN;True;False;0;;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SignOpNode;31;50.05554,-209.6137;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
@@ -150,7 +150,6 @@ Node;AmplifyShaderEditor.ColorNode;47;270.6599,-463.4581;Inherit;False;Property;
 Node;AmplifyShaderEditor.SignOpNode;51;417.0346,-140.6343;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.OneMinusNode;67;625.689,-139.9691;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;48;626.8156,-335.2015;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.NormalVertexDataNode;65;-1454.938,80.58263;Inherit;False;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.PosVertexDataNode;62;252.7365,90.54287;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.ScaleNode;64;447.5052,81.46036;Inherit;False;0.5;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.BillboardNode;61;384.5537,-19.49682;Inherit;False;Spherical;False;True;0;1;FLOAT3;0
@@ -193,4 +192,4 @@ WireConnection;68;0;48;0
 WireConnection;68;1;67;0
 WireConnection;0;0;68;0
 ASEEND*/
-//CHKSM=E7DEC1E78B3652245E1385BAFCE66792135F1C17
+//CHKSM=04D7F5C7960D26E08C41D9C480095F5D169D1B7E
