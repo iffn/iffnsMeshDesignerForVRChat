@@ -54,9 +54,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             linkedMeshEditor.MoveVertexToPositionInteraction(vertex, position, updateMesh);
         }
 
-        public void RemoveVertex(int vertex)
+        public void RemoveVertex(int vertex, bool updateMesh)
         {
-            linkedMeshEditor.RemoveVertexInteraction(vertex);
+            linkedMeshEditor.RemoveVertexInteraction(vertex, updateMesh);
         }
 
         public void MergeVertices(int keep, int discard, bool updateMesh)

@@ -72,7 +72,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 {
                     //Remove vertex
                     LinkedInteractionInterface.SetVertexSelectState(interactedVertex, VertexSelectStates.Normal);
-                    LinkedInteractionInterface.RemoveVertex(activeVertex);
+                    LinkedInteractionInterface.RemoveVertex(activeVertex, true);
                 }
             }
             else

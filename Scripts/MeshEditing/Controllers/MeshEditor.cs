@@ -343,11 +343,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
-        public void RemoveVertexInteraction(int vertex)
+        public void RemoveVertexInteraction(int vertex, bool updateMesh)
         {
             RemoveVertexWithoutCleaning(vertex, true);
 
             RemoveUnconnectedVertices();
+
+            if (updateMesh) UpdateMeshFromDataInteraction();
         }
 
         public void AddVertexInteraction(Vector3 position, int[] connectedVertices, bool updateMesh)
@@ -434,8 +436,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #region Mesh editing
         public void AddPointFacingTriangle(int a, int b, int c, Vector3 localFacingPosition)
         {
-            Debug.Log($"Adding triagnle {a}, {b}, {c}");
-
             Vector3 vecA = vertices[a];
             Vector3 vecB = vertices[b];
             Vector3 vecC = vertices[c];
