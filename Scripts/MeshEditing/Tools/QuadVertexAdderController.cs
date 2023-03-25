@@ -24,8 +24,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         int activeVertex = -1;
-        int closestVertex = -1;
-        int secondClosestVertex = -1;
+        int closestVertexInConnectedArray = -1;
+        int secondClosestVertexInConnectedArray = -1;
 
         Vector3 activeVertexPosition = Vector3.zero;
 
@@ -37,12 +37,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             string returnString = base.MultiLineDebugState();
 
             returnString += $"{nameof(activeVertex)} = {activeVertex}\n";
-            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
-            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
+            returnString += $"{nameof(closestVertexInConnectedArray)} = {closestVertexInConnectedArray}\n";
+            returnString += $"{nameof(secondClosestVertexInConnectedArray)} = {secondClosestVertexInConnectedArray}\n";
             returnString += $"{nameof(activeVertexPosition)} = {activeVertexPosition}\n";
 
-            if(connectedVertices != null) returnString += $"{nameof(connectedVertices)}.length = {connectedVertices.Length}\n";
-            else returnString += $"{nameof(connectedVertices)} = null\n";
+            returnString += $"• {nameof(connectedVertices)} = {GetIntArrayString(connectedVertices)}\n";
 
             if (connectedVertexPositions != null) returnString += $"{nameof(connectedVertexPositions)}.length = {connectedVertexPositions.Length}\n";
             else returnString += $"{nameof(connectedVertexPositions)} = null\n";
@@ -53,8 +52,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnActivation()
         {
             activeVertex = -1;
-            closestVertex= -1;
-            secondClosestVertex = -1;
+            closestVertexInConnectedArray= -1;
+            secondClosestVertexInConnectedArray = -1;
             LinkedInteractionInterface.ShowLineRenderer = false;
         }
 
@@ -68,8 +67,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (activeVertex == -1) return;
 
-            closestVertex = -1;
-            secondClosestVertex = -1;
+            closestVertexInConnectedArray = -1;
+            secondClosestVertexInConnectedArray = -1;
 
             float closestDistance = Mathf.Infinity;
             float secondclosestDistance = Mathf.Infinity;
@@ -78,8 +77,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             for (int i = 0; i < connectedVertices.Length; i++)
             {
-                if (i == activeVertex) continue;
-
                 Vector3 currentPosition = connectedVertexPositions[i];
 
                 float distance = (localHandPosition - currentPosition).magnitude;
@@ -88,25 +85,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (distance < secondclosestDistance)
                 {
                     secondclosestDistance = distance;
-                    secondClosestVertex = i;
+                    secondClosestVertexInConnectedArray = i;
                 }
 
                 //Swap
                 if (secondclosestDistance < closestDistance)
                 {
                     float tempD = secondclosestDistance;
-                    int tempV = secondClosestVertex;
+                    int tempV = secondClosestVertexInConnectedArray;
 
                     secondclosestDistance = closestDistance;
-                    secondClosestVertex = closestVertex;
+                    secondClosestVertexInConnectedArray = closestVertexInConnectedArray;
 
                     closestDistance = tempD;
-                    closestVertex = tempV;
+                    closestVertexInConnectedArray = tempV;
                 }
             }
 
             LinkedInteractionInterface.SetLineRendererPositions(
-                new Vector3[] { connectedVertexPositions[closestVertex], localHandPosition, activeVertexPosition, localHandPosition, connectedVertexPositions[secondClosestVertex] }
+                new Vector3[] { connectedVertexPositions[closestVertexInConnectedArray], localHandPosition, activeVertexPosition, localHandPosition, connectedVertexPositions[secondClosestVertexInConnectedArray] }
                 , false);
         }
 
@@ -117,8 +114,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedInteractionInterface.ShowLineRenderer = false;
 
             activeVertex = -1;
-            closestVertex = -1;
-            secondClosestVertex = -1;
+            closestVertexInConnectedArray = -1;
+            secondClosestVertexInConnectedArray = -1;
         }
 
         public override void OnUseDown()
@@ -146,20 +143,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     //Deselect current
                     Deselect();
                 }
-                else if(closestVertex >= 0 && secondClosestVertex >= 0)
+                else if(closestVertexInConnectedArray >= 0 && secondClosestVertexInConnectedArray >= 0)
                 {
                     //Merge with vertex
 
                     Vector3 headPosition = HeadPosition;
 
-                    if (interactedVertex != connectedVertices[closestVertex])
+                    if (interactedVertex != connectedVertices[closestVertexInConnectedArray])
                     {
-                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, closestVertex, headPosition, false);
+                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, connectedVertices[closestVertexInConnectedArray], headPosition, false);
                     }
 
-                    if(interactedVertex != connectedVertices[secondClosestVertex])
+                    if(interactedVertex != connectedVertices[secondClosestVertexInConnectedArray])
                     {
-                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, secondClosestVertex, headPosition, false);
+                        LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, connectedVertices[secondClosestVertexInConnectedArray], headPosition, false);
                     }
 
                     LinkedInteractionInterface.UpdateMeshFromData();
@@ -169,10 +166,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             else
             {
-                if (closestVertex >= 0 && secondClosestVertex >= 0)
+                if (closestVertexInConnectedArray >= 0 && secondClosestVertexInConnectedArray >= 0)
                 {
                     //Add new vertex
-                    LinkedInteractionInterface.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { activeVertex, closestVertex, secondClosestVertex }, true);
+                    LinkedInteractionInterface.AddVertex(InteractionPositionWithMirrorLineSnap, new int[] { connectedVertices[closestVertexInConnectedArray], activeVertex, connectedVertices[secondClosestVertexInConnectedArray] }, true);
                 }
 
                 Deselect();
@@ -192,6 +189,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnUseUp()
         {
             
+        }
+
+        string GetIntArrayString(int[] array) //Should be static
+        {
+            if (array == null) return "null";
+            if (array.Length == 0) return "[]";
+
+            string returnString = "[";
+
+            foreach (int element in array)
+            {
+                returnString += element + ", ";
+            }
+
+            returnString = returnString.Substring(0, returnString.Length - 2) + "]";
+
+            return returnString;
         }
     }
 }

@@ -29,16 +29,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             string returnString = base.MultiLineDebugState();
 
-            returnString += $"• Connected vertices = ";
-
-            foreach(int vertex in vertices)
-            {
-                returnString += vertex + ", ";
-            }
-
-            returnString = returnString.Substring(0, returnString.Length - 2);
-
-            returnString += "\n";
+            returnString += $"• {nameof(vertices)} = {GetIntArrayString(vertices)}\n";
 
             returnString += $"• Vertex index length = {vertices.Length}\n";
 
@@ -101,6 +92,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnUseUp()
         {
             
+        }
+
+        string GetIntArrayString(int[] array) //Should be static
+        {
+            if (array == null) return "null";
+            if (array.Length == 0) return "[]";
+
+            string returnString = "[";
+
+            foreach (int element in array)
+            {
+                returnString += element + ", ";
+            }
+
+            returnString = returnString.Substring(0, returnString.Length - 2) + "]";
+
+            return returnString;
         }
     }
 }
