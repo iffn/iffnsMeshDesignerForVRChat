@@ -392,6 +392,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void UpdateMeshFromDataInteraction()
         {
+            if(vertices.Length < 3 || triangles.Length < 3)
+            {
+                SetDefaultMesh();
+            }
+
             linkedMeshController.SetData(vertices, triangles, this);
 
             UpdateVertexIndicatorsInEditMode();
@@ -434,6 +439,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         #endregion
 
         #region Mesh editing
+        void SetDefaultMesh()
+        {
+            vertices = new Vector3[]
+                {
+                    Vector3.zero,
+                    0.1f * Vector3.up,
+                    0.1f * Vector3.right
+                };
+
+            triangles = new int[] { 0, 1, 2 };
+        }
+
         public void AddPointFacingTriangle(int a, int b, int c, Vector3 localFacingPosition)
         {
             Vector3 vecA = vertices[a];
@@ -526,6 +543,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [RecursiveMethod]
         void RemoveUnconnectedVertices()
         {
+            if(vertices.Length == 0)
+            {
+                SetDefaultMesh();
+                return;
+            }
+
             bool[] vertexUsed = new bool[vertices.Length];
 
             if (vertexUsed[0] == true)

@@ -17,19 +17,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Other Unity assingments")]
         [SerializeField] ObjConterter LinkedObjConverter;
         [SerializeField] BaseMeshConverter[] LinkedImporters;
-        
+
         MeshController linkedMeshController;
         MeshEditor linkedMeshEditor;
+        MeshSyncController linkedSyncController;
         Mesh referenceMesh;
         GameObject referenceMeshHolder;
         GameObject mirrorReferenceMeshHolder;
 
         bool skipUpdate = false;
 
-        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject mirrorReferenceHolder)
+        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, MeshSyncController linkedSyncController, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject mirrorReferenceHolder)
         {
             this.linkedMeshController = linkedMeshController;
             this.linkedMeshEditor = linkedMeshEditor;
+            this.linkedSyncController = linkedSyncController;
             this.referenceMesh = referenceMesh;
             this.referenceMeshHolder = referenceMeshHolder;
             this.mirrorReferenceMeshHolder = mirrorReferenceHolder;
@@ -49,13 +51,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             */
         }
 
-        public void ImportObjForDefaultMeshLoader(string objText) //For default mesh loader
+        public void ImportData(string objText, BaseMeshConverter converter) //For default mesh loader
         {
-            bool worked = LinkedObjConverter.ImportMeshIfValidAndSaveData(objText);
+            if (!linkedSyncController.IsOwner) return;
+
+            bool worked = converter.ImportMeshIfValidAndSaveData(objText);
 
             if (!worked) return;
 
-            linkedMeshController.SetData(LinkedObjConverter.VerticesFromLastImport, LinkedObjConverter.TrianglesFromLastImport, this);
+            linkedMeshController.SetData(converter.VerticesFromLastImport, converter.TrianglesFromLastImport, this);
         }
 
         BaseMeshConverter CurrentConverter
@@ -85,13 +89,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void ImportData()
         {
-            BaseMeshConverter currentConverter = CurrentConverter;
-
-            bool worked = currentConverter.ImportMeshIfValidAndSaveData(LinkedInputField.text);
-
-            if (!worked) return;
-
-            linkedMeshController.SetData(currentConverter.VerticesFromLastImport, currentConverter.TrianglesFromLastImport, this);
+            ImportData(LinkedInputField.text, CurrentConverter);
         }
 
         public void MergeOverlappingVertices()

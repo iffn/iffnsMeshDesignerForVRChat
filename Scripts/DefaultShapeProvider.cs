@@ -10,12 +10,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class DefaultShapeProvider : UdonSharpBehaviour
     {
         [SerializeField] MeshConverterController LinkedMeshConverterController;
+        [SerializeField] BaseMeshConverter LinkedConverter;
 
         [SerializeField, TextArea(1, 10)] string ImportText;
 
         public void Import()
         {
-            LinkedMeshConverterController.ImportObjForDefaultMeshLoader(ImportText);
+            LinkedMeshConverterController.ImportData(ImportText, LinkedConverter);
         }
     }
 }

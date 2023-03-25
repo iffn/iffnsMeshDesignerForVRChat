@@ -43,7 +43,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedToolSettings.Setup(LinkedToolController);
             LinkedSyncSettings.Setup(LinkedMeshSyncController);
             LinkedSyncedDisplaySettings.Setup(LinkedScaler);
-            LinkedMeshConverterController.Setup(LinkedMeshController, LinkedMeshEditor, ReferenceMeshFilter.mesh, ReferenceMeshHolder, MirrorReferenceMeshHolder);
+            LinkedMeshConverterController.Setup(LinkedMeshController, LinkedMeshEditor, LinkedMeshSyncController, ReferenceMeshFilter.mesh, ReferenceMeshHolder, MirrorReferenceMeshHolder);
         }
     }
 }

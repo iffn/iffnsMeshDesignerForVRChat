@@ -44,8 +44,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        
-
         public string DebugState()
         {
             string returnString = "";
@@ -126,7 +124,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
-            //Current bug with VRChat: Will not fire when player leaves https://vrchat.canny.io/udon-networking-update/p/1258-onownershiptransferred-does-not-fire-at-onplayerleft-if-last-owner-is-passi
+            //Current bug with VRChat: Will not fire when owner leaves https://vrchat.canny.io/udon-networking-update/p/1258-onownershiptransferred-does-not-fire-at-onplayerleft-if-last-owner-is-passi
             
             linkedInterface.Owner = player;
         }

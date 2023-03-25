@@ -6,8 +6,6 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
 using UnityEngine.UI;
-using UnityEditor.EditorTools;
-using Newtonsoft.Json.Linq;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
