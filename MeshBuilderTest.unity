@@ -18251,7 +18251,7 @@ GameObject:
   - component: {fileID: 6540606160030703357}
   - component: {fileID: 6540606160030703358}
   m_Layer: 0
-  m_Name: Obj text
+  m_Name: Converter text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24849,7 +24849,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6540606161303123188}
-  LinkedInputField: {fileID: 0}
+  LinkedInputField: {fileID: 6540606160030703356}
   LinkedControllerSelectorDropdown: {fileID: 6540606159829111340}
   ShowReferenceMeshTroggle: {fileID: 6540606159525518034}
   MirrorReferenceMeshTroggle: {fileID: 6540606161486080523}
@@ -24915,7 +24915,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6540606161303123191}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.0021457672}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6540606161460226536}
