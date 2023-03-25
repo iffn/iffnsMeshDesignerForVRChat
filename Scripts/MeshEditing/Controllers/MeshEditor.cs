@@ -247,14 +247,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 returnValue[lastIndex] = i;
                 distances[lastIndex] = distance;
 
-                for (int j = returnValue.Length - 1; j < 0; j--)
+                for (int j = returnValue.Length - 1; j > 0; j--)
                 {
+                    ///*if (i == 0 && j == returnValue.Length - 1)*/ Debug.Log($"{distances[j - 1]} < {distances[j]} ");
                     if (distances[j - 1] < distances[j]) break;
 
                     int saveIndex = returnValue[j];
                     float saveDistance = distances[j];
 
-                    returnValue[j] = returnValue[j-1];
+                    returnValue[j] = returnValue[j - 1];
                     distances[j] = distances[j - 1];
 
                     returnValue[j - 1] = saveIndex;
