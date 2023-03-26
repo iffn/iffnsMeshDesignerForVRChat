@@ -10,10 +10,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Unity assingments")]
 
-        [SerializeField] Toggle UseRightHand;
+        [SerializeField] Toggle RightHandedModeToggle;
+        [SerializeField] GameObject RightHandedModeHolder;
         [SerializeField] Toggle InEditModeToggle;
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
+        [SerializeField] GameObject VertexInteractionOffsetHolder;
         [SerializeField] TMPro.TextMeshProUGUI DebugState;
 
         ToolController linkedToolController;
@@ -21,6 +23,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void Setup(ToolController linkedToolController)
         {
             this.linkedToolController = linkedToolController;
+
+            bool isInVR = Networking.LocalPlayer.IsUserInVR();
+
+            VertexInteractionOffsetHolder.SetActive(isInVR);
+            RightHandedModeHolder.SetActive(isInVR);
         }
 
         public bool InEditMode
@@ -56,7 +63,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             linkedToolController.InEditMode = InEditModeToggle.isOn;
 
-            if (UseRightHand.isOn)
+            if (RightHandedModeToggle.isOn)
             {
                 linkedToolController.PrimaryHand = VRC.Udon.Common.HandType.RIGHT;
             }

@@ -8798,7 +8798,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6752758363256675488}
   m_Layer: 0
-  m_Name: Use Wireframe material
+  m_Name: Use Wireframe material holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12161,7 +12161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6255599210803627424}
   m_Layer: 0
-  m_Name: Edit mesh
+  m_Name: Edit mesh holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13316,7 +13316,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6193615607008716298}
   m_Layer: 0
-  m_Name: Interaction offset position
+  m_Name: Interaction offset position holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13515,10 +13515,12 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 5829090829776894124}
-  UseRightHand: {fileID: 6540606160094602771}
+  RightHandedModeToggle: {fileID: 6540606160094602771}
+  RightHandedModeHolder: {fileID: 6540606159490471546}
   InEditModeToggle: {fileID: 366975580241226825}
   UseWireframeMaterialToggle: {fileID: 4164725277957091627}
   VertexInteractionOffsetSlider: {fileID: 4349687329627400220}
+  VertexInteractionOffsetHolder: {fileID: 5709066131427534233}
   DebugState: {fileID: 814668304}
 --- !u!114 &5829090829776894124
 MonoBehaviour:
@@ -14360,7 +14362,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6540606159490471546}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.00071525574}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6540606160094602772}
@@ -14371,7 +14373,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0.45784187, y: 0.07499993}
+  m_SizeDelta: {x: 0.6595074, y: 0.07499993}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6540606159490471546
 GameObject:
@@ -14383,7 +14385,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6540606159490471545}
   m_Layer: 0
-  m_Name: Use right hand
+  m_Name: Right handed mode holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16298,6 +16300,7 @@ GameObject:
   - component: {fileID: 6540606159782808704}
   - component: {fileID: 6540606159782808705}
   - component: {fileID: 6540606159782808706}
+  - component: {fileID: 6540606159782808709}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -16305,6 +16308,49 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &6540606159782808709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6540606159782808708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6540606160983500001}
+          m_MethodName: SendCustomEvent
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: CurserNowOverToolUI
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6540606160983500001}
+          m_MethodName: SendCustomEvent
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: CurserNoLongerOverToolUI
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!223 &6540606159782808716
 Canvas:
   m_ObjectHideFlags: 0
@@ -17449,7 +17495,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6540606159932917812}
   m_Layer: 0
-  m_Name: Show symmetry mesh
+  m_Name: Symmetry mode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17572,7 +17618,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: UpdateMirrorToggle
+          m_StringArgument: UpdateFromsSymmetryMeshToggle
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
@@ -17607,7 +17653,7 @@ GameObject:
   - component: {fileID: 6540606159951425529}
   - component: {fileID: 6540606159951425528}
   m_Layer: 0
-  m_Name: Show symmetry mesh
+  m_Name: Symmetry mode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18721,7 +18767,7 @@ GameObject:
   - component: {fileID: 6540606160094602772}
   - component: {fileID: 6540606160094602771}
   m_Layer: 0
-  m_Name: Use right hand
+  m_Name: Right handed mode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18981,7 +19027,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6540606160145864246}
   m_Layer: 0
-  m_Name: Mirror reference mesh
+  m_Name: Reference mesh symmetry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19786,7 +19832,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Use right hand
+  m_text: Right handed mode
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -19871,8 +19917,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.28809, y: 0.031411707}
-  m_SizeDelta: {x: 0.38733524, y: 0.07}
+  m_AnchoredPosition: {x: 0.3276, y: 0.031411707}
+  m_SizeDelta: {x: 0.46641028, y: 0.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6540606160285239638
 GameObject:
@@ -20516,7 +20562,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mirror reference mesh
+  m_text: Reference mesh symmetry
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -20593,7 +20639,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6540606160458417055}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6540606160145864246}
@@ -20601,8 +20647,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.3661, y: 0.031411707}
-  m_SizeDelta: {x: 0.543321, y: 0.07}
+  m_AnchoredPosition: {x: 0.4072, y: 0.031411707}
+  m_SizeDelta: {x: 0.6255194, y: 0.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6540606160458417055
 GameObject:
@@ -21017,7 +21063,7 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 6540606160495719723}
   ScalerTitleVR: {fileID: 6540606161358194805}
   ScalerTitleDesktop: {fileID: 6540606160024272119}
-  ShowMirrorToggle: {fileID: 6540606159951425528}
+  SymmetryModeToggle: {fileID: 6540606159951425528}
   ScalerLockStateOptions:
   - {fileID: 6540606161261120866}
   - {fileID: 6540606159509351979}
@@ -22362,7 +22408,7 @@ GameObject:
   - component: {fileID: 6540606160851816841}
   - component: {fileID: 6540606160851816842}
   m_Layer: 0
-  m_Name: Reference mesh mirror
+  m_Name: Reference symmetry mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23627,7 +23673,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6540606161303123188}
         m_MethodName: SendCustomEvent
         m_Mode: 5
         m_Arguments:
@@ -23635,7 +23681,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: ImportObjAsReferenceMesh
+          m_StringArgument: ImportDataForReference
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!224 &6540606161001212091
@@ -24385,7 +24431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Show symmetry mesh
+  m_text: Symmetry mode
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -24686,10 +24732,9 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 6540606161257554524}
   MeshTransform: {fileID: 6540606160946050241}
   MainMeshFilter: {fileID: 6540606159925218843}
-  MirrorMeshHolder: {fileID: 0}
+  MainSymmetryMeshFilter: {fileID: 6540606161465355830}
   ReferenceMeshFilter: {fileID: 6540606161465355830}
-  ReferenceMeshHolder: {fileID: 6540606160016332732}
-  MirrorReferenceMeshHolder: {fileID: 6540606160851816844}
+  ReferenceSymmetryMeshFilter: {fileID: 6540606160851816841}
   LinkedToolController: {fileID: 6540606160983500002}
   LinkedMeshEditor: {fileID: 6540606160669334257}
   LinkedMeshInteractionInterface: {fileID: 6540606159781945594}
@@ -24858,7 +24903,7 @@ MonoBehaviour:
   LinkedInputField: {fileID: 6540606160030703356}
   LinkedControllerSelectorDropdown: {fileID: 6540606159829111340}
   ShowReferenceMeshTroggle: {fileID: 6540606159525518034}
-  MirrorReferenceMeshTroggle: {fileID: 6540606161486080523}
+  ReferenceMeshSymmmetryTroggle: {fileID: 6540606161486080523}
   LinkedObjConverter: {fileID: 6540606159822798358}
   LinkedImporters:
   - {fileID: 6540606159822798358}
@@ -26583,7 +26628,7 @@ GameObject:
   - component: {fileID: 6540606161465355830}
   - component: {fileID: 6540606161465355831}
   m_Layer: 0
-  m_Name: Main mirror mesh
+  m_Name: Main symmetry mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26833,7 +26878,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6540606161303123188}
         m_MethodName: SendCustomEvent
         m_Mode: 5
         m_Arguments:
@@ -26841,7 +26886,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: UpdateReferenceMeshUI
+          m_StringArgument: ToggleUpdate
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
@@ -26876,7 +26921,7 @@ GameObject:
   - component: {fileID: 6540606161486080524}
   - component: {fileID: 6540606161486080523}
   m_Layer: 0
-  m_Name: Mirror reference mesh
+  m_Name: Reference mesh symmetry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28708,7 +28753,7 @@ GameObject:
   - component: {fileID: 7400020759450535635}
   - component: {fileID: 2934474857002218214}
   m_Layer: 0
-  m_Name: Interactor size
+  m_Name: Interactor size holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

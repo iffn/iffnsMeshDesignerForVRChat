@@ -163,9 +163,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             for (int i = 0; i<EditTools.Length; i++)
             {
-                GameObject newButtonObject = GameObject.Instantiate(template);
-
-                newButtonObject.transform.SetParent(holder);
+                GameObject newButtonObject = GameObject.Instantiate(template, holder, false);
 
                 InteractionTypeSelectorButton button = newButtonObject.transform.GetComponent<InteractionTypeSelectorButton>();
 
@@ -190,8 +188,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        
-
         //UI
         private void Update()
         {
@@ -201,17 +197,30 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (isInVR)
             {
+                //Interaction position
                 LinkedVRHandIndicator.position = InteractionPosition;
 
-                Vector3 handPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
-                Vector3 ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.RightLowerArm);
+                //UI
+                Vector3 secondaryHandPosition;
+                Vector3 ellbowPosition;
+
+                if (PrimaryHand == HandType.RIGHT)
+                {
+                    secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftHand);
+                    ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftLowerArm);
+                }
+                else
+                {
+                    secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
+                    ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.RightLowerArm);
+                }
+
+                float distance = (secondaryHandPosition - ellbowPosition).magnitude;
 
                 Quaternion playerRotation = localPlayer.GetRotation();
 
-                float distance = (handPosition - ellbowPosition).magnitude;
-
                 VRUI.SetPositionAndRotation(
-                    localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position + playerRotation * (distance * new Vector3(0.5f, 0.3f, 0)),
+                    secondaryHandPosition + playerRotation * (distance * 0.05f * Vector3.up),
                     playerRotation * additionalRotation);
 
                 VRUI.localScale = distance * 0.5f * Vector3.one;
@@ -412,7 +421,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        Quaternion GetPrimaryHandRotation
+        Quaternion PrimaryHandRotation
         {
             get
             {
@@ -444,6 +453,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
 
+        //VRChat UI function calls
+        public void CurserNowOverToolUI()
+        {
+            OverUIElement = true;
+        }
+
+        public void CurserNoLongerOverToolUI()
+        {
+            OverUIElement = false;
+        }
 
         #region VRChat input functions
         public override void InputGrab(bool value, UdonInputEventArgs args)
