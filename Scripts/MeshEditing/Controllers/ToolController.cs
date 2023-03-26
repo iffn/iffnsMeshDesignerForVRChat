@@ -68,6 +68,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public bool MirrorMode {private get; set; } = false;
+
         bool inEditMode;
         public bool InEditMode
         {
@@ -353,7 +355,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 Vector3 position = meshTransform.InverseTransformPoint(InteractionPosition);
 
-                if (Mathf.Abs(position.x) < vertexInteractionDistance) position.x = 0;
+                if (MirrorMode && Mathf.Abs(position.x) < vertexInteractionDistance) position.x = 0;
 
                 return position;
             }

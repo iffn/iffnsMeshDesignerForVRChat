@@ -12,9 +12,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [Header("Unity assingments: General objects")]
         [SerializeField] Transform MeshTransform;
         [SerializeField] MeshFilter MainMeshFilter;
+        [SerializeField] MeshFilter MainSymmetryMeshFilter;
         [SerializeField] MeshFilter ReferenceMeshFilter;
-        [SerializeField] GameObject ReferenceMeshHolder;
-        [SerializeField] GameObject MirrorReferenceMeshHolder;
+        [SerializeField] MeshFilter ReferenceSymmetryMeshFilter;
 
         [Header("Unity assingments: Controllers")]
         [SerializeField] ToolController LinkedToolController;
@@ -42,8 +42,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Settings
             LinkedToolSettings.Setup(LinkedToolController);
             LinkedSyncSettings.Setup(LinkedMeshSyncController);
-            LinkedSyncedDisplaySettings.Setup(LinkedScaler);
-            LinkedMeshConverterController.Setup(LinkedMeshController, LinkedMeshEditor, LinkedMeshSyncController, ReferenceMeshFilter.mesh, ReferenceMeshHolder, MirrorReferenceMeshHolder);
+            LinkedSyncedDisplaySettings.Setup(LinkedScaler, MainSymmetryMeshFilter.gameObject, LinkedToolController);
+            LinkedMeshConverterController.Setup(LinkedMeshController, LinkedMeshEditor, LinkedMeshSyncController, ReferenceMeshFilter.mesh, ReferenceMeshFilter.gameObject, ReferenceSymmetryMeshFilter.gameObject);
+
+            SendCustomEventDelayedFrames(nameof(SetSymmetryMeshes), 1);
+        }
+
+        public void SetSymmetryMeshes()
+        {
+            //Somehow always on start
+            MainSymmetryMeshFilter.sharedMesh = MainMeshFilter.sharedMesh;
+            ReferenceSymmetryMeshFilter.sharedMesh = ReferenceMeshFilter.sharedMesh;
         }
     }
 }

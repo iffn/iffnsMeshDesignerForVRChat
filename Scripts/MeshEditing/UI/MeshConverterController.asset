@@ -239,13 +239,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: MirrorReferenceMeshTroggle
+      Data: ReferenceMeshSymmmetryTroggle
     - Name: $v
       Entry: 7
       Data: 15|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: MirrorReferenceMeshTroggle
+      Data: ReferenceMeshSymmmetryTroggle
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 12
@@ -704,13 +704,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: mirrorReferenceMeshHolder
+      Data: symmetryReferenceMeshHolder
     - Name: $v
       Entry: 7
       Data: 44|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: mirrorReferenceMeshHolder
+      Data: symmetryReferenceMeshHolder
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 42

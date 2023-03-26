@@ -12,7 +12,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] InputField LinkedInputField;
         [SerializeField] Dropdown LinkedControllerSelectorDropdown;
         [SerializeField] Toggle ShowReferenceMeshTroggle;
-        [SerializeField] Toggle MirrorReferenceMeshTroggle;
+        [SerializeField] Toggle ReferenceMeshSymmmetryTroggle;
 
         [Header("Other Unity assingments")]
         [SerializeField] ObjConterter LinkedObjConverter;
@@ -23,18 +23,18 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         MeshSyncController linkedSyncController;
         Mesh referenceMesh;
         GameObject referenceMeshHolder;
-        GameObject mirrorReferenceMeshHolder;
+        GameObject symmetryReferenceMeshHolder;
 
         bool skipUpdate = false;
 
-        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, MeshSyncController linkedSyncController, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject mirrorReferenceHolder)
+        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, MeshSyncController linkedSyncController, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject symmetryReferenceHolder)
         {
             this.linkedMeshController = linkedMeshController;
             this.linkedMeshEditor = linkedMeshEditor;
             this.linkedSyncController = linkedSyncController;
             this.referenceMesh = referenceMesh;
             this.referenceMeshHolder = referenceMeshHolder;
-            this.mirrorReferenceMeshHolder = mirrorReferenceHolder;
+            this.symmetryReferenceMeshHolder = symmetryReferenceHolder;
 
             //Unable to set input field options at this time
             /*
@@ -118,7 +118,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void ToggleUpdate()
         {
             referenceMeshHolder.SetActive(ShowReferenceMeshTroggle.isOn);
-            mirrorReferenceMeshHolder.SetActive(MirrorReferenceMeshTroggle.isOn);
+            symmetryReferenceMeshHolder.SetActive(ReferenceMeshSymmmetryTroggle.isOn);
         }
 
         public void DropdownUpdate()

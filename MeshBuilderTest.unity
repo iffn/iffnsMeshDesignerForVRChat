@@ -14548,7 +14548,7 @@ MonoBehaviour:
   LinkedToggle: {fileID: 6540606161388703632}
 --- !u!114 &6540606159509351980
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -15042,6 +15042,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6540606159641517668}
   LinkedMeshConverterController: {fileID: 6540606161303123187}
+  LinkedConverter: {fileID: 6540606159822798358}
   ImportText: 'o Break test
 
     v 0.00000 0.10000 0.00000
@@ -15072,7 +15073,7 @@ MonoBehaviour:
 '
 --- !u!114 &6540606159641517668
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -15305,6 +15306,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6540606159667562737}
   LinkedMeshConverterController: {fileID: 6540606161303123187}
+  LinkedConverter: {fileID: 6540606159822798358}
   ImportText: 'o Merged cube
 
     v 0.10000 0.10000 -0.10000
@@ -15355,7 +15357,7 @@ MonoBehaviour:
 '
 --- !u!114 &6540606159667562737
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -17172,7 +17174,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &6540606159913522968
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -17562,7 +17564,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6540606160495719723}
         m_MethodName: SendCustomEvent
         m_Mode: 5
         m_Arguments:
@@ -17570,7 +17572,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: ToggleEditMesh
+          m_StringArgument: UpdateMirrorToggle
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
@@ -17813,7 +17815,7 @@ GameObject:
   - component: {fileID: 6540606159989283544}
   - component: {fileID: 6540606159989283545}
   m_Layer: 0
-  m_Name: Title (1)
+  m_Name: Default shape title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19310,6 +19312,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6540606160206893493}
   LinkedMeshConverterController: {fileID: 6540606161303123187}
+  LinkedConverter: {fileID: 6540606159822798358}
   ImportText: 'o Quad
 
     v 0.00000 0.10000 0.00000
@@ -19327,7 +19330,7 @@ MonoBehaviour:
     3 4'
 --- !u!114 &6540606160206893493
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -19411,6 +19414,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 6540606160224314377}
   LinkedMeshConverterController: {fileID: 6540606161303123187}
+  LinkedConverter: {fileID: 6540606159822798358}
   ImportText: 'o Unmerged cube
 
     v 0.10000 0.10000 -0.10000
@@ -19498,7 +19502,7 @@ MonoBehaviour:
     21 23 24'
 --- !u!114 &6540606160224314377
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -21013,6 +21017,7 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 6540606160495719723}
   ScalerTitleVR: {fileID: 6540606161358194805}
   ScalerTitleDesktop: {fileID: 6540606160024272119}
+  ShowMirrorToggle: {fileID: 6540606159951425528}
   ScalerLockStateOptions:
   - {fileID: 6540606161261120866}
   - {fileID: 6540606159509351979}
@@ -24681,6 +24686,7 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 6540606161257554524}
   MeshTransform: {fileID: 6540606160946050241}
   MainMeshFilter: {fileID: 6540606159925218843}
+  MirrorMeshHolder: {fileID: 0}
   ReferenceMeshFilter: {fileID: 6540606161465355830}
   ReferenceMeshHolder: {fileID: 6540606160016332732}
   MirrorReferenceMeshHolder: {fileID: 6540606160851816844}
@@ -24764,7 +24770,7 @@ MonoBehaviour:
   LinkedToggle: {fileID: 6540606161130966273}
 --- !u!114 &6540606161261120867
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -27333,7 +27339,7 @@ MonoBehaviour:
   LinkedToggle: {fileID: 6540606159650791766}
 --- !u!114 &6540606161526082817
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
