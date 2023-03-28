@@ -27,11 +27,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override string MultiLineDebugState()
         {
-            string returnString = base.MultiLineDebugState();
-
-            returnString += $"• {nameof(vertices)} = {GetIntArrayString(vertices)}\n";
-
-            returnString += $"• Vertex index length = {vertices.Length}\n";
+            string returnString = base.MultiLineDebugState()
+                + $"• {nameof(vertices)} = {GetIntArrayString(vertices)}\n"
+                + $"• Vertex index length = {vertices.Length}\n";
 
             return returnString;
         }

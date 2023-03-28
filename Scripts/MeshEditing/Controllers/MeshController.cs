@@ -28,12 +28,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public string DebugState()
         {
-            string returnString = "";
-
-            returnString += $"Debug output of {nameof(MeshController)} at {Time.time}:\n";
-            returnString += $"{nameof(lastUpdateTime)}: {lastUpdateTime}\n";
-            returnString += $"Vertices: {linkedMesh.vertices.Length}\n";
-            returnString += $"Triangles: {linkedMesh.triangles.Length}\n";
+            string returnString = ""
+                + $"Debug output of {nameof(MeshController)} at {Time.time:0.000}:\n"
+                + $"{nameof(lastUpdateTime)}: {lastUpdateTime:0.000}\n"
+                + $"Vertices: {linkedMesh.vertices.Length}\n"
+                + $"Triangles: {linkedMesh.triangles.Length}\n";
 
             return returnString;
         }

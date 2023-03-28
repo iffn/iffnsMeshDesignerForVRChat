@@ -76,9 +76,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public virtual string MultiLineDebugState()
         {
-            string returnString = $"Debug of {ToolName} at {Time.time}:\n";
-
-            returnString += $"• {nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
+            string returnString = $"Debug of {ToolName} at {Time.time:0.000}:\n"
+                + $"• {nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
 
             return returnString;
         }

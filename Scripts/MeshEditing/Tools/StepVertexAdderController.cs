@@ -32,12 +32,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override string MultiLineDebugState()
         {
-            string returnString = base.MultiLineDebugState();
-
-            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
-            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
-            returnString += $"{nameof(closestVertexPosition)} = {closestVertexPosition}\n";
-            returnString += $"{nameof(secondClosestVertexPosition)} = {secondClosestVertexPosition}\n";
+            string returnString = base.MultiLineDebugState()
+                + $"• {nameof(closestVertex)} = {closestVertex}\n"
+                + $"• {nameof(secondClosestVertex)} = {secondClosestVertex}\n"
+                + $"• {nameof(closestVertexPosition)} = {closestVertexPosition}\n"
+                + $"• {nameof(secondClosestVertexPosition)} = {secondClosestVertexPosition}\n";
 
             return returnString;
         }

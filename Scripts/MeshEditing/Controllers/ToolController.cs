@@ -101,26 +101,22 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             string returnString = "";
 
-            returnString += $"Debug output of {nameof(ToolController)} at {Time.time}:\n";
-            returnString += $"• {nameof(lastUpdateTime)}: {lastUpdateTime}\n";
-            returnString += $"• {nameof(buttons)}.length: {buttons.Length}\n";
-            returnString += $"• {nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n";
-            returnString += $"• {nameof(OverUIElement)}: {OverUIElement}\n";
-            returnString += $"• {nameof(useAndGrabAreTheSame)}: {useAndGrabAreTheSame}\n";
-            returnString += $"• {nameof(desktopPickupDistance)}: {desktopPickupDistance}\n";
-            if(isInVR) returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
-            returnString += $"• {nameof(inEditMode)}: {inEditMode}\n";
-            returnString += $"• {nameof(currentEditTool)}: {(currentEditTool ? currentEditTool.name : "null")}\n";
-            returnString += $"• {nameof(currentButton)}.{nameof(currentButton.LinkedTool)}.{nameof(currentButton.LinkedTool.name)}: {(currentButton ? currentButton.LinkedTool.name : "null")}\n";
+            returnString += $"Debug output of {nameof(ToolController)} at {Time.time:0.000}:\n"
+                + $"• {nameof(lastUpdateTime)}: {lastUpdateTime:0.000}\n"
+                + $"• {nameof(buttons)}.length: {buttons.Length}\n"
+                + $"• {nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n"
+                + $"• {nameof(OverUIElement)}: {OverUIElement}\n"
+                + $"• {nameof(useAndGrabAreTheSame)}: {useAndGrabAreTheSame}\n"
+                + $"• {nameof(desktopPickupDistance)}: {desktopPickupDistance}\n";
             
-            returnString += "\n";
+            if (isInVR) returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
             
-            if (currentEditTool)
-            {
-                returnString += currentEditTool.MultiLineDebugState();
-
-                returnString += "\n";
-            }
+            returnString += $"• {nameof(inEditMode)}: {inEditMode}\n"
+                + $"• {nameof(currentEditTool)}: {(currentEditTool ? currentEditTool.name : "null")}\n"
+                + $"• {nameof(currentButton)}.{nameof(currentButton.LinkedTool)}.{nameof(currentButton.LinkedTool.name)}: {(currentButton ? currentButton.LinkedTool.name : "null")}\n"
+                + "\n";
+            
+            if (currentEditTool) returnString += $"{currentEditTool.MultiLineDebugState()}\n";
 
             returnString += linkedMeshEditor.MultiLineDebugState();
 
@@ -286,8 +282,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 DistanceMaterialSelected.SetFloat(distancePropertyName, desktopPickupDistance);
                 DistanceMaterialReadyToRemove.SetFloat(distancePropertyName, desktopPickupDistance);
             }
-
-            
         }
 
         public MeshEditTool CurrentInteractorTool
@@ -335,11 +329,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                     if (isInVR)
                     {
-                        CurrentToolTextVR.text = "Current tool = " + currentButton.LinkedTool.name;
+                        CurrentToolTextVR.text = "Current tool = " + currentButton.LinkedTool.ToolName;
                     }
                     else
                     {
-                        CurrentToolTextDesktop.text = "Current tool = " + currentButton.LinkedTool.name;
+                        CurrentToolTextDesktop.text = "Current tool = " + currentButton.LinkedTool.ToolName;
                     }
 
                     currentEditTool = currentButton.LinkedTool;

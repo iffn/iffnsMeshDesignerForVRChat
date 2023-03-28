@@ -44,17 +44,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public string DebugState()
+        public string MultiLineDebugState()
         {
             string returnString = "";
 
-            returnString += $"Debug output of {nameof(MeshSyncController)} at {Time.time}:\n";
-            returnString += $"Is owner: {Networking.IsOwner(gameObject)}\n";
-            returnString += $"{nameof(lastPostSerializationResult)}:\n";
-            returnString += $"{nameof(lastPostSerializationResult.success)}: {lastPostSerializationResult.success}\n";
-            returnString += $"{nameof(lastPostSerializationResult.byteCount)}: {lastPostSerializationResult.byteCount}\n";
-            returnString += $"{nameof(syncLimitThreshold)}: {syncLimitThreshold}\n";
-            returnString += $"{nameof(MinTimeBetweenSync)}: {MinTimeBetweenSync}\n";
+            returnString += $"Debug output of {nameof(MeshSyncController)} at {Time.time:0.000}:\n"
+                + $"Is owner: {Networking.IsOwner(gameObject)}\n"
+                + $"{nameof(lastPostSerializationResult)}:\n"
+                + $"{nameof(lastPostSerializationResult.success)}: {lastPostSerializationResult.success}\n"
+                + $"{nameof(lastPostSerializationResult.byteCount)}: {lastPostSerializationResult.byteCount}\n"
+                + $"{nameof(syncLimitThreshold)}: {syncLimitThreshold}\n"
+                + $"{nameof(MinTimeBetweenSync)}: {MinTimeBetweenSync}\n";
 
             return returnString;
         }

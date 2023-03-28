@@ -19,7 +19,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             get
             {
-                return "Step add triangle";
+                return "Step remove triangle";
             }
         }
 
@@ -28,10 +28,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override string MultiLineDebugState()
         {
-            string returnString = base.MultiLineDebugState();
-
-            returnString += $"{nameof(closestVertex)} = {closestVertex}\n";
-            returnString += $"{nameof(secondClosestVertex)} = {secondClosestVertex}\n";
+            string returnString = base.MultiLineDebugState()
+                + $"• {nameof(closestVertex)} = {closestVertex}\n"
+                + $"• {nameof(secondClosestVertex)} = {secondClosestVertex}\n";
 
             return returnString;
         }

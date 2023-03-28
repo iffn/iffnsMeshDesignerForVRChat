@@ -23,6 +23,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] MeshController LinkedMeshController;
         [SerializeField] MeshSyncController LinkedMeshSyncController;
         [SerializeField] Scaler LinkedScaler;
+        [SerializeField] DebugController LinkedDebugController;
 
         [Header("Unity assingments: Settings")]
         [SerializeField] ToolSettings LinkedToolSettings;
@@ -32,12 +33,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         private void Start()
         {
+            Debug.Log("Start called");
+
             //Controllers
             LinkedToolController.Setup(LinkedToolSettings, LinkedMeshEditor, LinkedMeshInteractionInterface, MeshTransform);
             LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController, MeshTransform);
             LinkedMeshInteractionInterface.Setup(LinkedMeshEditor);
             LinkedMeshController.Setup(LinkedMeshEditor, LinkedMeshSyncController, MainMeshFilter.mesh);
             LinkedMeshSyncController.Setup(LinkedMeshController, LinkedSyncSettings);
+            LinkedDebugController.Setup(LinkedToolController, LinkedMeshSyncController);
 
             //Settings
             LinkedToolSettings.Setup(LinkedToolController);

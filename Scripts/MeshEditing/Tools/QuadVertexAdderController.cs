@@ -34,14 +34,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override string MultiLineDebugState()
         {
-            string returnString = base.MultiLineDebugState();
-
-            returnString += $"{nameof(activeVertex)} = {activeVertex}\n";
-            returnString += $"{nameof(closestVertexInConnectedArray)} = {closestVertexInConnectedArray}\n";
-            returnString += $"{nameof(secondClosestVertexInConnectedArray)} = {secondClosestVertexInConnectedArray}\n";
-            returnString += $"{nameof(activeVertexPosition)} = {activeVertexPosition}\n";
-
-            returnString += $"• {nameof(connectedVertices)} = {GetIntArrayString(connectedVertices)}\n";
+            string returnString = base.MultiLineDebugState()
+                + $"• {nameof(activeVertex)} = {activeVertex}\n"
+                + $"• {nameof(closestVertexInConnectedArray)} = {closestVertexInConnectedArray}\n"
+                + $"• {nameof(secondClosestVertexInConnectedArray)} = {secondClosestVertexInConnectedArray}\n"
+                + $"• {nameof(activeVertexPosition)} = {activeVertexPosition}\n"
+                + $"• {nameof(connectedVertices)} = {GetIntArrayString(connectedVertices)}\n";
 
             if (connectedVertexPositions != null) returnString += $"{nameof(connectedVertexPositions)}.length = {connectedVertexPositions.Length}\n";
             else returnString += $"{nameof(connectedVertexPositions)} = null\n";

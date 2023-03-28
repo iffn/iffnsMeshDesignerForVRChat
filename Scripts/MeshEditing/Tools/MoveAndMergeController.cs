@@ -29,9 +29,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override string MultiLineDebugState()
         {
-            string returnString = base.MultiLineDebugState();
-
-            returnString += $"• {nameof(activeVertex)} = {activeVertex}\n";
+            string returnString = base.MultiLineDebugState()
+                + $"• {nameof(activeVertex)} = {activeVertex}\n";
 
             return returnString;
         }

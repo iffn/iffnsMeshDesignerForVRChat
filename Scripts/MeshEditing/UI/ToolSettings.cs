@@ -16,7 +16,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
         [SerializeField] GameObject VertexInteractionOffsetHolder;
-        [SerializeField] TMPro.TextMeshProUGUI DebugState;
 
         ToolController linkedToolController;
 
@@ -40,22 +39,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 InEditModeToggle.SetIsOnWithoutNotify(value);
             }
-        }
-
-        void WriteDebugText()
-        {
-            string debugText = $"Debug at {Time.time}\n";
-
-            debugText += "\n";
-
-            if (linkedToolController) debugText += linkedToolController.MultiLineDebugState();
-
-            DebugState.text = debugText;
-        }
-
-        private void Update()
-        {
-            WriteDebugText();
         }
 
         //VRChat UI events

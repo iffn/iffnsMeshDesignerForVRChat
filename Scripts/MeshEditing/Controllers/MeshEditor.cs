@@ -56,11 +56,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public string MultiLineDebugState()
         {
-            string returnString = $"Debug of {nameof(MeshEditor)} at {Time.time}:\n";
-
-            returnString += $"• {nameof(inEditMode)}: {inEditMode}\n";
-            returnString += $"• {nameof(vertices)}.length: {vertices.Length}\n";
-            returnString += $"• {nameof(triangles)}.length: {triangles.Length}\n";
+            string returnString = $"Debug of {nameof(MeshEditor)} at {Time.time:0.000}:\n"
+                + $"• {nameof(inEditMode)}: {inEditMode}\n"
+                + $"• {nameof(vertices)}.length: {vertices.Length}\n"
+                + $"• Mesh triangles (index length / 3): {triangles.Length/3}\n";
 
             return returnString;
         }
