@@ -40,13 +40,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController, MeshTransform);
             LinkedMeshInteractionInterface.Setup(LinkedMeshEditor);
             LinkedMeshController.Setup(LinkedMeshEditor, LinkedMeshSyncController, MainMeshFilter.mesh);
-            LinkedMeshSyncController.Setup(LinkedMeshController, LinkedSyncSettings);
+            LinkedMeshSyncController.Setup(LinkedMeshController, LinkedSyncSettings, LinkedScaler, LinkedSyncedDisplaySettings, LinkedToolSettings);
             LinkedDebugController.Setup(LinkedToolController, LinkedMeshSyncController);
 
             //Settings
-            LinkedToolSettings.Setup(LinkedToolController);
+            LinkedToolSettings.Setup(LinkedToolController, LinkedMeshSyncController);
             LinkedSyncSettings.Setup(LinkedMeshSyncController);
-            LinkedSyncedDisplaySettings.Setup(LinkedScaler, MainSymmetryMeshFilter.gameObject, LinkedToolController);
+            LinkedSyncedDisplaySettings.Setup(LinkedScaler, MainSymmetryMeshFilter.gameObject, LinkedToolController, LinkedMeshSyncController);
             LinkedMeshConverterController.Setup(LinkedMeshController, LinkedMeshEditor, LinkedMeshSyncController, ReferenceMeshFilter.mesh, ReferenceMeshFilter.gameObject, ReferenceSymmetryMeshFilter.gameObject);
 
             SendCustomEventDelayedFrames(nameof(SetSymmetryMeshes), 1);

@@ -23,12 +23,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         ScalerLockStateOption currentLockStateController;
         GameObject symmetryMeshHolder;
         ToolController linkedToolController;
+        MeshSyncController linkedMeshSyncController;
 
-        public void Setup(Scaler linkedScaler, GameObject mirrorMeshHolder, ToolController linkedToolController)
+        public bool SymmetryMode
+        {
+            set
+            {
+                symmetryMeshHolder.SetActive(value);
+                SymmetryModeToggle.SetIsOnWithoutNotify(value);
+                linkedToolController.MirrorMode = symmetryMode;
+            }
+        }
+
+        public void Setup(Scaler linkedScaler, GameObject mirrorMeshHolder, ToolController linkedToolController, MeshSyncController linkedMeshSyncController)
         {
             this.linkedScaler = linkedScaler;
             this.symmetryMeshHolder = mirrorMeshHolder;
             this.linkedToolController = linkedToolController;
+            this.linkedMeshSyncController = linkedMeshSyncController;
 
             //Set display text
             if (Networking.LocalPlayer.IsUserInVR())
@@ -53,8 +65,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             currentLockStateController = ScalerLockStateOptions[1];
             currentLockStateController.SetToggleState(true);
             linkedScaler.currentLockState = currentLockStateController.LockState;
+        }
 
-            SetSymmetryParameters();
+        public void ResetViewScale()
+        {
+            linkedScaler.ResetScale();
         }
 
         public void SetLockState(ScalerLockStateOption calledLockStateController)
@@ -66,24 +81,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             currentLockStateController = calledLockStateController;
         }
 
-        void SetSymmetryParameters()
-        {
-            linkedToolController.MirrorMode = symmetryMode;
-            SymmetryModeToggle.SetIsOnWithoutNotify(symmetryMode);
-            symmetryMeshHolder.SetActive(symmetryMode);
-        }
-
         //VRChat UI calls
-        public void ResetViewScale()
-        {
-            linkedScaler.ResetScale();
-        }
-
         public void UpdateFromsSymmetryMeshToggle()
         {
-            symmetryMode = SymmetryModeToggle.isOn;
+            bool symmetryMode = SymmetryModeToggle.isOn;
 
-            SetSymmetryParameters();
+            linkedMeshSyncController.SymmetryMode = symmetryMode;
+            linkedToolController.MirrorMode = symmetryMode;
+            symmetryMeshHolder.SetActive(symmetryMode);
         }
     }
 }

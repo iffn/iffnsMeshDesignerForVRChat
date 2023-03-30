@@ -27,10 +27,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] GameObject AlternativeUseIsNotGrabControlsText;
 
         ToolController linkedToolController;
+        MeshSyncController linkedMeshSyncController;
 
-        public void Setup(ToolController linkedToolController)
+        public void Setup(ToolController linkedToolController, MeshSyncController linkedMeshSyncController)
         {
             this.linkedToolController = linkedToolController;
+            this.linkedMeshSyncController = linkedMeshSyncController;
 
             bool isInVR = Networking.LocalPlayer.IsUserInVR();
 
@@ -105,12 +107,29 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             set
             {
                 InEditModeToggle.SetIsOnWithoutNotify(value);
+                linkedToolController.InEditMode = value;
             }
         }
 
         //VRChat UI events
         public void UpdateFromUI()
         {
+            if (InEditModeToggle.isOn)
+            {
+                if (linkedMeshSyncController.IsOwner)
+                {
+                    linkedToolController.InEditMode = true;
+                }
+                else
+                {
+                    InEditModeToggle.SetIsOnWithoutNotify(false);
+                }
+            }
+            else
+            {
+                linkedToolController.InEditMode = false;
+            }
+
             linkedToolController.InEditMode = InEditModeToggle.isOn;
 
             if (RightHandedModeToggle.isOn)
