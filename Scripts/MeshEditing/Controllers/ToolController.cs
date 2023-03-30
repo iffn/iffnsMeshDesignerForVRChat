@@ -469,9 +469,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         #region VRChat input functions
 
+        float lastInputUseTime = 0;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            //Warning: Currently called twice, at least in desktop mode: https://vrchat.canny.io/vrchat-udon-closed-alpha-bugs/p/1275-inputuse-is-called-twice-per-mouse-click
+            if (lastInputUseTime == Time.time) return; //VRChat being buggy VRChat https://vrchat.canny.io/vrchat-udon-closed-alpha-bugs/p/1275-inputuse-is-called-twice-per-mouse-click
+            lastInputUseTime = Time.time;
+
+            //Warning: Currently called twice, at least in desktop mode: 
 
             if (OverUIElement) return;
 
