@@ -591,7 +591,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if (!useAndGrabAreTheSame)
             {
-                if (!emulateAlternativeInput && !currentEditTool.ForceDiffeerentUseAndGrab)
+                if (!emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnPickupDown();
                 }
@@ -604,7 +604,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void InputGrabUp()
         {
-            if (!useAndGrabAreTheSame && !currentEditTool.ForceDiffeerentUseAndGrab)
+            if (!useAndGrabAreTheSame || currentEditTool.ForceDiffeerentUseAndGrab)
             {
                 if (!emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
