@@ -7,7 +7,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class StepTriangleAdderController : MeshEditTool
     {
-        public override bool CallUseInsteadOfPickup
+        public override bool IsHeld
         {
             get
             {
@@ -113,12 +113,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             secondClosestVertex = -1;
         }
 
-        public override void OnPickupUse()
+        public override void OnPickupDown()
         {
 
         }
 
-        public override void OnDropUse()
+        public override void OnDropDown()
         {
             
         }

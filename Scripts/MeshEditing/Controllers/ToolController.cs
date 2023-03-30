@@ -44,11 +44,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         VRCPlayerApi localPlayer;
         bool isInVR;
         public bool OverUIElement = false;
-        bool useAndGrabAreTheSame;
         Transform meshTransform;
         float lastUpdateTime;
         float desktopPickupDistance = 1;
         float desktopPickupDistanceMultiplier = 1;
+        public bool emulateAlternativeInput;
 
         //Settings
         public HandType PrimaryHand = HandType.RIGHT;
@@ -65,6 +65,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 vertexInteractionDistance = value;
                 linkedMeshEditor.VertexIndicatorRadius = value;
+            }
+        }
+
+        bool useAndGrabAreTheSame;
+        public bool UseAndGrabAreTheSame
+        {
+            get
+            {
+                return useAndGrabAreTheSame;
             }
         }
 
@@ -459,69 +468,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         #region VRChat input functions
-        public override void InputGrab(bool value, UdonInputEventArgs args)
-        {
-            if (OverUIElement) return;
-
-            if (!currentEditTool) return;
-
-            if (args.handType != PrimaryHand) return; //Currently only one handed
-
-            if (!useAndGrabAreTheSame)
-            {
-                if (value)
-                {
-#if debugLog
-                Debug.Log("Calling OnPickupUse");
-#endif
-                    currentEditTool.OnPickupUse();
-                }
-                else
-                {
-#if debugLog
-                Debug.Log("Calling OnDropUse");
-#endif
-                    currentEditTool.OnDropUse();
-                }
-            }
-            else
-            {
-                if (currentEditTool.CallUseInsteadOfPickup)
-                {
-                    if (value)
-                    {
-#if debugLog
-                    Debug.Log("Calling OnUseDown");
-#endif
-                        currentEditTool.OnUseDown();
-                    }
-                    else
-                    {
-#if debugLog
-                    Debug.Log("Calling OnUseUp");
-#endif
-                        currentEditTool.OnUseUp();
-                    }
-                }
-                else
-                {
-                    if (value)
-                    {
-#if debugLog
-                    Debug.Log("Calling OnPickupUse");
-#endif
-                        currentEditTool.OnPickupUse();
-                    }
-                    else
-                    {
-#if debugLog
-                    Debug.Log("Calling OnDropUse");
-#endif
-                        currentEditTool.OnDropUse();
-                    }
-                }
-            }
-        }
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
@@ -533,24 +479,140 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (args.handType != PrimaryHand) return; //Currently only one handed
 
+            if (value)
+            {
+                InputUseDown();
+            }
+            else
+            {
+                InputUseUp();
+            }
+        }
+
+        void InputUseDown()
+        {
             if (!useAndGrabAreTheSame)
             {
-                if (value)
+                if (emulateAlternativeInput && !currentEditTool.ForceDiffeerentUseAndGrab)
                 {
-#if debugLog
-                Debug.Log("Calling OnUseDown");
-#endif
+                    if (currentEditTool.IsHeld)
+                    {
+                        currentEditTool.OnUseDown();
+                    }
+                    else
+                    {
+                        currentEditTool.OnPickupDown();
+                    }
+                }
+                else
+                {
+                    currentEditTool.OnUseDown();
+                }
+            }
+            else
+            {
+                if (emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
+                {
                     currentEditTool.OnUseDown();
                 }
                 else
                 {
-#if debugLog
-                Debug.Log("Calling OnUseUp");
-#endif
-                    currentEditTool.OnUseUp();
+                    if (currentEditTool.IsHeld)
+                    {
+                        currentEditTool.OnUseDown();
+                    }
+                    else
+                    {
+                        currentEditTool.OnPickupDown();
+                    }
                 }
             }
         }
+
+        void InputUseUp()
+        {
+            if(!useAndGrabAreTheSame)
+            {
+                if (emulateAlternativeInput && !currentEditTool.ForceDiffeerentUseAndGrab)
+                {
+                    if (currentEditTool.IsHeld)
+                    {
+                        currentEditTool.OnUseUp();
+                    }
+                    else
+                    {
+                        currentEditTool.OnDropDown();
+                    }
+                }
+                else
+                {
+                    currentEditTool.OnUseUp();
+                }
+            }
+            else
+            {
+                if (emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
+                {
+                    currentEditTool.OnUseUp();
+                }
+                else
+                {
+                    if (currentEditTool.IsHeld)
+                    {
+                        currentEditTool.OnUseUp();
+                    }
+                    else
+                    {
+                        currentEditTool.OnDropDown();
+                    }
+                }
+            }
+        }
+
+        public override void InputGrab(bool value, UdonInputEventArgs args)
+        {
+            if (OverUIElement) return;
+
+            if (!currentEditTool) return;
+
+            if (args.handType != PrimaryHand) return; //Currently only one handed
+
+            if (value)
+            {
+                InputGrabDown();
+            }
+            else
+            {
+                InputGrabUp();
+            }
+        }
+
+        void InputGrabDown()
+        {
+            if (!useAndGrabAreTheSame)
+            {
+                if (!emulateAlternativeInput && !currentEditTool.ForceDiffeerentUseAndGrab)
+                {
+                    currentEditTool.OnPickupDown();
+                }
+                else
+                {
+                    currentEditTool.OnDropDown();
+                }
+            }
+        }
+
+        void InputGrabUp()
+        {
+            if (!useAndGrabAreTheSame && !currentEditTool.ForceDiffeerentUseAndGrab)
+            {
+                if (!emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
+                {
+                    currentEditTool.OnDropDown();
+                }
+            }
+        }
+
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
@@ -564,27 +626,37 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (value)
             {
-                if (currentEditTool.CallUseInsteadOfPickup)
-                {
-#if debugLog
-                Debug.Log("Calling OnPickupUse");
-#endif
-                    currentEditTool.OnPickupUse();
-                }
-                else
-                {
-#if debugLog
-                Debug.Log("Calling OnDropUse");
-#endif
-                    currentEditTool.OnDropUse();
-                }
+                InputDropDown();
             }
             else
             {
-#if debugLog
-            Debug.Log("Calling OnDropUse");
-#endif
-                currentEditTool.OnDropUse();
+                InputDropUp();
+            }
+        }
+
+        void InputDropDown()
+        {
+            if (useAndGrabAreTheSame)
+            {
+                if(emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
+                {
+                    currentEditTool.OnPickupDown();
+                }
+                else
+                {
+                    currentEditTool.OnDropDown();
+                }
+            }
+        }
+
+        void InputDropUp()
+        {
+            if (useAndGrabAreTheSame || currentEditTool.ForceDiffeerentUseAndGrab)
+            {
+                if (emulateAlternativeInput)
+                {
+                    currentEditTool.OnDropDown();
+                }
             }
         }
         #endregion

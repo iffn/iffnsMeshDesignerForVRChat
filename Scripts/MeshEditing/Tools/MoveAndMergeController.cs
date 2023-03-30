@@ -9,7 +9,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class MoveAndMergeController : MeshEditTool
     {
-        public override bool CallUseInsteadOfPickup
+        public override bool IsHeld
         {
             get
             {
@@ -47,7 +47,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void UpdateWhenActive()
         {
-            if (!CallUseInsteadOfPickup) return;
+            if (!IsHeld) return;
 
             Vector3 localPosition = InteractionPositionWithMirrorLineSnap;
 
@@ -55,12 +55,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             LinkedInteractionInterface.MoveVertexToPosition(activeVertex, localPosition, true);
         }
 
-        public override void OnPickupUse()
+        public override void OnPickupDown()
         {
             activeVertex = SelectVertex();
         }
 
-        public override void OnDropUse()
+        public override void OnDropDown()
         {
             activeVertex = -1;
         }

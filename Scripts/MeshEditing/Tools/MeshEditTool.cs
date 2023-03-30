@@ -77,7 +77,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public virtual string MultiLineDebugState()
         {
             string returnString = $"Debug of {ToolName} at {Time.time:0.000}:\n"
-                + $"• {nameof(CallUseInsteadOfPickup)} = {CallUseInsteadOfPickup}\n";
+                + $"• {nameof(IsHeld)} = {IsHeld}\n";
 
             return returnString;
         }
@@ -97,14 +97,21 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //For override
         public abstract string ToolName { get; }
 
-        public abstract bool CallUseInsteadOfPickup { get; }
+        public abstract bool IsHeld { get; }
+        public virtual bool ForceDiffeerentUseAndGrab
+        {
+            get
+            {
+                return false;
+            }
+        }
 
         public abstract void OnActivation();
         public abstract void OnDeactivation();
         public abstract void UpdateWhenActive();
 
-        public abstract void OnPickupUse();
-        public abstract void OnDropUse();
+        public abstract void OnPickupDown();
+        public abstract void OnDropDown();
         public abstract void OnUseDown();
         public abstract void OnUseUp();
     }
