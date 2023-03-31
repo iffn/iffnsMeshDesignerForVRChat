@@ -9,8 +9,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     public class SyncedDisplaySettings : UdonSharpBehaviour
     {
         [Header("Unity assingments")]
-        [SerializeField] GameObject ScalerTitleVR;
-        [SerializeField] GameObject ScalerTitleDesktop;
+        [SerializeField] GameObject ScalerUIHolderVR;
+        [SerializeField] GameObject ScalerUIHolderDesktop;
         [SerializeField] Toggle SymmetryModeToggle;
 
         [SerializeField] ScalerLockStateOption[] ScalerLockStateOptions;
@@ -45,13 +45,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             //Set display text
             if (Networking.LocalPlayer.IsUserInVR())
             {
-                ScalerTitleVR.SetActive(true);
-                ScalerTitleDesktop.SetActive(false);
+                ScalerUIHolderVR.SetActive(true);
+                ScalerUIHolderDesktop.SetActive(false);
             }
             else
             {
-                ScalerTitleVR.SetActive(false);
-                ScalerTitleDesktop.SetActive(true);
+                ScalerUIHolderVR.SetActive(false);
+                ScalerUIHolderDesktop.SetActive(true);
             }
 
             //Set default value
@@ -84,6 +84,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         //VRChat UI calls
         public void UpdateFromsSymmetryMeshToggle()
         {
+            if (!linkedMeshSyncController.IsOwner)
+            {
+                SymmetryModeToggle.SetIsOnWithoutNotify(linkedMeshSyncController.SymmetryMode);
+                return;
+            }
+
             bool symmetryMode = SymmetryModeToggle.isOn;
 
             linkedMeshSyncController.SymmetryMode = symmetryMode;

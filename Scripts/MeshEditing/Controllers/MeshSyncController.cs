@@ -56,6 +56,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     linkedSyncedDisplaySettings.SymmetryMode = false;
                 }
             }
+            get
+            {
+                return symmetryMode;
+            }
         }
 
         public bool IsOwner
