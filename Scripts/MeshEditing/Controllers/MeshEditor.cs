@@ -18,7 +18,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         Vector3[] vertices = new Vector3[0];
         int[] triangles = new int[0];
 
-        VertexIndicator[] vertexIndicators = new VertexIndicator[100];
+        #if UNITY_EDITOR
+        VertexIndicator[] vertexIndicators = new VertexIndicator[100]; //Somehow crashes with 3600 in the editor. Also makes starting faster.
+        #else
+        VertexIndicator[] vertexIndicators = new VertexIndicator[3600];
+        #endif
+
         public VertexIndicator[] VertexIndicatorsForResetting
         {
             get
@@ -330,9 +335,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             vertices[vertex] = position;
 
-            //if(vertex <= vertexIndicators.Length) vertexIndicators[vertex].transform.localPosition = position;
-
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh)
+            {
+                //UpdateMeshFromDataInteraction();
+                if(vertex <= vertexIndicators.Length) vertexIndicators[vertex].transform.localPosition = position;
+                linkedMeshController.SetData(vertices, triangles, this);
+            }
         }
 
         public void MergeVerticesInteraction(int keep, int discard, bool updateMesh)

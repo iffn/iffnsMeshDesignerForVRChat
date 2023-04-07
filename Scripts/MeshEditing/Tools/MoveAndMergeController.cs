@@ -53,7 +53,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Vector3 localPosition = InteractionPositionWithMirrorLineSnap;
 
-
             LinkedInteractionInterface.MoveVertexToPosition(activeVertex, localPosition, true);
         }
 

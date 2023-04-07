@@ -33,8 +33,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         private void Start()
         {
-            Debug.Log("Start called");
-
             //Controllers
             LinkedToolController.Setup(LinkedToolSettings, LinkedMeshEditor, LinkedMeshInteractionInterface, MeshTransform);
             LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController, MeshTransform);
