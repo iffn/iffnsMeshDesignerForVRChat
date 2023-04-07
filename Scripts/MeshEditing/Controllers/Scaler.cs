@@ -22,7 +22,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public ScalerLockStates currentLockState = ScalerLockStates.LockRotationOnly;
 
-        public void ResetScale()
+        public void ResetScalerToEyeHeight()
+        {
+            ResetScale(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position.y);
+        }
+
+        public void ResetScalerToFloor()
+        {
+            ResetScale(Networking.LocalPlayer.GetPosition().y);
+        }
+
+        void ResetScale(float originHeight)
         {
             if (isScaling)
             {
@@ -32,6 +42,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             transform.localScale = Vector3.one;
 
             scaleObject.transform.localPosition = originalLocalPosition;
+
+            Vector3 pos = scaleObject.transform.position;
+
+            pos.y = originHeight;
+
+            scaleObject.transform.position = pos;
+
             scaleObject.transform.localRotation = Quaternion.identity;
             scaleObject.transform.localScale = originalLocalScale;
         }
@@ -88,7 +105,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (Input.GetKey(KeyCode.KeypadPlus)) transform.localScale *= scalingSpeed;
                 if (Input.GetKey(KeyCode.KeypadMinus)) transform.localScale *= 1f/scalingSpeed;
 
-                if(Input.GetKeyDown(KeyCode.KeypadEnter)) ResetScale();
+                if(Input.GetKeyDown(KeyCode.KeypadEnter)) ResetScalerToEyeHeight();
             }
         }
 

@@ -67,9 +67,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             linkedScaler.currentLockState = currentLockStateController.LockState;
         }
 
-        public void ResetViewScale()
+        public void ResetScalerToEyeHeight()
         {
-            linkedScaler.ResetScale();
+            linkedScaler.ResetScalerToEyeHeight();
+        }
+
+        public void ResetScalerToFloor()
+        {
+            linkedScaler.ResetScalerToFloor();
         }
 
         public void SetLockState(ScalerLockStateOption calledLockStateController)
