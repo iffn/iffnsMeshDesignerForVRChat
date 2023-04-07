@@ -224,9 +224,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 Quaternion playerRotation = localPlayer.GetRotation();
 
-                VRUI.SetPositionAndRotation(
-                    secondaryHandPosition + playerRotation * (distance * 0.08f * Vector3.up),
-                    playerRotation * additionalRotation);
+                if (PrimaryHand == HandType.RIGHT)
+                {
+                    VRUI.SetPositionAndRotation(
+                        secondaryHandPosition + playerRotation * (distance * 0.08f * Vector3.up),
+                        playerRotation * Quaternion.Inverse(additionalRotation));
+                }
+                else
+                {
+                    VRUI.SetPositionAndRotation(
+                        secondaryHandPosition + playerRotation * (distance * 0.08f * Vector3.up),
+                        playerRotation * additionalRotation);
+                }
+
+                    
 
                 VRUI.localScale = distance * 0.5f * Vector3.one;
             }
