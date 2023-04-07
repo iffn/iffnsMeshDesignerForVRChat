@@ -17,8 +17,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void Setup(ToolController linkedToolController, MeshSyncController linkedSyncController)
         {
-            Debug.Log("Setup called");
-
             this.linkedToolController = linkedToolController;
             this.linkedSyncController = linkedSyncController;
 

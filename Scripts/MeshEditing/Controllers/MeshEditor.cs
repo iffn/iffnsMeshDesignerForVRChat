@@ -78,11 +78,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 GameObject newObject = GameObject.Instantiate(VertexIndicatorTemplate.gameObject);
 
-                newObject.SetActive(false);
-
                 VertexIndicator indicator = newObject.transform.GetComponent<VertexIndicator>();
 
                 indicator.Setup(i, meshTransform, linkedToolController.VertexInteractionDistance);
+                
+                newObject.SetActive(false);
 
                 vertexIndicators[i] = indicator;
             }
