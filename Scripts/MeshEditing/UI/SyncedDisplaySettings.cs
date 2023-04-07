@@ -31,7 +31,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 symmetryMeshHolder.SetActive(value);
                 SymmetryModeToggle.SetIsOnWithoutNotify(value);
-                linkedToolController.MirrorMode = symmetryMode;
+                linkedToolController.SymmetryMode = symmetryMode;
             }
         }
 
@@ -93,7 +93,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             bool symmetryMode = SymmetryModeToggle.isOn;
 
             linkedMeshSyncController.SymmetryMode = symmetryMode;
-            linkedToolController.MirrorMode = symmetryMode;
+            linkedToolController.SymmetryMode = symmetryMode;
             symmetryMeshHolder.SetActive(symmetryMode);
         }
     }

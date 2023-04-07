@@ -113,6 +113,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             referenceMesh.RecalculateNormals();
             referenceMesh.RecalculateTangents();
             referenceMesh.RecalculateBounds();
+
+            //Enable mesh
+            ShowReferenceMeshTroggle.SetIsOnWithoutNotify(true);
+            referenceMeshHolder.SetActive(true);
         }
 
         public void ToggleUpdate()

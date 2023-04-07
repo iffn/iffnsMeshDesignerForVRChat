@@ -48,6 +48,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             this.LinkedToolSettings = linkedToolSettings;
 
             localPlayer = Networking.LocalPlayer;
+            isOwner = Networking.IsOwner(gameObject);
         }
 
         public VRCPlayerApi Owner
