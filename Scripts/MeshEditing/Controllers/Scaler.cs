@@ -9,10 +9,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
     public class Scaler : UdonSharpBehaviour
     {
-        [SerializeField] Transform scaleObject;
-        [SerializeField] GameObject indicator;
-
-        float referenceDistance;
+        [SerializeField] Transform helperTransform;
 
         bool isScaling = false;
         bool isInVR;
@@ -22,14 +19,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public ScalerLockStates currentLockState = ScalerLockStates.LockRotationOnly;
 
+        VRCPlayerApi localPlayer;
+
         public void ResetScalerToEyeHeight()
         {
-            ResetScale(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position.y);
+            ResetScale(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position.y);
         }
 
         public void ResetScalerToFloor()
         {
-            ResetScale(Networking.LocalPlayer.GetPosition().y);
+            ResetScale(localPlayer.GetPosition().y);
         }
 
         void ResetScale(float originHeight)
@@ -41,24 +40,28 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             transform.localScale = Vector3.one;
 
-            scaleObject.transform.localPosition = originalLocalPosition;
+            transform.localPosition = originalLocalPosition;
 
-            Vector3 pos = scaleObject.transform.position;
+            Vector3 pos = transform.position;
 
             pos.y = originHeight;
 
-            scaleObject.transform.position = pos;
+            transform.position = pos;
 
-            scaleObject.transform.localRotation = Quaternion.identity;
-            scaleObject.transform.localScale = originalLocalScale;
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = originalLocalScale;
         }
 
         private void Start()
         {
-            originalLocalPosition = scaleObject.transform.localPosition;
-            originalLocalScale = scaleObject.transform.localScale;
+            originalLocalPosition = transform.localPosition;
+            originalLocalScale = transform.localScale;
 
-            isInVR = Networking.LocalPlayer.IsUserInVR();
+            localPlayer = Networking.LocalPlayer;
+            isInVR = localPlayer.IsUserInVR();
+
+            helperTransform.gameObject.SetActive(false);
+
         }
 
         private void Update()
@@ -111,47 +114,42 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void SetupScaling()
         {
-            Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
-            Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+            Vector3 rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+            Vector3 leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
 
             Vector3 rightToLeft = leftHand - rightHand;
 
-            referenceDistance = rightToLeft.magnitude;
+            helperTransform.gameObject.SetActive(true);
 
-            transform.position = rightHand + referenceDistance * 0.5f * rightToLeft.normalized;
+            helperTransform.localScale = rightToLeft.magnitude * Vector3.one;
 
-            transform.parent = scaleObject.parent;
-            scaleObject.parent = transform;
+            helperTransform.position = 0.5f * (rightHand + leftHand);
 
-            indicator.SetActive(true);
+            helperTransform.parent = transform.parent;
+
+            transform.parent = helperTransform;
+
         }
 
         void Scale()
         {
-            Vector3 rightHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
-            Vector3 leftHand = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+            Vector3 rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+            Vector3 leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
 
             Vector3 rightToLeft = leftHand - rightHand;
 
             float currentDistance = rightToLeft.magnitude;
 
-            transform.position = rightHand + currentDistance * 0.5f * rightToLeft.normalized;
+            helperTransform.position = 0.5f * (rightHand + leftHand);
 
-            transform.localScale = currentDistance / referenceDistance * Vector3.one;
+            helperTransform.localScale = currentDistance * Vector3.one;
         }
 
         void StopScaling()
         {
-            scaleObject.parent = transform.parent;
+            transform.parent = helperTransform.parent;
 
-            transform.localScale = Vector3.one;
-
-            transform.parent = scaleObject;
-            indicator.SetActive(false);
-
-            MeshCollider mymesh = transform.GetComponent<MeshCollider>();
-
-            mymesh.sharedMesh = null;
+            helperTransform.gameObject.SetActive(false);
         }
     }
 
