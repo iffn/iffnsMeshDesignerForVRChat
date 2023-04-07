@@ -1,5 +1,6 @@
 ﻿//#define enableLimitControls
 
+using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -13,7 +14,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         //Synced variables
         [UdonSynced] Vector3[] vertices = new Vector3[0];
-        [UdonSynced] int[] triangles = new int[0];
+        [UdonSynced] short[] triangles = new short[0];
         [UdonSynced] bool symmetryMode;
 
         //Runtime variables
@@ -22,15 +23,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         SyncedDisplaySettings linkedSyncedDisplaySettings;
         Scaler linkedScaler;
         ToolSettings LinkedToolSettings;
-
+        
         bool queueSync = false;
+        VRCPlayerApi localPlayer;
 
         float lastSync = 0;
         float nextSync = Mathf.Infinity;
+        int ensureOwnershipCounter = 0;
+
+        float lastDeserializationTime = 0;
+        float lastSerializationTime = 0;
 
         SerializationResult lastPostSerializationResult;
 
-        int syncLimitPerSecondVRChat = 11000; //Source (Not sure if bit or byte, but it seems to work well when using a syncLimitThreshold of 0.4: https://docs.vrchat.com/docs/network-details
+        readonly int syncLimitbBytePerSecondVRChat = 11000; //Source ('11kb per second' seems to be kilo bytes acccording to ingame limit tests with debug UI. Factor of 0.4 makes frequent sync more stable): https://docs.vrchat.com/docs/network-details
 
         float syncLimitThreshold = 0.4f;
         public void Setup(MeshController linkedMeshController, SyncSettings linkedInterface, Scaler linkedScaler, SyncedDisplaySettings linkedSyncedDisplaySettings, ToolSettings linkedToolSettings)
@@ -40,13 +46,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             this.linkedScaler = linkedScaler;
             this.linkedSyncedDisplaySettings = linkedSyncedDisplaySettings;
             this.LinkedToolSettings = linkedToolSettings;
+
+            localPlayer = Networking.LocalPlayer;
+        }
+
+        public VRCPlayerApi Owner
+        {
+            get
+            {
+                return Networking.GetOwner(gameObject);
+            }
         }
 
         public bool SymmetryMode
         {
             set
             {
-                if (Networking.IsOwner(gameObject))
+                if (isOwner)
                 {
                     symmetryMode = value;
                     RequestSerialization();
@@ -62,6 +78,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        bool isOwner = false;
         public bool IsOwner
         {
             get
@@ -69,9 +86,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 return Networking.IsOwner(gameObject);
             }
         }
-
-        float lastDeserializationTime = 0;
-        float lastSerializationTime = 0;
 
         public string MultiLineDebugState()
         {
@@ -97,38 +111,39 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             get
             {
-                return lastPostSerializationResult.byteCount / (syncLimitPerSecondVRChat * syncLimitThreshold);
+                return lastPostSerializationResult.byteCount / (syncLimitbBytePerSecondVRChat * syncLimitThreshold);
             }
         }
-
-        int syncCounter = 0;
 
         private void Update()
         {
             #if enableLimitControls
-            if(Input.GetKeyDown(KeyCode.KeypadPlus)) syncLimitThreshold *= 1.25f; 
-            if(Input.GetKeyDown(KeyCode.KeypadMinus)) syncLimitThreshold *= 0.8f; 
+            if(Input.GetKeyDown(KeyCode.KeypadMultiply)) syncLimitThreshold *= 1.25f; 
+            if(Input.GetKeyDown(KeyCode.KeypadDivide)) syncLimitThreshold *= 0.8f; 
             #endif
 
-            syncCounter++;
-            if (syncCounter > 50)
+            if (isOwner)
             {
-                syncCounter = 0;
-                EnsureOwnership();
-            }
+                ensureOwnershipCounter++;
+                if (ensureOwnershipCounter > 50)
+                {
+                    ensureOwnershipCounter = 0;
+                    EnsureOwnership();
+                }
 
-            if (!queueSync) return;
+                if (!queueSync) return;
 
-            if(Time.time > nextSync)
-            {
-                queueSync = false;
-                RequestSerialization();
+                if (Time.time > nextSync)
+                {
+                    queueSync = false;
+                    RequestSerialization();
+                }
             }
         }
 
         public void Sync()
         {
-            if (!IsOwner) return;
+            if (!IsOwner || queueSync) return;
 
             if(lastSync + MinTimeBetweenSync < Time.time)
             {
@@ -144,7 +159,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void OnPreSerialization()
         {
             vertices = linkedMeshController.Vertices;
-            triangles = linkedMeshController.Triangles;
+
+            int[] intTriangles = linkedMeshController.Triangles;
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            triangles = new short[intTriangles.Length];
+
+            for(int i = 0; i < intTriangles.Length; i++)
+            {
+                triangles[i] = (short)intTriangles[i];
+            }
+
+            //Debug.Log($"It took {sw.Elapsed.TotalSeconds}s to convert the array with length {triangles.Length} to short");
 
             lastSync = Time.time;
 
@@ -158,37 +186,62 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void RequestOwnership()
         {
-            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+            Networking.SetOwner(localPlayer, gameObject);
         }
 
         void EnsureOwnership()
         {
-            if (!Networking.IsOwner(gameObject)) return;
-
-            if(!Networking.IsOwner(linkedScaler.gameObject)) Networking.SetOwner(Networking.LocalPlayer, linkedScaler.gameObject);
+            if(!Networking.IsOwner(linkedScaler.gameObject)) Networking.SetOwner(localPlayer, linkedScaler.gameObject);
         }
 
         //VRChat events
         public override void OnDeserialization()
         {
             lastDeserializationTime = Time.time;
-            linkedMeshController.SetData(vertices, triangles, this);
+
+            int[] intTriangles = new int[triangles.Length];
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            for (int i = 0; i < intTriangles.Length; i++)
+            {
+                intTriangles[i] = triangles[i];
+            }
+
+            //Debug.Log($"It took {sw.Elapsed.TotalSeconds}s to convert the array with length {triangles.Length} to short");
+
+            linkedMeshController.SetData(vertices, intTriangles, this);
+            
             linkedSyncedDisplaySettings.SymmetryMode = symmetryMode;
+        }
+        
+        public override void OnPlayerLeft(VRCPlayerApi player)
+        {
+            if (localPlayer.IsOwner(gameObject) && !isOwner)
+            {
+                //Current bug with VRChat: Will not fire when owner leaves https://vrchat.canny.io/udon-networking-update/p/1258-onownershiptransferred-does-not-fire-at-onplayerleft-if-last-owner-is-passi
+                Debug.Log("If you see this message, VRChat has not fixed OnOwnershipTransferred on owner leave yet ");
+                OnOwnershipTransferred(localPlayer);
+            }
         }
 
         public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
-            //Current bug with VRChat: Will not fire when owner leaves https://vrchat.canny.io/udon-networking-update/p/1258-onownershiptransferred-does-not-fire-at-onplayerleft-if-last-owner-is-passi
-
-            syncCounter = 0;
-            EnsureOwnership();
-
-            linkedSyncSettings.Owner = player;
-
-            if (!player.isLocal)
+            isOwner = player.isLocal;
+            
+            if (isOwner)
+            {
+                ensureOwnershipCounter = 0;
+                EnsureOwnership();
+            }
+            else
             {
                 LinkedToolSettings.InEditMode = false;
+                queueSync = false;
             }
+
+            linkedSyncSettings.Owner = player;
         }
     }
 }

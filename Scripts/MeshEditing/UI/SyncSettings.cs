@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using Newtonsoft.Json.Linq;
+using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
@@ -17,6 +18,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public void Setup(MeshSyncController linkedSyncController)
         {
             this.linkedSyncController = linkedSyncController;
+
+            Owner = linkedSyncController.Owner;
         }
 
         public VRCPlayerApi Owner
