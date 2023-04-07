@@ -40,7 +40,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-
+            if (activeVertex < 0) return;
+            LinkedInteractionInterface.SetVertexSelectState(activeVertex, VertexSelectStates.Normal);
+            activeVertex = -1;
         }
 
         public override void UpdateWhenActive()

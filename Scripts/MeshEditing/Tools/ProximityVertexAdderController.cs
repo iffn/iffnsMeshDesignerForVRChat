@@ -42,8 +42,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnDeactivation()
         {
-            
-
             LinkedInteractionInterface.ShowLineRenderer = false;
         }
 

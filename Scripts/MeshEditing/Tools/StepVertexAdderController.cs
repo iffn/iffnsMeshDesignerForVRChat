@@ -51,6 +51,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             DeselectClosestVertex();
             DeselectSecondClosestVertex();
+            LinkedInteractionInterface.ShowLineRenderer = false;
         }
 
         public override void UpdateWhenActive()
