@@ -35,9 +35,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             //Controllers
             LinkedToolController.Setup(LinkedToolSettings, LinkedMeshEditor, LinkedMeshInteractionInterface, MeshTransform);
+            LinkedMeshController.Setup(LinkedMeshEditor, LinkedMeshSyncController, MainMeshFilter.mesh);
             LinkedMeshEditor.Setup(LinkedMeshController, LinkedToolController, MeshTransform);
             LinkedMeshInteractionInterface.Setup(LinkedMeshEditor);
-            LinkedMeshController.Setup(LinkedMeshEditor, LinkedMeshSyncController, MainMeshFilter.mesh);
             LinkedMeshSyncController.Setup(LinkedMeshController, LinkedSyncSettings, LinkedScaler, LinkedSyncedDisplaySettings, LinkedToolSettings);
             LinkedDebugController.Setup(LinkedToolController, LinkedMeshSyncController);
 

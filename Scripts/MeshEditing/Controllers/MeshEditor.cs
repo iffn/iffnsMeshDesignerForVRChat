@@ -86,6 +86,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
                 vertexIndicators[i] = indicator;
             }
+
+            UpdateFromMesh();
         }
 
         public void Setup(MeshController linkedMeshController, ToolController linkedToolController, Transform meshTransform, VertexIndicator[] vertexIndicators)
@@ -99,6 +101,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             {
                 indicator.transform.parent = meshTransform;
             }
+
+            UpdateFromMesh();
         }
 
         Vector3 LocalTriangleFacingPointWhenGenrating
@@ -111,12 +115,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void UpdateFromMesh()
         {
-            if (!inEditMode) return;
-
             vertices = linkedMeshController.Vertices;
             triangles = linkedMeshController.Triangles;
 
-            UpdateVertexIndicatorsInEditMode();
+            if (inEditMode)
+            {
+                UpdateVertexIndicatorsInEditMode();
+            }
         }
 
         void UpdateVertexIndicatorsInEditMode()
@@ -401,24 +406,30 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             if(vertices.Length < 3 || triangles.Length < 3)
             {
+                Debug.Log($"Resetting to default mesh becauses of: Vertices = {vertices.Length}, triangles = {triangles.Length}");
+
                 SetDefaultMesh();
             }
 
             linkedMeshController.SetData(vertices, triangles, this);
 
-            UpdateVertexIndicatorsInEditMode();
+            if(inEditMode) UpdateVertexIndicatorsInEditMode();
         }
 
-        public void MergeOverlappingVertices(float threshold)
+        public void MergeOverlappingVertices(float threshold, bool updateFromMesh)
         {
+            if (updateFromMesh)
+            {
+                UpdateFromMesh();
+            }
+
             int verticesMerged = 0;
 
             #if debugLog
             Debug.Log($"Checking {vertices.Length} for merging");
             #endif
 
-            //return;
-
+            
             for (int firstVertex = 0; firstVertex < vertices.Length - 1; firstVertex++)
             {
                 Vector3 firstPosition = vertices[firstVertex];
@@ -438,6 +449,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     }
                 }
             }
+            
 
             Debug.Log($"{verticesMerged} vertices merged");
 

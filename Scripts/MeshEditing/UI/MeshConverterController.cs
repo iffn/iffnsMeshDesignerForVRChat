@@ -94,7 +94,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void MergeOverlappingVertices()
         {
-            linkedMeshEditor.MergeOverlappingVertices(0.001f);
+            linkedMeshEditor.MergeOverlappingVertices(0.001f, true);
         }
 
         public void ImportDataForReference()
