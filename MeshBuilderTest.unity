@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -8480,19 +8480,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1755774527}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1755774533
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1755774528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 229740497, guid: 4ecd63eff847044b68db9453ce219299, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  contentType: 1
 --- !u!1 &1769008380 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3102876752544425266, guid: 2674f268860583949b53b63df24489ea,
@@ -19144,6 +19131,9 @@ MonoBehaviour:
   UseWireframeMaterialToggle: {fileID: 4164725277957091627}
   VertexInteractionOffsetSlider: {fileID: 4349687329627400220}
   VertexInteractionOffsetHolder: {fileID: 5709066131427534233}
+  NonWireframeShader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  WireframeShader: {fileID: 4800000, guid: a7de4bf0f370ca243b4604b8cd314ffc, type: 3}
+  MeshMaterial: {fileID: 2100000, guid: 12a56ebd4f19b2c48b5c70fc528dff26, type: 2}
   ControllerText: {fileID: 1378330352}
   EmulateAlternativeInputTypeToggle: {fileID: 128980517}
   StandardDesktopControlsText: {fileID: 1286162923}
@@ -22963,7 +22953,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
+  - {fileID: 2100000, guid: 12a56ebd4f19b2c48b5c70fc528dff26, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23727,7 +23717,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4831573e5dffbaa4fb31ed9bc4fbfe0c, type: 2}
+  - {fileID: 2100000, guid: 3d8e1b98d20376f478015098ee0beb80, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -27990,7 +27980,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4831573e5dffbaa4fb31ed9bc4fbfe0c, type: 2}
+  - {fileID: 2100000, guid: 3d8e1b98d20376f478015098ee0beb80, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -32298,7 +32288,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 01fce3385ed351c4cb9068670beb2c6a, type: 2}
+  - {fileID: 2100000, guid: 12a56ebd4f19b2c48b5c70fc528dff26, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -34211,7 +34201,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Wireframe material\nShader by Chaser324\r"
+  m_text: 'Wireframe material
+
+    Shader by Chaser324'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

@@ -15,6 +15,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
         [SerializeField] GameObject VertexInteractionOffsetHolder;
+        [SerializeField] Shader NonWireframeShader;
+        [SerializeField] Shader WireframeShader;
+        [SerializeField] Material MeshMaterial;
 
         [Header("Unity assingments for controll system")]
         [SerializeField] TMPro.TextMeshProUGUI ControllerText;
@@ -146,7 +149,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             linkedToolController.emulateAlternativeInput = EmulateAlternativeInputTypeToggle.isOn;
 
             SetInstructionText();
-            //ToDo: Wireframe material toggle
+
+
+            if (UseWireframeMaterialToggle.isOn)
+            {
+                MeshMaterial.shader = WireframeShader;
+            }
+            else
+            {
+                MeshMaterial.shader = NonWireframeShader;
+            }
         }
 
         public void InderactorSizeX1o25()
