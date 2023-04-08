@@ -16,8 +16,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Slider VertexInteractionOffsetSlider;
         [SerializeField] GameObject VertexInteractionOffsetHolder;
         [SerializeField] Shader NonWireframeShader;
+        [SerializeField] string NonWireframeShaderColorIdentifier;
         [SerializeField] Shader WireframeShader;
+        [SerializeField] string WireframeShaderColorIdentifier;
         [SerializeField] Material MeshMaterial;
+        [SerializeField] Slider MaterialColorRedSlider;
+        [SerializeField] Slider MaterialColorGreenSlider;
+        [SerializeField] Slider MaterialColorBlueSlider;
+        [SerializeField] Image MaterialColorPreviewImage;
 
         [Header("Unity assingments for controll system")]
         [SerializeField] TMPro.TextMeshProUGUI ControllerText;
@@ -135,6 +141,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             linkedToolController.InEditMode = InEditModeToggle.isOn;
 
+            //Controls
             if (RightHandedModeToggle.isOn)
             {
                 linkedToolController.PrimaryHand = VRC.Udon.Common.HandType.RIGHT;
@@ -150,14 +157,20 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             SetInstructionText();
 
+            //Color selection
+            Color color = new Color(MaterialColorRedSlider.value, MaterialColorGreenSlider.value, MaterialColorBlueSlider.value);
+            MaterialColorPreviewImage.color = color;
 
+            //Mesh material
             if (UseWireframeMaterialToggle.isOn)
             {
                 MeshMaterial.shader = WireframeShader;
+                MeshMaterial.SetColor(WireframeShaderColorIdentifier, color);
             }
             else
             {
                 MeshMaterial.shader = NonWireframeShader;
+                MeshMaterial.SetColor(NonWireframeShaderColorIdentifier, color);
             }
         }
 
