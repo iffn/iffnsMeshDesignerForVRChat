@@ -20798,9 +20798,9 @@ MonoBehaviour:
   UseWireframeMaterialToggle: {fileID: 4164725277957091627}
   VertexInteractionOffsetSlider: {fileID: 4349687329627400220}
   VertexInteractionOffsetHolder: {fileID: 5709066131427534233}
-  NonWireframeShader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  NonWireframeShader: {fileID: 4800000, guid: 71804c9684954924b83547b1218536ff, type: 3}
   NonWireframeShaderColorIdentifier: _Color
-  WireframeShader: {fileID: 4800000, guid: a7de4bf0f370ca243b4604b8cd314ffc, type: 3}
+  WireframeShader: {fileID: 4800000, guid: 2278ecd4299d3fe44bb80491f1ce9e5c, type: 3}
   WireframeShaderColorIdentifier: _BaseColor
   MeshMaterial: {fileID: 2100000, guid: 12a56ebd4f19b2c48b5c70fc528dff26, type: 2}
   MaterialColorRedSlider: {fileID: 443552951}
