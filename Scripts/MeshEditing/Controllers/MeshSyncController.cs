@@ -90,12 +90,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public string MultiLineDebugState()
         {
-            string returnString = "";
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
 
-            returnString += $"Debug output of {nameof(MeshSyncController)} at {Time.time:0.000}:\n"
+            string returnString = $"Debug output of {nameof(MeshSyncController)} at {Time.time:0.000}:\n"
                 + $"{nameof(lastDeserializationTime)}: {lastDeserializationTime}\n"
                 + $"{nameof(lastSerializationTime)}: {lastSerializationTime}\n"
-                + $"Is owner: {Networking.IsOwner(gameObject)}\n"
+                + $"Owner: {owner.playerId} - {owner.displayName}\n"
+                + $"Is owner: {owner.isLocal}\n"
                 + $"{nameof(symmetryMode)}: {symmetryMode}\n"
                 + $"{nameof(vertices)} array length: {vertices.Length}\n"
                 + $"{nameof(triangles)} array length: {triangles.Length}\n"
@@ -103,7 +104,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 + $"{nameof(lastPostSerializationResult.success)}: {lastPostSerializationResult.success}\n"
                 + $"{nameof(lastPostSerializationResult.byteCount)}: {lastPostSerializationResult.byteCount}\n"
                 + $"{nameof(syncLimitThreshold)}: {syncLimitThreshold}\n"
-                + $"{nameof(MinTimeBetweenSync)}: {MinTimeBetweenSync}\n";
+                + $"{nameof(MinTimeBetweenSync)}: {MinTimeBetweenSync}\n"
+                + $"\n"
+                + $"{linkedScaler.MultiLineDebugState()}\n";
 
             return returnString;
         }

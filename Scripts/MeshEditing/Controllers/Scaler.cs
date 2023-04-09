@@ -21,6 +21,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         VRCPlayerApi localPlayer;
 
+        public string MultiLineDebugState()
+        {
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
+
+            string returnString = $"Debug output of {nameof(Scaler)} at {Time.time:0.000}:\n"
+                + $"Owner: {owner.playerId} - {owner.displayName}\n"
+                + $"{nameof(isScaling)}: {isScaling}\n";
+
+            return returnString;
+        }
+
         public void ResetScalerToEyeHeight()
         {
             ResetScale(localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position.y);
