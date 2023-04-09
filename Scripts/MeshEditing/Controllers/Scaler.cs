@@ -1,17 +1,23 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Components;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 {
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
     public class Scaler : UdonSharpBehaviour
     {
         [SerializeField] Transform helperTransform;
 
-        bool isScaling = false;
+        [UdonSynced(UdonSyncMode.Smooth)] Vector3 position;
+        [UdonSynced(UdonSyncMode.Smooth)] Quaternion rotation;
+        [UdonSynced(UdonSyncMode.Smooth)] Vector3 localScale;
+
+        bool isScalingInVR = false;
         bool isInVR;
 
         Vector3 originalLocalPosition;
@@ -27,7 +33,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             string returnString = $"Debug output of {nameof(Scaler)} at {Time.time:0.000}:\n"
                 + $"Owner: {owner.playerId} - {owner.displayName}\n"
-                + $"{nameof(isScaling)}: {isScaling}\n";
+                + $"{nameof(isScalingInVR)}: {isScalingInVR}\n";
 
             return returnString;
         }
@@ -44,7 +50,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void ResetScale(float originHeight)
         {
-            if (isScaling)
+            if (isScalingInVR)
             {
                 StopScaling();
             }
@@ -77,26 +83,35 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         private void Update()
         {
-            if (!Networking.IsOwner(gameObject)) return;
+            if (!Networking.IsOwner(gameObject))
+            {
+                transform.SetPositionAndRotation(position, rotation);
+                transform.localScale = localScale;
+                return;
+            }
+            
+
+            localScale = transform.localScale;
 
             if (isInVR)
             {
                 if (Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f && Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f)
                 {
-                    if (!isScaling)
+                    if (!isScalingInVR)
                     {
                         SetupScaling();
-                        isScaling = true;
+                        isScalingInVR = true;
                     }
 
-                    Scale();
+                    ScaleInVR();
+                    UpdatePositionsForSync();
                 }
                 else
                 {
-                    if (isScaling)
+                    if (isScalingInVR)
                     {
                         StopScaling();
-                        isScaling = false;
+                        isScalingInVR = false;
                     }
                 }
             }
@@ -117,10 +132,19 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (Input.GetKey(KeyCode.Keypad7)) transform.Rotate(rotationSpeed * Vector3.down);
                 
                 if (Input.GetKey(KeyCode.KeypadPlus)) transform.localScale *= scalingSpeed;
-                if (Input.GetKey(KeyCode.KeypadMinus)) transform.localScale *= 1f/scalingSpeed;
+                if (Input.GetKey(KeyCode.KeypadMinus)) transform.localScale *= 1f / scalingSpeed;
 
                 if(Input.GetKeyDown(KeyCode.KeypadEnter)) ResetScalerToEyeHeight();
+
+                UpdatePositionsForSync();
             }
+        }
+
+        void UpdatePositionsForSync()
+        {
+            position = transform.position;
+            rotation = transform.rotation;
+            localScale = transform.localScale;
         }
 
         void SetupScaling()
@@ -142,7 +166,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         }
 
-        void Scale()
+        void ScaleInVR()
         {
             Vector3 rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
             Vector3 leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
