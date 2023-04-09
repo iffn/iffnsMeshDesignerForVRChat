@@ -40,7 +40,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             set
             {
-                transform.localScale = value * Vector3.one;
+                transform.localScale = value * 2 * Vector3.one;
             }
         }
 
@@ -55,7 +55,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             this.index = index;
             transform.parent = parent;
             gameObject.SetActive(true);
-            transform.localScale = scale * Vector3.one;
+            transform.localScale = scale * 2 * Vector3.one;
 
             attachedRenderer = transform.GetComponent<MeshRenderer>();
 

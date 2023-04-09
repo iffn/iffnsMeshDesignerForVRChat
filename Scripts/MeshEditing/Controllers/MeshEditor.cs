@@ -163,13 +163,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         #region Interaction provider
         //Access
-        public int GetClosestVertexInRadius(Vector3 position, float radius)
+        public int GetClosestVertexInRadius(Vector3 position, float radius, int ignoreVertex)
         {
             int closestVertex = -1;
             float closestDistance = radius;
 
             for (int i = 0; i < vertices.Length; i++)
             {
+                if (i == ignoreVertex) continue;
+
                 Vector3 currentPosition = vertices[i];
                 float distance = (currentPosition - position).magnitude;
 
@@ -182,7 +184,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             return closestVertex;
         }
 
-        public int GetClosestVectorInCylinder(Vector3 origin, Quaternion heading, float radius, float maxDistance)
+        public int GetClosestVectorInCylinder(Vector3 origin, Quaternion heading, float radius, float maxDistance, int ignoreVertex)
         {
             HelperTransform.parent = transform;
             HelperTransform.localPosition = origin;
@@ -193,6 +195,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             for (int i = 0; i < vertices.Length; i++)
             {
+                if (i == ignoreVertex) continue;
+
                 Vector3 currentPosition = transform.TransformPoint(vertices[i]);
 
                 Vector3 relativePosition = HelperTransform.InverseTransformPoint(currentPosition);
@@ -350,6 +354,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public void MergeVerticesInteraction(int keep, int discard, bool updateMesh)
         {
+            if(keep < 0 || discard < 0) return;
+
             MergeVertices(keep, discard, true);
 
             if (updateMesh) UpdateMeshFromDataInteraction();

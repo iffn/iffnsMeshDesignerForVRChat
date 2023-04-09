@@ -1,4 +1,5 @@
 ﻿//#define debugLog
+//#define inputDebug
 
 using UdonSharp;
 using UnityEngine;
@@ -50,11 +51,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         float desktopPickupDistanceMultiplier = 1;
         public bool emulateAlternativeInput;
 
+        #if inputDebug
+            string inputs = "";
+        #endif
+
         //Settings
         public HandType PrimaryHand = HandType.RIGHT;
         public float vertexInteractionOffset = 0.05f;
 
-        float vertexInteractionDistance = 0.02f;
+        float vertexInteractionDistance = 0.01f;
         public float VertexInteractionDistance
         {
             get
@@ -126,6 +131,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 + "\n";
             
             if (currentEditTool) returnString += $"{currentEditTool.MultiLineDebugState()}\n";
+
+            #if inputDebug
+                returnString += $"\n{inputs}";
+            #endif
 
             returnString += linkedMeshEditor.MultiLineDebugState();
 
@@ -384,10 +393,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        public int SelectVertex()
+        public int SelectVertex(int ignoreVertex)
         {
-            if (isInVR) return SelectClosestVertexInVR();
-            else return SelectVertexInDesktop();
+            if (isInVR) return SelectClosestVertexInVR(ignoreVertex);
+            else return SelectVertexInDesktop(ignoreVertex);
         }
 
         public Vector3 LocalHeadPosition
@@ -450,7 +459,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-        int SelectVertexInDesktop()
+        int SelectVertexInDesktop(int ignoreVertex)
         {
             VRCPlayerApi.TrackingData data = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
@@ -458,12 +467,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Quaternion localHeadRotation = Quaternion.Inverse(meshTransform.rotation) * data.rotation;
 
-            return linkedMeshEditor.GetClosestVectorInCylinder(localHeadPosition, localHeadRotation, vertexInteractionDistance, PlayerHeight);
+            return linkedMeshEditor.GetClosestVectorInCylinder(localHeadPosition, localHeadRotation, vertexInteractionDistance, PlayerHeight, ignoreVertex);
         }
 
-        int SelectClosestVertexInVR()
+        int SelectClosestVertexInVR(int ignoreVertex)
         {
-            return linkedMeshEditor.GetClosestVertexInRadius(LocalInteractionPositionWithoutMirrorLineSnap, vertexInteractionDistance);
+            return linkedMeshEditor.GetClosestVertexInRadius(LocalInteractionPositionWithoutMirrorLineSnap, vertexInteractionDistance, ignoreVertex);
         }
 
 
@@ -513,15 +522,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     if (currentEditTool.IsHeld)
                     {
                         currentEditTool.OnUseDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnUseDown)} called\n";
+                        #endif
                     }
                     else
                     {
                         currentEditTool.OnPickupDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnPickupDown)} called\n";
+                        #endif
                     }
                 }
                 else
                 {
                     currentEditTool.OnUseDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnUseDown)} called\n";
+                    #endif
                 }
             }
             else
@@ -529,16 +547,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnUseDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnUseDown)} called\n";
+                    #endif
                 }
                 else
                 {
                     if (currentEditTool.IsHeld)
                     {
                         currentEditTool.OnUseDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnUseDown)} called\n";
+                        #endif
                     }
                     else
                     {
                         currentEditTool.OnPickupDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnPickupDown)} called\n";
+                        #endif
                     }
                 }
             }
@@ -546,22 +573,31 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         void InputUseUp()
         {
-            if(!useAndGrabAreTheSame)
+            if (!useAndGrabAreTheSame)
             {
                 if (emulateAlternativeInput && !currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     if (currentEditTool.IsHeld)
                     {
                         currentEditTool.OnUseUp();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnUseUp)} called\n";
+                        #endif
                     }
                     else
                     {
                         currentEditTool.OnDropDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                        #endif
                     }
                 }
                 else
                 {
                     currentEditTool.OnUseUp();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnUseUp)} called\n";
+                    #endif
                 }
             }
             else
@@ -569,16 +605,25 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnUseUp();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnUseUp)} called\n";
+                    #endif
                 }
                 else
                 {
                     if (currentEditTool.IsHeld)
                     {
                         currentEditTool.OnUseUp();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnUseUp)} called\n";
+                        #endif
                     }
                     else
                     {
                         currentEditTool.OnDropDown();
+                        #if inputDebug
+                            inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                        #endif
                     }
                 }
             }
@@ -586,6 +631,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
+
             if (OverUIElement) return;
 
             if (!currentEditTool) return;
@@ -609,10 +655,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (!emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnPickupDown();
+                    #if inputDebug 
+                        inputs += $"{nameof(currentEditTool.OnPickupDown)} called\n";
+                    #endif
                 }
                 else
                 {
                     currentEditTool.OnDropDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                    #endif
                 }
             }
         }
@@ -624,6 +676,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (!emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnDropDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                    #endif
                 }
             }
         }
@@ -656,10 +711,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if(emulateAlternativeInput || currentEditTool.ForceDiffeerentUseAndGrab)
                 {
                     currentEditTool.OnPickupDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnPickupDown)} called\n";
+                    #endif
                 }
                 else
                 {
                     currentEditTool.OnDropDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                    #endif
                 }
             }
         }
@@ -671,6 +732,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (emulateAlternativeInput)
                 {
                     currentEditTool.OnDropDown();
+                    #if inputDebug
+                        inputs += $"{nameof(currentEditTool.OnDropDown)} called\n";
+                    #endif
                 }
             }
         }

@@ -58,7 +58,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnPickupDown()
         {
-            activeVertex = SelectVertex();
+            activeVertex = SelectVertex(activeVertex);
         }
 
         public override void OnDropDown()
@@ -68,7 +68,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         public override void OnUseDown()
         {
-            int interactedVertex = SelectVertex();
+            int interactedVertex = SelectVertex(activeVertex);
+
+            if (interactedVertex < 0) return;
 
             if (interactedVertex == activeVertex)
             {

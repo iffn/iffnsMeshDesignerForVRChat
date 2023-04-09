@@ -56,7 +56,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
         protected int SelectVertex()
         {
-            return linkedToolController.SelectVertex();
+            return linkedToolController.SelectVertex(-1);
+        }
+
+        protected int SelectVertex(int ignoreVertex)
+        {
+            return linkedToolController.SelectVertex(ignoreVertex);
         }
 
         protected Vector3 GetLocalVertexPositionFromIndex(int index)
