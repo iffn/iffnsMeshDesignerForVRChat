@@ -24,6 +24,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Slider MaterialColorGreenSlider;
         [SerializeField] Slider MaterialColorBlueSlider;
         [SerializeField] Image MaterialColorPreviewImage;
+        [SerializeField] Transform CanvasHolder;
+        [SerializeField] GameObject FlipText;
 
         [Header("Unity assingments for controll system")]
         [SerializeField] TMPro.TextMeshProUGUI ControllerText;
@@ -120,26 +122,29 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        public bool FlipedCanvas
+        {
+            set
+            {
+                if (value) CanvasHolder.localRotation = Quaternion.Euler(0, -90, 0);
+                else CanvasHolder.localRotation = Quaternion.Euler(0, 90, 0);
+
+                FlipText.SetActive(value);
+            }
+        }
+
         //VRChat UI events
         public void UpdateFromUI()
         {
             if (InEditModeToggle.isOn)
             {
-                if (linkedMeshSyncController.IsOwner)
-                {
-                    linkedToolController.InEditMode = true;
-                }
-                else
+                if (!linkedMeshSyncController.IsOwner)
                 {
                     InEditModeToggle.SetIsOnWithoutNotify(false);
                 }
             }
-            else
-            {
-                linkedToolController.InEditMode = false;
-            }
 
-            linkedToolController.InEditMode = InEditModeToggle.isOn;
+            InEditMode = InEditModeToggle.isOn;
 
             //Controls
             if (RightHandedModeToggle.isOn)

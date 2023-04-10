@@ -145,6 +145,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             lastUpdateTime = Time.time;
 
+            this.linkedToolSettings = linkedToolSettings;
+
             this.linkedMeshEditor = linkedMeshEditor;
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
@@ -327,6 +329,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         //Deselect current tool
                         currentButton.Highlighted = false;
                         currentButton = null;
+
+                        linkedToolSettings.FlipedCanvas = false;
                         return;
                     }
                     else
@@ -339,6 +343,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 if (value == null)
                 {
                     currentButton = null;
+                    linkedToolSettings.FlipedCanvas = false;
                     return;
                 }
 
@@ -369,6 +374,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 }
 
                 value.OnActivation();
+
+                if(linkedToolSettings == null)
+                {
+                    Debug.Log("Somehow null");
+                    return;
+                }
+
+                linkedToolSettings.FlipedCanvas = value != null;
             }
         }
 
