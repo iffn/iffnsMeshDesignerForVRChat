@@ -157,7 +157,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                         LinkedInteractionInterface.AddPointFacingTriangle(activeVertex, interactedVertex, connectedVertices[secondClosestVertexInConnectedArray], headPosition, false);
                     }
 
-                    LinkedInteractionInterface.UpdateMeshFromData();
+                    LinkedInteractionInterface.ApplyMeshData();
 
                     Deselect();
                 }

@@ -358,7 +358,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             MergeVertices(keep, discard, true);
 
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh) ApplyMeshDataInteraction();
         }
 
         public void RemoveVertexInteraction(int vertex, bool updateMesh)
@@ -367,7 +367,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             RemoveUnconnectedVertices();
 
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh) ApplyMeshDataInteraction();
         }
 
         public void AddVertexInteraction(Vector3 position, int[] connectedVertices, bool updateMesh)
@@ -391,24 +391,24 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 AddPointFacingTriangle(vertices.Length - 1, connectedVertices[i], connectedVertices[i + 1], localFacingPoint);
             }
 
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh) ApplyMeshDataInteraction();
         }
 
         public void AddPointFacingTriangleInteraction(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool updateMesh)
         {
              AddPointFacingTriangle(vertexA, vertexB, vertexC, facingPosition);
 
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh) ApplyMeshDataInteraction();
         }
 
         public void RemoveTriangleInteraction(int vertexA, int vertexB, int vertexC, bool updateMesh)
         {
             TryRemoveTriangle(vertexA, vertexB, vertexC);
 
-            if (updateMesh) UpdateMeshFromDataInteraction();
+            if (updateMesh) ApplyMeshDataInteraction();
         }
 
-        public void UpdateMeshFromDataInteraction()
+        public void ApplyMeshDataInteraction()
         {
             if(vertices.Length < 3 || triangles.Length < 3)
             {
@@ -459,7 +459,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             Debug.Log($"{verticesMerged} vertices merged");
 
-            UpdateMeshFromDataInteraction();
+            ApplyMeshDataInteraction();
         }
         #endregion
 

@@ -103,7 +103,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public abstract string ToolName { get; }
 
         public abstract bool IsHeld { get; }
-        public virtual bool ForceDiffeerentUseAndGrab
+        public virtual bool ForceDifferentUseAndGrab
         {
             get
             {

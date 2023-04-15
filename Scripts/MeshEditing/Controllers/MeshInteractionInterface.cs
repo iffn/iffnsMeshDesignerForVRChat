@@ -49,39 +49,39 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         }
 
         //Edit
-        public void MoveVertexToPosition(int vertex, Vector3 position, bool updateMesh)
+        public void MoveVertexToPosition(int vertex, Vector3 position, bool applyData)
         {
-            linkedMeshEditor.MoveVertexToPositionInteraction(vertex, position, updateMesh);
+            linkedMeshEditor.MoveVertexToPositionInteraction(vertex, position, applyData);
         }
 
-        public void RemoveVertex(int vertex, bool updateMesh)
+        public void RemoveVertex(int vertex, bool applyData)
         {
-            linkedMeshEditor.RemoveVertexInteraction(vertex, updateMesh);
+            linkedMeshEditor.RemoveVertexInteraction(vertex, applyData);
         }
 
-        public void MergeVertices(int keep, int discard, bool updateMesh)
+        public void MergeVertices(int keep, int discard, bool applyData)
         {
-            linkedMeshEditor.MergeVerticesInteraction(keep, discard, updateMesh);
+            linkedMeshEditor.MergeVerticesInteraction(keep, discard, applyData);
         }
 
-        public void AddVertex(Vector3 position, int[] connectedVertices, bool updateMesh)
+        public void AddVertex(Vector3 position, int[] connectedVertices, bool applyData)
         {
-            linkedMeshEditor.AddVertexInteraction(position, connectedVertices, updateMesh);
+            linkedMeshEditor.AddVertexInteraction(position, connectedVertices, applyData);
         }
 
-        public void AddPointFacingTriangle(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool updateMesh)
+        public void AddPointFacingTriangle(int vertexA, int vertexB, int vertexC, Vector3 facingPosition, bool applyData)
         {
-            linkedMeshEditor.AddPointFacingTriangleInteraction(vertexA, vertexB, vertexC, facingPosition, updateMesh);
+            linkedMeshEditor.AddPointFacingTriangleInteraction(vertexA, vertexB, vertexC, facingPosition, applyData);
         }
 
-        public void RemoveTriangle(int vertexA, int vertexB, int vertexC, bool updateMesh)
+        public void RemoveTriangle(int vertexA, int vertexB, int vertexC, bool applyData)
         {
-            linkedMeshEditor.RemoveTriangleInteraction(vertexA, vertexB, vertexC, updateMesh);
+            linkedMeshEditor.RemoveTriangleInteraction(vertexA, vertexB, vertexC, applyData);
         }
 
-        public void UpdateMeshFromData()
+        public void ApplyMeshData()
         {
-            linkedMeshEditor.UpdateMeshFromDataInteraction();
+            linkedMeshEditor.ApplyMeshDataInteraction();
         }
     }
 }
