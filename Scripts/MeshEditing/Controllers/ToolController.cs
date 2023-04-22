@@ -8,7 +8,7 @@ using VRC.Udon;
 using VRC.Udon.Common;
 using UnityEngine.UI;
 
-namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
+namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 {
     public class ToolController : UdonSharpBehaviour
     {

@@ -6,7 +6,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
 
-namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
+namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
     public class Scaler : UdonSharpBehaviour

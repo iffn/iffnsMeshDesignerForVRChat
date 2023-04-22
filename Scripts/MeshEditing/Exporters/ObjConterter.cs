@@ -6,7 +6,7 @@ using VRC.Udon;
 using UnityEngine.UI;
 using Newtonsoft.Json.Linq;
 
-namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
+namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 {
     public class ObjConterter : BaseMeshConverter
     {

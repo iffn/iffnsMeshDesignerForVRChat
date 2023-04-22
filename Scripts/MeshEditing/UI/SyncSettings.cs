@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
 
-namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
+namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 {
     public class SyncSettings : UdonSharpBehaviour
     {

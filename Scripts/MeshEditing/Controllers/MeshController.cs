@@ -6,7 +6,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
+namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 {
     //[RequireComponent(typeof(MeshFilter))]
     public class MeshController : UdonSharpBehaviour

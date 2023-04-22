@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -5828856025833981787
+  scriptID: -3012271101965006292
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -131,7 +131,7 @@ MonoBehaviour:
       Data: 8|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.VertexIndicator, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.VertexIndicator, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -197,7 +197,7 @@ MonoBehaviour:
       Data: 13|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -251,7 +251,7 @@ MonoBehaviour:
       Data: 16|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ToolController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.ToolController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -413,7 +413,7 @@ MonoBehaviour:
       Data: 25|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.VertexIndicator[], Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.VertexIndicator[], Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

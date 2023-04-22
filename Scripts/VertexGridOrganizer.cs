@@ -1,5 +1,5 @@
 ﻿
-using iffnsStuff.iffnsVRCStuff.MeshBuilder;
+using iffnsStuff.iffnsVRCStuff.MeshDesigner;
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.UIElements;

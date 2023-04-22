@@ -429,7 +429,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Mesh builder:'
+  m_text: 'MeshDesigner:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1982,7 +1982,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "https://github.com/iffn/iffnsMeshBuilder\u200B"
+  m_text: "https://github.com/iffn/iffnsMeshDesignerForVRChat\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8152,8 +8152,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1.245, y: 2.05}
-  m_SizeDelta: {x: 1.0064378, y: 0.10832739}
+  m_AnchoredPosition: {x: 1.398, y: 2.05}
+  m_SizeDelta: {x: 1.2220435, y: 0.10832739}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1833461678525889576
 CanvasRenderer:
@@ -8231,7 +8231,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 6895605645806850269}
   m_TextViewport: {fileID: 5096357123417916957}
   m_TextComponent: {fileID: 5749379844555694462}
   m_Placeholder: {fileID: 6081275669657539507}
@@ -8277,7 +8277,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: https://github.com/iffn/iffnsMeshBuilder
+  m_Text: https://github.com/iffn/iffnsMeshDesignerForVRChat
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 1
@@ -12418,7 +12418,7 @@ GameObject:
   - component: {fileID: 7674959966800132148}
   - component: {fileID: 7674959966800132147}
   m_Layer: 0
-  m_Name: MeshBuilder
+  m_Name: MeshDesigner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22884,8 +22884,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2.204, y: -0.293}
-  m_SizeDelta: {x: 0.7926659, y: 0.43999243}
+  m_AnchoredPosition: {x: 2.52, y: -0.11543989}
+  m_SizeDelta: {x: 0.7926659, y: 0.0848794}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7946830095326373353
 CanvasRenderer:

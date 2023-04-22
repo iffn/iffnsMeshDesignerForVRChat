@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -1643636809695434002
+  scriptID: -5730721119284341531
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -353,7 +353,7 @@ MonoBehaviour:
       Data: 21|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ToolController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.ToolController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -428,7 +428,7 @@ MonoBehaviour:
       Data: 27|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshEditor, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshEditor, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -488,7 +488,7 @@ MonoBehaviour:
       Data: 31|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshInteractionInterface, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshInteractionInterface, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -548,7 +548,7 @@ MonoBehaviour:
       Data: 35|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -608,7 +608,7 @@ MonoBehaviour:
       Data: 39|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshSyncController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshSyncController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -668,7 +668,7 @@ MonoBehaviour:
       Data: 43|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.Scaler, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.Scaler, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -728,7 +728,7 @@ MonoBehaviour:
       Data: 47|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.DebugController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.DebugController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -788,7 +788,7 @@ MonoBehaviour:
       Data: 51|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ToolSettings, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.ToolSettings, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -857,7 +857,7 @@ MonoBehaviour:
       Data: 56|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.SyncSettings, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.SyncSettings, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -917,7 +917,7 @@ MonoBehaviour:
       Data: 60|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.SyncedDisplaySettings, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.SyncedDisplaySettings, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -977,7 +977,7 @@ MonoBehaviour:
       Data: 64|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshConverterController, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshConverterController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 3
   hasInteractEvent: 0
-  scriptID: 5239435096987268840
+  scriptID: -5821202320627486334
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -494,7 +494,7 @@ MonoBehaviour:
       Data: 27|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ScalerLockStates, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.ScalerLockStates, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

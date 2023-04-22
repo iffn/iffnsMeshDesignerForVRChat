@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 1585771495782399323
+  scriptID: 4262518561545347299
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshEditTool[], Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshEditTool[], Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -206,7 +206,8 @@ MonoBehaviour:
       Data: 14|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.InteractionTypeSelectorButton, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.InteractionTypeSelectorButton,
+        Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -1103,7 +1104,7 @@ MonoBehaviour:
       Data: 67|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.InteractionTypeSelectorButton[],
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.InteractionTypeSelectorButton[],
         Assembly-CSharp
     - Name: 
       Entry: 8
@@ -1212,7 +1213,7 @@ MonoBehaviour:
       Data: 73|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshEditTool, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshEditTool, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -1266,7 +1267,7 @@ MonoBehaviour:
       Data: 76|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.MeshEditor, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.MeshEditor, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -1320,7 +1321,7 @@ MonoBehaviour:
       Data: 79|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsStuff.iffnsVRCStuff.MeshBuilder.ToolSettings, Assembly-CSharp
+      Data: iffnsStuff.iffnsVRCStuff.MeshDesigner.ToolSettings, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
