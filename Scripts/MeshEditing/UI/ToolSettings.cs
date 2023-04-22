@@ -10,11 +10,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
     {
         [Header("Basic Unity assingments")]
         [SerializeField] Toggle RightHandedModeToggle;
-        [SerializeField] GameObject RightHandedModeHolder;
         [SerializeField] Toggle InEditModeToggle;
         [SerializeField] Toggle UseWireframeMaterialToggle;
         [SerializeField] Slider VertexInteractionOffsetSlider;
-        [SerializeField] GameObject VertexInteractionOffsetHolder;
         [SerializeField] Shader NonWireframeShader;
         [SerializeField] string NonWireframeShaderColorIdentifier;
         [SerializeField] Shader WireframeShader;
@@ -26,6 +24,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] Image MaterialColorPreviewImage;
         [SerializeField] Transform CanvasHolder;
         [SerializeField] GameObject FlipText;
+        [SerializeField] GameObject[] DesktopOnlyObjects;
+        [SerializeField] GameObject[] VROnlyObjects;
 
         [Header("Unity assingments for controll system")]
         [SerializeField] TMPro.TextMeshProUGUI ControllerText;
@@ -50,8 +50,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             if (linkedToolController.UseAndGrabAreTheSame) ControllerText.text = "Controller type: Use = grab";
             else ControllerText.text = "Controller type: Use ≠ grab";
 
-            VertexInteractionOffsetHolder.SetActive(isInVR);
-            RightHandedModeHolder.SetActive(isInVR);
+            foreach(GameObject current in DesktopOnlyObjects)
+            {
+                current.SetActive(!isInVR);
+            }
+
+            foreach (GameObject current in VROnlyObjects)
+            {
+                current.SetActive(isInVR);
+            }
 
             StandardDesktopControlsText.SetActive(false);
             AlternativeDesktopControlsText.SetActive(false);
