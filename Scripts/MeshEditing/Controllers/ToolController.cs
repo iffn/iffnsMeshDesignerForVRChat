@@ -1,5 +1,5 @@
 ﻿//#define debugLog
-//#define inputDebug
+#define inputDebug
 
 using UdonSharp;
 using UnityEngine;
@@ -46,10 +46,14 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         bool isInVR;
         public bool OverUIElement = false;
         Transform meshTransform;
+        float armLengthInVR = 1;
         float lastUpdateTime;
         float desktopPickupDistance = 1;
         float desktopPickupDistanceMultiplier = 1;
         public bool emulateAlternativeInput;
+
+        Quaternion leftHandUIHandRotation = Quaternion.Euler(0, 90, 90);
+        Quaternion rightHandUIHandRotation = Quaternion.Euler(0, 90, 90);
 
         #if inputDebug
             string inputs = "";
@@ -213,44 +217,45 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             if (isInVR)
             {
-                //Interaction position
-                LinkedVRHandIndicator.position = InteractionPosition;
-
                 //UI
                 Vector3 secondaryHandPosition;
                 Vector3 ellbowPosition;
 
                 if (PrimaryHand == HandType.RIGHT)
                 {
-                    secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftHand);
+                    secondaryHandPosition = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).position;
+                    //secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftHand);
                     ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftLowerArm);
                 }
                 else
                 {
-                    secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
+                    secondaryHandPosition = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).position;
+                    //secondaryHandPosition = localPlayer.GetBonePosition(HumanBodyBones.RightHand);
                     ellbowPosition = localPlayer.GetBonePosition(HumanBodyBones.RightLowerArm);
                 }
 
-                float distance = (secondaryHandPosition - ellbowPosition).magnitude;
+                armLengthInVR = (secondaryHandPosition - ellbowPosition).magnitude;
 
                 Quaternion playerRotation = localPlayer.GetRotation();
 
                 if (PrimaryHand == HandType.RIGHT)
                 {
                     VRUI.SetPositionAndRotation(
-                        secondaryHandPosition + playerRotation * (distance * 0.08f * Vector3.up),
-                        playerRotation * Quaternion.Inverse(additionalRotation));
+                        secondaryHandPosition + playerRotation * (armLengthInVR * 0.08f * Vector3.up),
+                        localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation * leftHandUIHandRotation);
                 }
                 else
                 {
                     VRUI.SetPositionAndRotation(
-                        secondaryHandPosition + playerRotation * (distance * 0.08f * Vector3.up),
-                        playerRotation * additionalRotation);
+                        secondaryHandPosition + playerRotation * (armLengthInVR * 0.08f * Vector3.up),
+                        localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation * rightHandUIHandRotation);
                 }
 
-                    
+                VRUI.localScale = armLengthInVR * 0.5f * Vector3.one;
 
-                VRUI.localScale = distance * 0.5f * Vector3.one;
+                //Interaction position
+                LinkedVRHandIndicator.position = InteractionPosition;
+                LinkedVRHandIndicator.localScale = vertexInteractionDistance * 0.3f * Vector3.one;
             }
             else
             {
@@ -439,7 +444,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     {
                         VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
 
-                        return hand.position + vertexInteractionOffset * (hand.rotation * InteractorOffsetVector.normalized);
+                        return hand.position + vertexInteractionOffset * armLengthInVR * (hand.rotation * InteractorOffsetVector.normalized);
                     }
                     else
                     {
@@ -490,12 +495,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
 
         //VRChat UI function calls
-        public void CurserNowOverToolUI()
+        public void CursorNowOverToolUI()
         {
             OverUIElement = true;
         }
 
-        public void CurserNoLongerOverToolUI()
+        public void CursorNoLongerOverToolUI()
         {
             OverUIElement = false;
         }
@@ -510,7 +515,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             //Warning: Currently called twice, at least in desktop mode: 
 
-            if (OverUIElement) return;
+            if (OverUIElement)
+            {
+                #if inputDebug
+                    inputs += $"Input dismissed because over UI\n";
+                #endif
+                return;
+            }
 
             if (!currentEditTool) return;
 
@@ -645,7 +656,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
 
-            if (OverUIElement) return;
+            if (OverUIElement)
+            {
+                #if inputDebug
+                    inputs += $"Input dismissed because over UI\n";
+                #endif
+                return;
+            }
 
             if (!currentEditTool) return;
 
@@ -696,12 +713,17 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
-
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
             useAndGrabAreTheSame = true;
 
-            if (OverUIElement) return;
+            if (OverUIElement)
+            {
+                #if inputDebug
+                    inputs += $"Input dismissed because over UI\n";
+                #endif
+                return;
+            }
 
             if (!currentEditTool) return;
 
@@ -752,5 +774,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
         #endregion
+
+        #if inputDebug
+        public override void InputJump(bool value, UdonInputEventArgs args)
+        {
+            inputs = "";
+        }
+        #endif
     }
 }

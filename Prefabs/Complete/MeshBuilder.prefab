@@ -61,7 +61,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 620809652761181440}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 1.220998, y: 0, z: -0.732}
+  m_LocalPosition: {x: 2.125, y: 0, z: -0.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 620809654415288417}
@@ -232,7 +232,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 620809654415288423}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 0.001}
@@ -2534,7 +2534,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3478478530227587251}
   m_LocalRotation: {x: 0.5, y: 0.50000006, z: -0.50000006, w: 0.5}
-  m_LocalPosition: {x: 0, y: 0, z: 1.5785202}
+  m_LocalPosition: {x: 0, y: 0, z: 1.5805202}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3478478529880502941}
@@ -2543,7 +2543,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 90, y: 90.00001, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1.220998, y: 0.001}
+  m_AnchoredPosition: {x: 2.125, y: 0.001}
   m_SizeDelta: {x: 3.1865528, y: 2.1537147}
   m_Pivot: {x: 0, y: 1}
 --- !u!223 &3478478530227587209
@@ -8417,9 +8417,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 530507503304788965}
   m_Direction: 1
   m_MinValue: 0
-  m_MaxValue: 0.2
+  m_MaxValue: 0.5
   m_WholeNumbers: 0
-  m_Value: 0.05
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -11696,7 +11696,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7674959966800132146}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -20317,7 +20317,7 @@ MonoBehaviour:
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: CurserNowOverToolUI
+            m_StringArgument: CursorNowOverToolUI
             m_BoolArgument: 0
           m_CallState: 2
   - eventID: 1
@@ -20332,7 +20332,7 @@ MonoBehaviour:
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: CurserNoLongerOverToolUI
+            m_StringArgument: CursorNoLongerOverToolUI
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &7674959968298570666
