@@ -23,6 +23,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         [SerializeField] Slider MaterialColorBlueSlider;
         [SerializeField] Image MaterialColorPreviewImage;
         [SerializeField] Transform CanvasHolder;
+        [SerializeField] Toggle DebugToggle;
+        [SerializeField] GameObject DebugHolder;
         [SerializeField] GameObject FlipText;
         [SerializeField] GameObject[] DesktopOnlyObjects;
         [SerializeField] GameObject[] VROnlyObjects;
@@ -69,6 +71,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             AlternativeUseIsNotGrabControlsText.SetActive(false);
 
             SetInstructionText();
+
+            DebugHolder.SetActive(DebugToggle.isOn);
         }
 
         void SetInstructionText()
@@ -187,6 +191,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
                 MeshMaterial.shader = NonWireframeShader;
                 MeshMaterial.SetColor(NonWireframeShaderColorIdentifier, color);
             }
+
+            DebugHolder.SetActive(DebugToggle.isOn);
         }
 
         public void InderactorSizeX1o25()
