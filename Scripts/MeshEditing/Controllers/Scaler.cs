@@ -33,6 +33,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
 
             string returnString = $"Debug output of {nameof(Scaler)} at {Time.time:0.000}:\n"
                 + $"Owner: {owner.playerId} - {owner.displayName}\n"
+                + $"Left and right input states:  {Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger")} / {Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger")}\n"
                 + $"{nameof(isScalingInVR)}: {isScalingInVR}\n";
 
             return returnString;
