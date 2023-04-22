@@ -42,6 +42,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         ToolController linkedToolController;
         MeshSyncController linkedMeshSyncController;
+        bool startDisabled = false;
 
         public void Setup(ToolController linkedToolController, MeshSyncController linkedMeshSyncController)
         {
@@ -129,8 +130,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             }
             set
             {
-                StartMessage.SetActive(false);
-
                 InEditModeToggle.SetIsOnWithoutNotify(value);
                 linkedToolController.InEditMode = value;
             }
@@ -203,6 +202,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         public void InderactorSizeX0o8()
         {
             linkedToolController.VertexInteractionDistance *= 0.8f;
+        }
+
+        public void DisableStartMessage()
+        {
+            if (startDisabled) return;
+            if (!linkedMeshSyncController.IsOwner) return;
+
+            StartMessage.SetActive(false);
+            startDisabled = true;
         }
     }
 }
