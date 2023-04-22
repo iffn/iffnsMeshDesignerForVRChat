@@ -320,6 +320,23 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
         }
 
+        void DeselectTool()
+        {
+            currentButton.Highlighted = false;
+            currentButton = null;
+
+            linkedToolSettings.FlipedCanvas = false;
+
+            if (isInVR)
+            {
+                CurrentToolTextVR.text = "Current tool = None";
+            }
+            else
+            {
+                CurrentToolTextDesktop.text = "Current tool = None";
+            }
+        }
+
         public MeshEditTool CurrentInteractorTool
         {
             set
@@ -332,10 +349,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                     if (currentButton.LinkedTool == value)
                     {
                         //Deselect current tool
-                        currentButton.Highlighted = false;
-                        currentButton = null;
-
-                        linkedToolSettings.FlipedCanvas = false;
+                        DeselectTool();
                         return;
                     }
                     else
@@ -347,8 +361,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
                 //Handle null selection
                 if (value == null)
                 {
-                    currentButton = null;
-                    linkedToolSettings.FlipedCanvas = false;
+                    DeselectTool();
                     return;
                 }
 
