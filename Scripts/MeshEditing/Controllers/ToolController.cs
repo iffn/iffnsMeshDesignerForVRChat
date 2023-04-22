@@ -730,13 +730,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         {
             useAndGrabAreTheSame = true;
 
-            if (OverUIElement)
-            {
-                #if inputDebug
-                    inputs += $"Input dismissed because over UI\n";
-                #endif
-                return;
-            }
+            //Over UI check not needed since not interacting with UI
 
             if (!currentEditTool) return;
 
