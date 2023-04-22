@@ -324,6 +324,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         {
             currentButton.Highlighted = false;
             currentButton = null;
+            currentEditTool = null;
 
             linkedToolSettings.FlipedCanvas = false;
 
