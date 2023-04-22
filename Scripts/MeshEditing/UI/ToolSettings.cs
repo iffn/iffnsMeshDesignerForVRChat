@@ -26,6 +26,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
         [SerializeField] GameObject FlipText;
         [SerializeField] GameObject[] DesktopOnlyObjects;
         [SerializeField] GameObject[] VROnlyObjects;
+        [SerializeField] GameObject StartMessage;
 
         [Header("Unity assingments for controll system")]
         [SerializeField] TMPro.TextMeshProUGUI ControllerText;
@@ -124,6 +125,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshBuilder
             }
             set
             {
+                StartMessage.SetActive(false);
+
                 InEditModeToggle.SetIsOnWithoutNotify(value);
                 linkedToolController.InEditMode = value;
             }
