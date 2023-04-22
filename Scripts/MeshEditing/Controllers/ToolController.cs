@@ -1,5 +1,5 @@
 ﻿//#define debugLog
-#define inputDebug
+//#define inputDebug
 
 using UdonSharp;
 using UnityEngine;
