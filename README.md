@@ -2,7 +2,7 @@
 
 A system that allows players to build meshes in VRChat. Sync and mesh import⁄export supported.
 
-The demo world is available here: https://vrchat.com/home/content/worlds/wrld_99637fad-15a8-469d-9f2e-f121975c1998
+The demo world is available here: https://vrchat.com/home/world/wrld_99637fad-15a8-469d-9f2e-f121975c1998
 
 ## How to use
 ### How to use guide:
