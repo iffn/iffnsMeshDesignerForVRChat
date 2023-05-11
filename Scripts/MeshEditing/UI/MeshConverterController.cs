@@ -13,6 +13,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         [SerializeField] Dropdown LinkedControllerSelectorDropdown;
         [SerializeField] Toggle ShowReferenceMeshTroggle;
         [SerializeField] Toggle ReferenceMeshSymmmetryTroggle;
+        [SerializeField] Toggle MoveReferenceWithMeshToggle;
 
         [Header("Other Unity assingments")]
         [SerializeField] ObjConterter LinkedObjConverter;
@@ -24,10 +25,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         Mesh referenceMesh;
         GameObject referenceMeshHolder;
         GameObject symmetryReferenceMeshHolder;
+        Scaler linkedScaler;
 
         bool skipUpdate = false;
 
-        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, MeshSyncController linkedSyncController, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject symmetryReferenceHolder)
+        public void Setup(MeshController linkedMeshController, MeshEditor linkedMeshEditor, MeshSyncController linkedSyncController, Mesh referenceMesh, GameObject referenceMeshHolder, GameObject symmetryReferenceHolder, Scaler linkedScaler)
         {
             this.linkedMeshController = linkedMeshController;
             this.linkedMeshEditor = linkedMeshEditor;
@@ -35,6 +37,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             this.referenceMesh = referenceMesh;
             this.referenceMeshHolder = referenceMeshHolder;
             this.symmetryReferenceMeshHolder = symmetryReferenceHolder;
+            this.linkedScaler = linkedScaler;
 
             //Unable to set input field options at this time
             /*
@@ -123,6 +126,15 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         {
             referenceMeshHolder.SetActive(ShowReferenceMeshTroggle.isOn);
             symmetryReferenceMeshHolder.SetActive(ReferenceMeshSymmmetryTroggle.isOn);
+
+            if (MoveReferenceWithMeshToggle.isOn)
+            {
+                referenceMeshHolder.transform.parent = linkedScaler.transform;
+            }
+            else
+            {
+                referenceMeshHolder.transform.parent = null;
+            }
         }
 
         public void DropdownUpdate()
@@ -140,6 +152,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             if(skipUpdate) return;
 
             CurrentConverter.InputFieldUpdated(LinkedInputField.text);
+        }
+
+        public void ResetReferenceMeshPosition()
+        {
+            referenceMeshHolder.transform.position = linkedScaler.transform.position;
+            referenceMeshHolder.transform.rotation = linkedScaler.transform.rotation;
+            referenceMeshHolder.transform.localScale = Vector3.one;
         }
     }
 }
