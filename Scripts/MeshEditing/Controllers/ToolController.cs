@@ -32,6 +32,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         [SerializeField] Transform LinkedVRHandIndicator;
         [SerializeField] GameObject EditButtonHolderVR;
         [SerializeField] Text CurrentToolTextVR;
+        [SerializeField] RectTransform CanvasTransformVR;
 
         //Runtime variables
         readonly string distancePropertyName = "_BaseDistance";
@@ -196,7 +197,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             {
                 VRUI.gameObject.SetActive(InEditMode);
                 LinkedVRHandIndicator.gameObject.SetActive(InEditMode);
-                
+
+                float buttonHeight = 1f / 3f;
+                CanvasTransformVR.sizeDelta = new Vector2(CanvasTransformVR.sizeDelta.x, CanvasTransformVR.sizeDelta.y + Mathf.Ceil(EditTools.Length / 3f) * buttonHeight);
+
                 GameObject.Destroy(DesktopUI);
             }
             else
@@ -517,6 +521,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         public void CursorNoLongerOverToolUI()
         {
             OverUIElement = false;
+        }
+
+        public void ExitEditMode()
+        {
+            linkedToolSettings.InEditMode = false;
         }
 
         #region VRChat input functions
