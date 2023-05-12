@@ -100,6 +100,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             {
                 inEditMode = value;
 
+                if (!value)
+                {
+                    CurrentInteractorTool = null;
+                }
+
                 if (isInVR)
                 {
                     VRUI.gameObject.SetActive(value);
@@ -326,6 +331,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         void DeselectTool()
         {
+            if (currentEditTool == null) return;
+
             currentButton.Highlighted = false;
             currentButton = null;
             currentEditTool = null;
