@@ -17,8 +17,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         [SerializeField] RectTransform editButtonHolder;
         [SerializeField] Collider linkedCollider;
 
-        ToolController linkedToolController;
-
         bool overUIElement = false;
         public bool OverUIElement
         {
@@ -53,10 +51,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             }
         }
 
-        public void Setup(int numberOfEditTools, ToolController linkedToolController)
+        public void Setup(int numberOfEditTools)
         {
-            this.linkedToolController = linkedToolController;
-
             float buttonHeight = 1f / 3f;
             float buttonHolderHeight = Mathf.Ceil(numberOfEditTools / 3f) * buttonHeight;
             float baseHeight = canvasTransformVR.sizeDelta.y;
@@ -102,6 +98,10 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         public bool ColliderEnabled
         {
+            get
+            {
+                return linkedCollider.enabled;
+            }
             set
             {
                 linkedCollider.enabled = value;
@@ -109,7 +109,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
                 if (value)
                 {
                     currentStateIndicator.text = "<color=orange>Interactions enabled:\nPress trigger to avoid edit input fails</color>";
-                    linkedToolController.UIFocusOnSecondaryHand = true;
                 }
                 else
                 {

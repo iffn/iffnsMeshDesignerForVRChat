@@ -49,14 +49,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         float desktopPickupDistanceMultiplier = 1;
         public bool emulateAlternativeInput;
 
-        public bool UIFocusOnSecondaryHand;
+        bool UIFocusOnSecondaryHand;
 
         #if inputDebug
             string inputs = "";
         #endif
 
         //Settings
-        public HandType PrimaryHand = HandType.RIGHT;
+        public HandType primaryHand = HandType.RIGHT;
+        public HandType PrimaryHand
+        {
+            get
+            {
+                return primaryHand;
+            }
+            set
+            {
+                primaryHand = value;
+                UIFocusOnSecondaryHand = !UIFocusOnSecondaryHand;
+            }
+        }
+
         public float vertexInteractionOffset = 0.05f;
 
         float vertexInteractionDistance = 0.01f;
@@ -190,7 +203,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             {
                 VRUI.gameObject.SetActive(InEditMode);
 
-                VRUI.Setup(EditTools.Length, this);
+                VRUI.Setup(EditTools.Length);
 
                 GameObject.Destroy(DesktopUI);
             }
@@ -200,7 +213,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
                 GameObject.Destroy(VRUI.gameObject);
             }
-
 
             buttons = new InteractionTypeSelectorButton[EditTools.Length];
             Transform holder = (isInVR ? VRUI.ButtonHolder : EditButtonHolderDesktop).transform;
@@ -504,10 +516,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             return linkedMeshEditor.GetClosestVertexInRadius(LocalInteractionPositionWithoutMirrorLineSnap, vertexInteractionDistance, ignoreVertex);
         }
 
-
-        //VRChat UI function calls>
-        
-
+        //VRChat UI function calls
         public void ExitEditMode()
         {
             linkedToolSettings.InEditMode = false;
@@ -518,6 +527,13 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         float lastInputUseTime = 0;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
+            bool UIFocusWasOnSecondaryHand = UIFocusOnSecondaryHand;
+
+            if (value && isInVR)
+            {
+                UIFocusOnSecondaryHand = args.handType != PrimaryHand;
+            }
+
             //Warning: Currently called twice, at least in desktop mode
             if (lastInputUseTime == Time.time) return; //VRChat being buggy VRChat https://vrchat.canny.io/vrchat-udon-closed-alpha-bugs/p/1275-inputuse-is-called-twice-per-mouse-click
             lastInputUseTime = Time.time;
@@ -534,11 +550,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
             if (args.handType != PrimaryHand) return; //Currently only one handed
 
-            if (UIFocusOnSecondaryHand)
-            {
-                UIFocusOnSecondaryHand = false;
-                return;
-            }
+            if (isInVR && UIFocusWasOnSecondaryHand && VRUI.ColliderEnabled) return; //Ignore input if UI focus is not on primary hand with VRUI enabled
 
             if (value)
             {
@@ -668,7 +680,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-
             if (VRUI.OverUIElement)
             {
                 #if inputDebug
@@ -728,6 +739,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
+            if (value && isInVR) UIFocusOnSecondaryHand = args.handType != PrimaryHand;
+
             useAndGrabAreTheSame = true;
 
             //Over UI check not needed since not interacting with UI
@@ -739,7 +752,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             if (value)
             {
                 InputDropDown();
-                UIFocusOnSecondaryHand = false;
             }
             else
             {
