@@ -26,13 +26,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         [SerializeField] Material DistanceMaterialReadyToRemove;
 
         [Header("Unity assingments VR")]
-        [SerializeField] Transform VRUI;
+        [SerializeField] VRToolController VRUI;
         [SerializeField] InteractionTypeSelectorButton ButtonTemplateVR;
-        [SerializeField] Transform VRUIButtonHolder;
         [SerializeField] Transform LinkedVRHandIndicator;
-        [SerializeField] GameObject EditButtonHolderVR;
-        [SerializeField] Text CurrentToolTextVR;
-        [SerializeField] RectTransform CanvasTransformVR;
 
         //Runtime variables
         readonly string distancePropertyName = "_BaseDistance";
@@ -45,7 +41,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         ToolSettings linkedToolSettings;
         VRCPlayerApi localPlayer;
         bool isInVR;
-        public bool OverUIElement = false;
+        
         Transform meshTransform;
         float armLengthInVR = 1;
         float lastUpdateTime;
@@ -53,8 +49,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         float desktopPickupDistanceMultiplier = 1;
         public bool emulateAlternativeInput;
 
-        Quaternion leftHandUIHandRotation = Quaternion.Euler(0, 90, 90);
-        Quaternion rightHandUIHandRotation = Quaternion.Euler(0, 90, 90);
+        public bool UIFocusOnSecondaryHand;
 
         #if inputDebug
             string inputs = "";
@@ -108,6 +103,9 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
                 if (isInVR)
                 {
                     VRUI.gameObject.SetActive(value);
+
+                    VRUI.ColliderEnabled = true;
+
                     LinkedVRHandIndicator.gameObject.SetActive(value);
                 }
                 else
@@ -129,12 +127,16 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
                 + $"• {nameof(lastUpdateTime)}: {lastUpdateTime:0.000}\n"
                 + $"• {nameof(buttons)}.length: {buttons.Length}\n"
                 + $"• {nameof(vertexInteractionDistance)}: {vertexInteractionDistance}\n"
-                + $"• {nameof(OverUIElement)}: {OverUIElement}\n"
                 + $"• {nameof(useAndGrabAreTheSame)}: {useAndGrabAreTheSame}\n"
                 + $"• {nameof(desktopPickupDistance)}: {desktopPickupDistance}\n";
-            
-            if (isInVR) returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
-            
+
+            if (isInVR)
+            {
+                returnString += $"• {nameof(PrimaryHand)}: {(PrimaryHand == HandType.RIGHT ? "Right" : "Left")}\n";
+                returnString += $"• {nameof(VRUI.OverUIElement)}: {VRUI.OverUIElement}\n";
+                returnString += $"• {nameof(UIFocusOnSecondaryHand)}: {UIFocusOnSecondaryHand}\n";
+            }
+
             returnString += $"• {nameof(inEditMode)}: {inEditMode}\n"
                 + $"• {nameof(currentEditTool)}: {(currentEditTool ? currentEditTool.name : "null")}\n"
                 + $"• {nameof(currentButton)}.{nameof(currentButton.LinkedTool)}.{nameof(currentButton.LinkedTool.name)}: {(currentButton ? currentButton.LinkedTool.name : "null")}\n"
@@ -153,6 +155,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
         public void Setup(ToolSettings linkedToolSettings, MeshEditor linkedMeshEditor, MeshInteractionInterface linkedInteractionInterface, Transform meshTransform)
         {
+
             lastUpdateTime = Time.time;
 
             this.linkedToolSettings = linkedToolSettings;
@@ -182,10 +185,27 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             }
 
             //Setup UI
+            
+            if (isInVR)
+            {
+                VRUI.gameObject.SetActive(InEditMode);
+
+                VRUI.Setup(EditTools.Length, this);
+
+                GameObject.Destroy(DesktopUI);
+            }
+            else
+            {
+                DesktopUI.SetActive(InEditMode);
+
+                GameObject.Destroy(VRUI.gameObject);
+            }
+
 
             buttons = new InteractionTypeSelectorButton[EditTools.Length];
-            Transform holder = (isInVR ? EditButtonHolderVR : EditButtonHolderDesktop).transform;
+            Transform holder = (isInVR ? VRUI.ButtonHolder : EditButtonHolderDesktop).transform;
             GameObject template = (isInVR ? ButtonTemplateVR : ButtonTemplateDesktop).gameObject;
+            
 
             for (int i = 0; i<EditTools.Length; i++)
             {
@@ -196,24 +216,6 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
                 button.Setup(this, EditTools[i]);
 
                 buttons[i] = button;
-            }
-
-            if (isInVR)
-            {
-                VRUI.gameObject.SetActive(InEditMode);
-                LinkedVRHandIndicator.gameObject.SetActive(InEditMode);
-
-                float buttonHeight = 1f / 3f;
-                CanvasTransformVR.sizeDelta = new Vector2(CanvasTransformVR.sizeDelta.x, CanvasTransformVR.sizeDelta.y + Mathf.Ceil(EditTools.Length / 3f) * buttonHeight);
-
-                GameObject.Destroy(DesktopUI);
-            }
-            else
-            {
-                DesktopUI.SetActive(InEditMode);
-
-                GameObject.Destroy(VRUI.gameObject);
-                GameObject.Destroy(LinkedVRHandIndicator.gameObject);
             }
         }
 
@@ -245,24 +247,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
                 armLengthInVR = (secondaryHandPosition - ellbowPosition).magnitude;
 
-                Quaternion playerRotation = localPlayer.GetRotation();
+                VRUI.UpdatePosition(localPlayer, PrimaryHand, secondaryHandPosition, armLengthInVR);
 
-                if (PrimaryHand == HandType.RIGHT)
-                {
-                    VRUI.SetPositionAndRotation(
-                        secondaryHandPosition + playerRotation * (armLengthInVR * 0.08f * Vector3.up),
-                        localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand).rotation * leftHandUIHandRotation);
-                }
-                else
-                {
-                    VRUI.SetPositionAndRotation(
-                        secondaryHandPosition + playerRotation * (armLengthInVR * 0.08f * Vector3.up),
-                        localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand).rotation * rightHandUIHandRotation);
-                }
-
-                VRUI.localScale = armLengthInVR * 0.5f * Vector3.one;
-
-                //Interaction position
                 LinkedVRHandIndicator.position = InteractionPosition;
                 LinkedVRHandIndicator.localScale = vertexInteractionDistance * 0.3f * Vector3.one;
             }
@@ -341,7 +327,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
             if (isInVR)
             {
-                CurrentToolTextVR.text = "Current tool = None";
+                VRUI.CurrentToolTextVR = "Current tool = None";
             }
             else
             {
@@ -393,7 +379,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
 
                     if (isInVR)
                     {
-                        CurrentToolTextVR.text = "Current tool = " + currentButton.LinkedTool.ToolName;
+                        VRUI.CurrentToolTextVR = "Current tool = " + currentButton.LinkedTool.ToolName;
                     }
                     else
                     {
@@ -519,16 +505,8 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         }
 
 
-        //VRChat UI function calls
-        public void CursorNowOverToolUI()
-        {
-            OverUIElement = true;
-        }
-
-        public void CursorNoLongerOverToolUI()
-        {
-            OverUIElement = false;
-        }
+        //VRChat UI function calls>
+        
 
         public void ExitEditMode()
         {
@@ -540,12 +518,11 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         float lastInputUseTime = 0;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
+            //Warning: Currently called twice, at least in desktop mode
             if (lastInputUseTime == Time.time) return; //VRChat being buggy VRChat https://vrchat.canny.io/vrchat-udon-closed-alpha-bugs/p/1275-inputuse-is-called-twice-per-mouse-click
             lastInputUseTime = Time.time;
 
-            //Warning: Currently called twice, at least in desktop mode: 
-
-            if (OverUIElement)
+            if (VRUI.OverUIElement)
             {
                 #if inputDebug
                     inputs += $"Input dismissed because over UI\n";
@@ -556,6 +533,12 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             if (!currentEditTool) return;
 
             if (args.handType != PrimaryHand) return; //Currently only one handed
+
+            if (UIFocusOnSecondaryHand)
+            {
+                UIFocusOnSecondaryHand = false;
+                return;
+            }
 
             if (value)
             {
@@ -686,7 +669,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
 
-            if (OverUIElement)
+            if (VRUI.OverUIElement)
             {
                 #if inputDebug
                     inputs += $"Input dismissed because over UI\n";
@@ -756,6 +739,7 @@ namespace iffnsStuff.iffnsVRCStuff.MeshDesigner
             if (value)
             {
                 InputDropDown();
+                UIFocusOnSecondaryHand = false;
             }
             else
             {
